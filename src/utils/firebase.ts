@@ -2,17 +2,26 @@ import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, remove } from "firebase/database";
 import { ShowcaseCard } from "../types";
 
+// ------------------------------------------------------------------
+// SECURE FIREBASE CONFIG
+// Values are loaded from .env file (VITE_FIREBASE_...)
+// ------------------------------------------------------------------
 const firebaseConfig = {
-   apiKey: "AIzaSyBAC4Kc6Sr_1PqfmaWb3Xjf67xFE-EMlyw",
-   authDomain: "procard-85e8c.firebaseapp.com",
-   databaseURL: "https://procard-85e8c-default-rtdb.firebaseio.com",
-   projectId: "procard-85e8c",
-   storageBucket: "procard-85e8c.firebasestorage.app",
-   messagingSenderId: "807835398510",
-   appId: "1:807835398510:web:7fb4d27378cc197f32917f"
+   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+   databaseURL: import.meta.env.VITE_FIREBASE_DB_URL,
+   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+   messagingSenderId: import.meta.env.VITE_FIREBASE_SENDER_ID,
+   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
+// Simple check to ensure keys are loaded
+if (!firebaseConfig.apiKey) {
+  console.error("Firebase Config Missing! Check your .env file variables.");
+}
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -33,7 +42,9 @@ export const subscribeToCards = (callback: (cards: ShowcaseCard[]) => void) => {
     const data = snapshot.val();
     if (data) {
       console.log("🔥 Data received:", Object.keys(data).length, "cards");
+      // Firebase stores data as an object of keys; convert to array
       const cardList = Object.values(data) as ShowcaseCard[];
+      // Sort by ID descending (newest first)
       callback(cardList.sort((a, b) => b.id - a.id));
     } else {
       console.log("🔥 Database is empty.");
