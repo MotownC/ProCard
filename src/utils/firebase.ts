@@ -4,29 +4,23 @@ import { ShowcaseCard } from "../types";
 
 // ------------------------------------------------------------------
 // SECURE FIREBASE CONFIG
-// Values are loaded from your .env file.
+// Using direct import.meta.env access for Vite production build safety
 // ------------------------------------------------------------------
-
-// Casting import.meta to any to avoid TypeScript error "Property 'env' does not exist on type 'ImportMeta'"
-const env = (import.meta as any).env;
-
 const firebaseConfig = {
-   apiKey: env.VITE_FIREBASE_API_KEY,
-   authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
-   databaseURL: env.VITE_FIREBASE_DB_URL,
-   projectId: env.VITE_FIREBASE_PROJECT_ID,
-   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
-   messagingSenderId: env.VITE_FIREBASE_SENDER_ID,
-   appId: env.VITE_FIREBASE_APP_ID
+   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+   databaseURL: import.meta.env.VITE_FIREBASE_DB_URL,
+   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+   messagingSenderId: import.meta.env.VITE_FIREBASE_SENDER_ID,
+   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
-// Simple check to ensure keys are loaded
 if (!firebaseConfig.apiKey) {
-  console.error("Firebase Config Missing! Check your .env file variables.");
+  console.error("Firebase Config Missing! Check Vercel Environment Variables.");
 }
 
-// FIX: Use direct named import instead of namespace import
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -46,8 +40,9 @@ export const subscribeToCards = (callback: (cards: ShowcaseCard[]) => void) => {
   return onValue(cardsRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      console.log("🔥 Data received:", Object.keys(data).length, "cards");
+      // Firebase stores data as an object of keys; convert to array
       const cardList = Object.values(data) as ShowcaseCard[];
+      // Sort by ID descending (newest first)
       callback(cardList.sort((a, b) => b.id - a.id));
     } else {
       console.log("🔥 Database is empty.");

@@ -3,7 +3,9 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   if (!cloudName || !uploadPreset) {
-    throw new Error("Cloudinary configuration missing in .env file");
+    console.error("Cloudinary config missing.");
+    alert("System Error: Cloudinary configuration missing.");
+    throw new Error("Cloudinary configuration missing");
   }
 
   const formData = new FormData();
@@ -20,11 +22,13 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
     );
 
     if (!response.ok) {
+      const err = await response.json();
+      console.error("Cloudinary Error:", err);
       throw new Error("Upload failed");
     }
 
     const data = await response.json();
-    return data.secure_url; // Returns the hosted HTTPS URL
+    return data.secure_url;
   } catch (error) {
     console.error("Cloudinary upload error:", error);
     throw error;
