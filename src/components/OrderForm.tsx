@@ -37,6 +37,36 @@ const OrderForm: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [enableGlow, setEnableGlow] = useState(false); 
   const [glowOpacity, setGlowOpacity] = useState(100);
+// Generate color variants for richer designs
+const getColorVariants = (hexColor: string) => {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  
+  // Generate lighter and darker variants
+  const lighten = (amount: number) => {
+    const nr = Math.min(255, r + amount);
+    const ng = Math.min(255, g + amount);
+    const nb = Math.min(255, b + amount);
+    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+  };
+  
+  const darken = (amount: number) => {
+    const nr = Math.max(0, r - amount);
+    const ng = Math.max(0, g - amount);
+    const nb = Math.max(0, b - amount);
+    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+  };
+  
+  return {
+    lighter2: lighten(80),
+    lighter1: lighten(40),
+    base: hexColor,
+    darker1: darken(40),
+    darker2: darken(80)
+  };
+};
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -90,100 +120,112 @@ const OrderForm: React.FC = () => {
     };
 
     const rng = (min: number, max: number) => Math.random() * (max - min) + min;
+// Generate color palettes
+const primaryPalette = getColorVariants(colors.primary);
+const secondaryPalette = getColorVariants(colors.secondary);
 
+// Helper to pick random variant from a palette
+const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number = 1) => {
+  const variants = [palette.lighter2, palette.lighter1, palette.base, palette.darker1, palette.darker2];
+  const chosen = variants[Math.floor(Math.random() * variants.length)];
+  return alpha < 1 ? hexToRgba(chosen, alpha) : chosen;
+};
     // --- GENERATORS ---
 
     if (backgroundStyle === 'shatter') {
-      // Dark base
-      const grad = ctx.createLinearGradient(0, 0, 320, 480);
-      grad.addColorStop(0, '#0f172a');
-      grad.addColorStop(1, '#020617');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 320, 480);
+  // Dark base
+  const grad = ctx.createLinearGradient(0, 0, 320, 480);
+  grad.addColorStop(0, '#0f172a');
+  grad.addColorStop(1, '#020617');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 320, 480);
 
-      // 1. Impact Web (Spiderweb cracks radiating from center)
+  // 1. Impact Web (Spiderweb cracks radiating from center)
+  ctx.beginPath();
+  const cx = 160;
+  const cy = 240;
+  // Radial lines
+  for(let i=0; i<24; i++) {
+      ctx.moveTo(cx, cy);
+      const angle = (i / 24) * Math.PI * 2 + rng(-0.1, 0.1);
+      const len = rng(150, 450);
+      // Zig zag cracks
+      let currX = cx; 
+      let currY = cy;
+      let currLen = 0;
+      while(currLen < len) {
+         currLen += rng(15, 40);
+         currX += Math.cos(angle) * rng(15,40) + rng(-3,3);
+         currY += Math.sin(angle) * rng(15,40) + rng(-3,3);
+         ctx.lineTo(currX, currY);
+      }
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Concentric cracks
+  for(let r=40; r<450; r+=40) {
       ctx.beginPath();
-      const cx = 160;
-      const cy = 240;
-      // Radial lines
-      for(let i=0; i<24; i++) {
-          ctx.moveTo(cx, cy);
-          const angle = (i / 24) * Math.PI * 2 + rng(-0.1, 0.1);
-          const len = rng(150, 450);
-          // Zig zag cracks
-          let currX = cx; 
-          let currY = cy;
-          let currLen = 0;
-          while(currLen < len) {
-             currLen += rng(15, 40);
-             currX += Math.cos(angle) * rng(15,40) + rng(-3,3);
-             currY += Math.sin(angle) * rng(15,40) + rng(-3,3);
-             ctx.lineTo(currX, currY);
-          }
+      for(let a=0; a<Math.PI*2; a+=0.4) {
+          const radius = r + rng(-15, 15);
+          const x = cx + Math.cos(a)*radius;
+          const y = cy + Math.sin(a)*radius;
+          ctx.lineTo(x,y);
       }
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-      ctx.lineWidth = 1;
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
       ctx.stroke();
+  }
 
-      // Concentric cracks
-      for(let r=40; r<450; r+=40) {
-          ctx.beginPath();
-          for(let a=0; a<Math.PI*2; a+=0.4) {
-              const radius = r + rng(-15, 15);
-              const x = cx + Math.cos(a)*radius;
-              const y = cy + Math.sin(a)*radius;
-              ctx.lineTo(x,y);
-          }
-          ctx.closePath();
-          ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-          ctx.stroke();
-      }
+  // 2. Background Shards (Darker/Distant) - Using color variants
+  for (let i = 0; i < 60; i++) {
+    ctx.beginPath();
+    const x = rng(0, 320);
+    const y = rng(0, 480);
+    const s = rng(15, 50);
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
+    ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
+    ctx.fillStyle = i % 2 === 0 
+      ? pickVariant(primaryPalette, 0.03) 
+      : pickVariant(secondaryPalette, 0.03);
+    ctx.fill();
+  }
 
-      // 2. Background Shards (Darker/Distant) - Increased Density
-      for (let i = 0; i < 60; i++) {
-        ctx.beginPath();
-        const x = rng(0, 320);
-        const y = rng(0, 480);
-        const s = rng(15, 50);
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
-        ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
-        ctx.fillStyle = i % 2 === 0 ? hexToRgba(colors.primary, 0.03) : hexToRgba(colors.secondary, 0.03);
-        ctx.fill();
-      }
+  // 3. Foreground High-Energy Shards - Using color variants
+  ctx.shadowBlur = 10;
+  for (let i = 0; i < 90; i++) {
+    ctx.beginPath();
+    const x = rng(-50, 370);
+    const y = rng(-50, 530);
+    
+    ctx.moveTo(x, y);
+    const s = rng(5, 70);
+    ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
+    ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
+    ctx.closePath();
 
-      // 3. Foreground High-Energy Shards - Increased Density & Sharpness
-      ctx.shadowBlur = 10;
-      for (let i = 0; i < 90; i++) {
-        ctx.beginPath();
-        const x = rng(-50, 370);
-        const y = rng(-50, 530);
-        
-        ctx.moveTo(x, y);
-        const s = rng(5, 70);
-        ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
-        ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
-        ctx.closePath();
+    const isPrimary = Math.random() > 0.4;
+    const palette = isPrimary ? primaryPalette : secondaryPalette;
+    ctx.fillStyle = pickVariant(palette, rng(0.1, 0.35));
+    ctx.shadowColor = isPrimary ? colors.primary : colors.secondary;
+    ctx.fill();
+    
+    // Highlight edges with variant
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = pickVariant(palette, 0.3);
+    ctx.stroke();
+  }
 
-        const isPrimary = Math.random() > 0.4;
-        ctx.fillStyle = hexToRgba(isPrimary ? colors.primary : colors.secondary, rng(0.1, 0.35));
-        ctx.shadowColor = isPrimary ? colors.primary : colors.secondary;
-        ctx.fill();
-        
-        // Highlight edges
-        ctx.lineWidth = 0.5;
-        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-        ctx.stroke();
-      }
-
-      // 4. Dust/Debris
-      for(let i=0; i<150; i++) {
-          ctx.beginPath();
-          ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
-          ctx.fillStyle = 'rgba(255,255,255,0.6)';
-          ctx.fill();
-      }
-    } 
+  // 4. Dust/Debris
+  for(let i=0; i<150; i++) {
+      ctx.beginPath();
+      ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fill();
+  }
+}
     else if (backgroundStyle === 'energy') {
       // Deep space background
       ctx.fillStyle = '#020617';
