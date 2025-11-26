@@ -35,6 +35,7 @@ const OrderForm: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [enableGlow, setEnableGlow] = useState(false); 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -680,6 +681,19 @@ const OrderForm: React.FC = () => {
               </div>
             </div>
 
+            {/* Image Glow Toggle */}
+<label className="flex items-center gap-2 mt-3 cursor-pointer group">
+  <input 
+    type="checkbox" 
+    checked={enableGlow}
+    onChange={(e) => setEnableGlow(e.target.checked)}
+    className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+  />
+  <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+    Add glow around player image
+  </span>
+</label>
+
             {/* Background Style Selector */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
@@ -763,15 +777,23 @@ const OrderForm: React.FC = () => {
               />
 
               {/* User Uploaded Image (Layered on top) */}
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover z-10 mix-blend-normal" />
-              ) : (
-                 <div className="absolute inset-0 flex items-center justify-center z-10">
-                    <p className="text-white/20 text-4xl font-black font-['Teko'] uppercase -rotate-12 select-none">
-                      {backgroundStyle}
-                    </p>
-                 </div>
-              )}
+              {/* User Uploaded Image (Layered on top) */}
+{imagePreview ? (
+  <img 
+    src={imagePreview} 
+    alt="Preview" 
+    className="absolute inset-0 w-full h-full object-cover z-10 mix-blend-normal" 
+    style={enableGlow ? {
+      filter: `drop-shadow(0 0 20px ${colors.primary}) drop-shadow(0 0 40px ${colors.primary})`
+    } : undefined}
+  />
+) : (
+  <div className="absolute inset-0 flex items-center justify-center z-10">
+    <p className="text-white/20 text-4xl font-black font-['Teko'] uppercase -rotate-12 select-none">
+      {backgroundStyle}
+    </p>
+  </div>
+)}
               
               {/* Effects Overlays (On top of image) */}
               <div 
