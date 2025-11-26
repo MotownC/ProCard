@@ -36,7 +36,7 @@ const OrderForm: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [enableGlow, setEnableGlow] = useState(false); 
-
+  const [glowOpacity, setGlowOpacity] = useState(100);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -682,17 +682,40 @@ const OrderForm: React.FC = () => {
             </div>
 
             {/* Image Glow Toggle */}
-<label className="flex items-center gap-2 mt-3 cursor-pointer group">
-  <input 
-    type="checkbox" 
-    checked={enableGlow}
-    onChange={(e) => setEnableGlow(e.target.checked)}
-    className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
-  />
-  <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-    Add glow around player image
-  </span>
-</label>
+<div className="space-y-3 mt-3">
+  <label className="flex items-center gap-2 cursor-pointer group">
+    <input 
+      type="checkbox" 
+      checked={enableGlow}
+      onChange={(e) => setEnableGlow(e.target.checked)}
+      className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+    />
+    <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+      Add glow around player image
+    </span>
+  </label>
+  
+  {/* Glow Intensity Slider */}
+  {enableGlow && (
+    <div className="pl-6 space-y-1">
+      <div className="flex items-center justify-between">
+        <label className="text-xs text-gray-400">Glow Intensity</label>
+        <span className="text-xs text-gray-300 font-mono">{glowOpacity}%</span>
+      </div>
+      <input 
+        type="range" 
+        min="0" 
+        max="100" 
+        value={glowOpacity}
+        onChange={(e) => setGlowOpacity(Number(e.target.value))}
+        className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700"
+        style={{
+          background: `linear-gradient(to right, ${colors.primary} 0%, ${colors.primary} ${glowOpacity}%, #334155 ${glowOpacity}%, #334155 100%)`
+        }}
+      />
+    </div>
+  )}
+</div>
 
             {/* Background Style Selector */}
             <div className="space-y-3">
@@ -784,7 +807,7 @@ const OrderForm: React.FC = () => {
     alt="Preview" 
     className="absolute inset-0 w-full h-full object-cover z-10 mix-blend-normal" 
     style={enableGlow ? {
-      filter: `drop-shadow(0 0 20px ${colors.primary}) drop-shadow(0 0 40px ${colors.primary})`
+      filter: `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${colors.primary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${colors.primary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
     } : undefined}
   />
 ) : (
