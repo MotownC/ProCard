@@ -547,7 +547,7 @@ const OrderForm: React.FC = () => {
   const getCssBackground = () => {
     switch (backgroundStyle) {
       case 'classic':
-        return { background: `linear-gradient(135deg, ${colors.primary} 0%, #0f172a 60%, ${colors.secondary} 100%)` };
+        return { background: `linear-gradient(135deg, ${colors.primary} 0%, #0f172a 45%, ${colors.secondary} 100%)` };
       case 'hex':
         return {
           backgroundColor: '#111',
