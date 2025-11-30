@@ -650,6 +650,8 @@ ctx.fillRect(0, 0, 320, 480);
   // Perspective Grid
   ctx.fillStyle = '#020617';
   ctx.fillRect(0, 0, 320, 480);
+  const horizonY = 280;
+
   // Top area elements (starfield and floating geometry)
 // Starfield background
 for(let i = 0; i < 80; i++) {
@@ -723,9 +725,7 @@ for(let i = 0; i < 5; i++) {
     ctx.lineTo(x, y2);
     ctx.stroke();
     ctx.shadowBlur = 0;
-}
-  const horizonY = 280;
-  
+}  
   // Horizon glow with color variants
   const grad = ctx.createLinearGradient(0, horizonY - 50, 0, horizonY + 80);
   grad.addColorStop(0, 'transparent');
