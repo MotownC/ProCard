@@ -6,6 +6,7 @@ import { generatePlayerBio } from '../services/geminiService';
 // Define the available background styles
 const BACKGROUND_STYLES = [
   { id: 'classic', name: 'Classic Fade', type: 'css' },
+  { id: 'classic-enhanced', name: 'Classic Enhanced', type: 'canvas' },
   { id: 'cyber', name: 'Cyber Grid', type: 'canvas' },
   { id: 'velocity', name: 'Velocity', type: 'canvas' },
   { id: 'hex', name: 'Hex Tech', type: 'css' },
@@ -225,6 +226,113 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
       ctx.fillStyle = 'rgba(255,255,255,0.6)';
       ctx.fill();
   }
+}
+else if (backgroundStyle === 'classic-enhanced') {
+  // Smooth base gradient
+  const baseGrad = ctx.createLinearGradient(0, 0, 320, 480);
+  baseGrad.addColorStop(0, primaryPalette.lighter1);
+  baseGrad.addColorStop(0.5, primaryPalette.base);
+  baseGrad.addColorStop(1, secondaryPalette.base);
+  ctx.fillStyle = baseGrad;
+  ctx.fillRect(0, 0, 320, 480);
+
+  // Radial overlay for depth
+  const radialGrad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
+  radialGrad.addColorStop(0, pickVariant(primaryPalette, 0.2));
+  radialGrad.addColorStop(0.5, 'transparent');
+  radialGrad.addColorStop(1, pickVariant(secondaryPalette, 0.3));
+  ctx.fillStyle = radialGrad;
+  ctx.fillRect(0, 0, 320, 480);
+
+  // Subtle diagonal brush strokes (painted texture)
+  ctx.globalAlpha = 0.15;
+  for(let i = 0; i < 40; i++) {
+    const x = rng(-100, 420);
+    const y = rng(-100, 580);
+    const length = rng(80, 200);
+    const angle = 135 * (Math.PI / 180) + rng(-0.3, 0.3);
+    const width = rng(15, 40);
+    
+    const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+    const strokeGrad = ctx.createLinearGradient(
+      x, y, 
+      x + Math.cos(angle) * length, 
+      y + Math.sin(angle) * length
+    );
+    strokeGrad.addColorStop(0, 'transparent');
+    strokeGrad.addColorStop(0.5, pickVariant(palette, 1));
+    strokeGrad.addColorStop(1, 'transparent');
+    
+    ctx.fillStyle = strokeGrad;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.fillRect(0, -width/2, length, width);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+
+  // Color banding (retro poster effect)
+  const bands = 6;
+  ctx.globalAlpha = 0.08;
+  for(let i = 0; i < bands; i++) {
+    const y = (480 / bands) * i;
+    const height = 480 / bands;
+    const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+    
+    ctx.fillStyle = pickVariant(palette, 1);
+    ctx.fillRect(0, y, 320, height);
+  }
+  ctx.globalAlpha = 1;
+
+  // Geometric accent shapes (low-poly style)
+  ctx.globalAlpha = 0.12;
+  for(let i = 0; i < 15; i++) {
+    ctx.beginPath();
+    const x = rng(0, 320);
+    const y = rng(0, 480);
+    const size = rng(30, 100);
+    const sides = Math.floor(rng(3, 6));
+    
+    for(let j = 0; j < sides; j++) {
+      const angle = (j / sides) * Math.PI * 2;
+      const px = x + Math.cos(angle) * size;
+      const py = y + Math.sin(angle) * size;
+      if(j === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    
+    const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+    ctx.fillStyle = pickVariant(palette, 1);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Light particles (bokeh effect)
+  for(let i = 0; i < 30; i++) {
+    const x = rng(0, 320);
+    const y = rng(0, 480);
+    const size = rng(2, 8);
+    const palette = i % 3 === 0 ? primaryPalette : secondaryPalette;
+    
+    const particleGrad = ctx.createRadialGradient(x, y, 0, x, y, size);
+    particleGrad.addColorStop(0, pickVariant(palette, 0.8));
+    particleGrad.addColorStop(1, 'transparent');
+    
+    ctx.fillStyle = particleGrad;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Fine texture overlay (film grain)
+  ctx.globalAlpha = 0.05;
+  for(let i = 0; i < 3000; i++) {
+    ctx.fillStyle = Math.random() > 0.5 ? '#ffffff' : '#000000';
+    ctx.fillRect(Math.random() * 320, Math.random() * 480, 1, 1);
+  }
+  ctx.globalAlpha = 1;
 }
     else if (backgroundStyle === 'energy') {
   // Deep space background
