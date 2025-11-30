@@ -439,38 +439,73 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
         }
     }
     else if (backgroundStyle === 'velocity') {
-      // Speed base
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(0, 0, 320, 480);
+  // Speed base
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, 320, 480);
 
-      for (let i = 0; i < 150; i++) {
-        const x = rng(-150, 470);
-        const y = rng(-150, 630);
-        const length = rng(50, 300);
-        const angle = 60 * (Math.PI / 180);
+  // Motion streaks with color variants
+  for (let i = 0; i < 150; i++) {
+    const x = rng(-150, 470);
+    const y = rng(-150, 630);
+    const length = rng(50, 300);
+    const angle = 60 * (Math.PI / 180);
 
-        const grad = ctx.createLinearGradient(x, y, x + Math.cos(angle)*length, y + Math.sin(angle)*length);
-        const color = i % 4 === 0 ? colors.secondary : colors.primary;
-        
-        grad.addColorStop(0, 'transparent');
-        grad.addColorStop(0.5, hexToRgba(color, rng(0.1, 0.8)));
-        grad.addColorStop(1, 'transparent');
+    const isPrimary = i % 3 !== 0; // More primary streaks
+    const palette = isPrimary ? primaryPalette : secondaryPalette;
+    const streakColor = pickVariant(palette, 1);
 
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = rng(1, 3);
-        ctx.stroke();
-      }
-      
-      for(let i=0; i<50; i++){
-          ctx.beginPath();
-          ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
+    const grad = ctx.createLinearGradient(x, y, x + Math.cos(angle)*length, y + Math.sin(angle)*length);
+    
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(0.5, pickVariant(palette, rng(0.2, 0.8)));
+    grad.addColorStop(1, 'transparent');
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = rng(1, 3);
+    ctx.stroke();
+  }
+  
+  // Speed particles with color tints
+  for(let i=0; i<50; i++){
+      ctx.beginPath();
+      ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
+      // Mix white with occasional color variants
+      if(Math.random() > 0.7) {
+          const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+          ctx.fillStyle = pickVariant(palette, 0.8);
+      } else {
           ctx.fillStyle = '#fff';
-          ctx.fill();
       }
-    }
+      ctx.fill();
+  }
+  
+  // Add some glowing speed trails with color cores
+  for(let i=0; i<12; i++) {
+      const x = rng(0, 320);
+      const y = rng(0, 480);
+      const length = rng(100, 250);
+      const angle = 60 * (Math.PI / 180);
+      const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      
+      const trailGrad = ctx.createLinearGradient(x, y, x + Math.cos(angle)*length, y + Math.sin(angle)*length);
+      trailGrad.addColorStop(0, pickVariant(palette, 0.6));
+      trailGrad.addColorStop(0.3, pickVariant(palette, 0.4));
+      trailGrad.addColorStop(1, 'transparent');
+      
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+      ctx.strokeStyle = trailGrad;
+      ctx.lineWidth = rng(3, 6);
+      ctx.lineCap = 'round';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = pickVariant(palette, 0.8);
+      ctx.stroke();
+  }
+}
     else if (backgroundStyle === 'cyber') {
       // Perspective Grid
       ctx.fillStyle = '#020617';
