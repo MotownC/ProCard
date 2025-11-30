@@ -3,6 +3,35 @@ import { Upload, Sparkles, Wand2, AlertCircle, CheckCircle, Layers } from 'lucid
 import { PlayerDetails } from '../types';
 import { generatePlayerBio } from '../services/geminiService';
 
+// Generate color variants for richer designs
+  const getColorVariants = (hexColor: string) => {
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    
+    const lighten = (amount: number) => {
+      const nr = Math.min(255, r + amount);
+      const ng = Math.min(255, g + amount);
+      const nb = Math.min(255, b + amount);
+      return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+    };
+    
+    const darken = (amount: number) => {
+      const nr = Math.max(0, r - amount);
+      const ng = Math.max(0, g - amount);
+      const nb = Math.max(0, b - amount);
+      return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+    };
+    
+    return {
+      lighter2: lighten(80),
+      lighter1: lighten(40),
+      base: hexColor,
+      darker1: darken(40),
+      darker2: darken(80)
+    };
+  };
+  
 // Define the available background styles
 const BACKGROUND_STYLES = [
   { id: 'classic', name: 'Classic Fade', type: 'css' },
@@ -92,35 +121,6 @@ const OrderForm: React.FC = () => {
   };
 
   const rng = (min: number, max: number) => Math.random() * (max - min) + min;
-
-  // Generate color variants for richer designs
-  const getColorVariants = (hexColor: string) => {
-    const r = parseInt(hexColor.slice(1, 3), 16);
-    const g = parseInt(hexColor.slice(3, 5), 16);
-    const b = parseInt(hexColor.slice(5, 7), 16);
-    
-    const lighten = (amount: number) => {
-      const nr = Math.min(255, r + amount);
-      const ng = Math.min(255, g + amount);
-      const nb = Math.min(255, b + amount);
-      return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
-    };
-    
-    const darken = (amount: number) => {
-      const nr = Math.max(0, r - amount);
-      const ng = Math.max(0, g - amount);
-      const nb = Math.max(0, b - amount);
-      return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
-    };
-    
-    return {
-      lighter2: lighten(80),
-      lighter1: lighten(40),
-      base: hexColor,
-      darker1: darken(40),
-      darker2: darken(80)
-    };
-  };
 
   // Generate color palettes
   const primaryPalette = getColorVariants(colors.primary);
