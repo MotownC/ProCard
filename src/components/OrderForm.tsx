@@ -228,14 +228,6 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = 'rgba(255,255,255,0.6)';
       ctx.fill();
   }
-}
-// 4. Dust/Debris
-  for(let i=0; i<150; i++) {
-      ctx.beginPath();
-      ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.fill();
-  }
 } // <-- End of shatter block
 
 // --- FOREGROUND SHATTER LAYER (Option 3: Particle Debris) ---
