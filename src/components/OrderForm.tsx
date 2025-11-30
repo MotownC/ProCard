@@ -310,134 +310,163 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
   }
 }
     else if (backgroundStyle === 'splatter') {
-        // 1. Concrete/Grunge Wall Base
-        const gradient = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
-        gradient.addColorStop(0, '#2a2a2a');
-        gradient.addColorStop(1, '#050505'); 
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 320, 480);
+    // 1. Concrete/Grunge Wall Base
+    const gradient = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
+    gradient.addColorStop(0, '#2a2a2a');
+    gradient.addColorStop(1, '#050505'); 
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 320, 480);
 
-        // Add Noise Texture
-        for(let i=0; i<8000; i++) {
-            ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.2)';
-            ctx.fillRect(Math.random() * 320, Math.random() * 480, 1.5, 1.5);
-        }
-
-        // Helper: Explosive Paintball Splat
-        const drawPaintball = (cx: number, cy: number, radius: number, color: string) => {
-            ctx.fillStyle = color;
-            
-            // Core Impact (Irregular Blob)
-            ctx.beginPath();
-            for(let i=0; i<Math.PI*2; i+=0.1) {
-                const r = radius * (0.7 + Math.random() * 0.6); 
-                ctx.lineTo(cx + Math.cos(i)*r, cy + Math.sin(i)*r);
-            }
-            ctx.fill();
-
-            // High velocity spray rays
-            const rays = 15 + Math.random() * 20;
-            for(let i=0; i<rays; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const len = radius * (3 + Math.random() * 6); // Very long streaks
-                
-                ctx.beginPath();
-                // Start near center
-                ctx.moveTo(cx + Math.cos(angle)*radius*0.5, cy + Math.sin(angle)*radius*0.5);
-                const endx = cx + Math.cos(angle) * len;
-                const endy = cy + Math.sin(angle) * len;
-                
-                // Tapered line
-                ctx.lineTo(endx, endy);
-                ctx.lineTo(cx + Math.cos(angle + 0.15)*radius*0.5, cy + Math.sin(angle + 0.15)*radius*0.5);
-                ctx.fill();
-            }
-
-            // Satellite Droplets
-            const droplets = 40 + Math.random() * 50;
-            for(let i=0; i<droplets; i++) {
-                const dist = radius * (1.5 + Math.random() * 6);
-                const angle = Math.random() * Math.PI * 2;
-                const size = Math.random() * (radius * 0.25);
-                
-                ctx.beginPath();
-                ctx.arc(cx + Math.cos(angle)*dist, cy + Math.sin(angle)*dist, size, 0, Math.PI*2);
-                ctx.fill();
-            }
-        };
-
-        // Helper: Aggressive Brush Stroke
-        const drawPowerStroke = (x1: number, y1: number, x2: number, y2: number, color: string, thickness: number) => {
-            const dx = x2 - x1;
-            const dy = y2 - y1;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            const angle = Math.atan2(dy, dx);
-            
-            ctx.save();
-            ctx.translate(x1, y1);
-            ctx.rotate(angle);
-            
-            // Draw many "bristles" lines
-            const bristles = thickness * 3;
-            for(let i=0; i<bristles; i++) {
-                const offset = (Math.random() - 0.5) * thickness;
-                const lengthFactor = 0.5 + Math.random() * 0.7; 
-                const currentLen = dist * lengthFactor;
-                
-                ctx.globalAlpha = 0.4 + Math.random() * 0.6;
-                ctx.lineWidth = 0.5 + Math.random() * 2.5;
-                ctx.strokeStyle = color;
-
-                ctx.beginPath();
-                ctx.moveTo(0, offset);
-                // Slight curve to simulate wrist motion and bristle drag
-                ctx.bezierCurveTo(
-                    currentLen * 0.3, offset + rng(-15, 15),
-                    currentLen * 0.7, offset + rng(-30, 30),
-                    currentLen, offset + rng(-10, 10)
-                );
-                ctx.stroke();
-            }
-            ctx.restore();
-        };
-
-        // LAYOUT GENERATION
-        
-        // 1. Background Power Strokes
-        drawPowerStroke(-80, 80, 380, 450, hexToRgba(colors.secondary, 0.35), 140);
-        drawPowerStroke(380, -80, -80, 520, hexToRgba(colors.primary, 0.25), 160);
-
-        // 2. Main Paintball Impacts (Cluster around player area)
-        for(let i=0; i<7; i++) {
-            const x = rng(40, 280);
-            const y = rng(80, 400);
-            const color = Math.random() > 0.4 ? colors.primary : colors.secondary;
-            drawPaintball(x, y, rng(10, 30), color);
-        }
-        
-        // 3. White contrast splatters (Highlights)
-        drawPaintball(rng(20,300), rng(20,460), rng(4, 12), '#ffffff');
-        drawPaintball(rng(20,300), rng(20,460), rng(4, 12), '#ffffff');
-        drawPaintball(rng(20,300), rng(20,460), rng(4, 12), '#ffffff');
-
-        // 4. Foreground Swipe (Across the bottom/middle)
-        drawPowerStroke(-40, 320, 360, 240, hexToRgba(colors.primary, 0.85), 50);
-        
-        // 5. Drips (Gravity)
-        for(let i=0; i<15; i++) {
-            const x = rng(0, 320);
-            const y = rng(0, 400);
-            const w = rng(1.5, 4);
-            const h = rng(60, 180);
-            
-            ctx.fillStyle = Math.random()>0.5 ? colors.primary : colors.secondary;
-            ctx.globalAlpha = 0.9;
-            ctx.beginPath();
-            ctx.rect(x, y, w, h);
-            ctx.arc(x + w/2, y + h, w, 0, Math.PI*2); // Drop at end
-            ctx.fill();
-        }
+    // Add Noise Texture
+    for(let i=0; i<8000; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.2)';
+        ctx.fillRect(Math.random() * 320, Math.random() * 480, 1.5, 1.5);
     }
+
+    // Helper: Explosive Paintball Splat with color variants
+    const drawPaintball = (cx: number, cy: number, radius: number, palette: ReturnType<typeof getColorVariants>) => {
+        const color = pickVariant(palette, 1);
+        ctx.fillStyle = color;
+        
+        // Core Impact (Irregular Blob)
+        ctx.beginPath();
+        for(let i=0; i<Math.PI*2; i+=0.1) {
+            const r = radius * (0.7 + Math.random() * 0.6); 
+            ctx.lineTo(cx + Math.cos(i)*r, cy + Math.sin(i)*r);
+        }
+        ctx.fill();
+
+        // High velocity spray rays with slight color variation
+        const rays = 15 + Math.random() * 20;
+        for(let i=0; i<rays; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const len = radius * (3 + Math.random() * 6);
+            
+            ctx.fillStyle = pickVariant(palette, rng(0.7, 1));
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(angle)*radius*0.5, cy + Math.sin(angle)*radius*0.5);
+            const endx = cx + Math.cos(angle) * len;
+            const endy = cy + Math.sin(angle) * len;
+            
+            ctx.lineTo(endx, endy);
+            ctx.lineTo(cx + Math.cos(angle + 0.15)*radius*0.5, cy + Math.sin(angle + 0.15)*radius*0.5);
+            ctx.fill();
+        }
+
+        // Satellite Droplets with color variants
+        const droplets = 40 + Math.random() * 50;
+        for(let i=0; i<droplets; i++) {
+            const dist = radius * (1.5 + Math.random() * 6);
+            const angle = Math.random() * Math.PI * 2;
+            const size = Math.random() * (radius * 0.25);
+            
+            ctx.fillStyle = pickVariant(palette, rng(0.6, 1));
+            ctx.beginPath();
+            ctx.arc(cx + Math.cos(angle)*dist, cy + Math.sin(angle)*dist, size, 0, Math.PI*2);
+            ctx.fill();
+        }
+    };
+
+    // Helper: Aggressive Brush Stroke with color variants
+    const drawPowerStroke = (x1: number, y1: number, x2: number, y2: number, palette: ReturnType<typeof getColorVariants>, thickness: number) => {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const angle = Math.atan2(dy, dx);
+        
+        ctx.save();
+        ctx.translate(x1, y1);
+        ctx.rotate(angle);
+        
+        // Draw many "bristles" lines with color variants
+        const bristles = thickness * 3;
+        for(let i=0; i<bristles; i++) {
+            const offset = (Math.random() - 0.5) * thickness;
+            const lengthFactor = 0.5 + Math.random() * 0.7; 
+            const currentLen = dist * lengthFactor;
+            
+            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+            ctx.lineWidth = 0.5 + Math.random() * 2.5;
+            ctx.strokeStyle = pickVariant(palette, 1);
+
+            ctx.beginPath();
+            ctx.moveTo(0, offset);
+            ctx.bezierCurveTo(
+                currentLen * 0.3, offset + rng(-15, 15),
+                currentLen * 0.7, offset + rng(-30, 30),
+                currentLen, offset + rng(-10, 10)
+            );
+            ctx.stroke();
+        }
+        ctx.restore();
+    };
+
+    // LAYOUT GENERATION
+    
+    // 1. Background Power Strokes - using color variants
+    drawPowerStroke(-80, 80, 380, 450, secondaryPalette, 140);
+    drawPowerStroke(380, -80, -80, 520, primaryPalette, 160);
+
+    // 2. Main Paintball Impacts (Cluster around player area) - using palettes
+    for(let i=0; i<7; i++) {
+        const x = rng(40, 280);
+        const y = rng(80, 400);
+        const palette = Math.random() > 0.4 ? primaryPalette : secondaryPalette;
+        drawPaintball(x, y, rng(10, 30), palette);
+    }
+    
+    // 3. White contrast splatters (Highlights) - keep white but add some subtle tints
+    for(let i=0; i<3; i++) {
+        const x = rng(20, 300);
+        const y = rng(20, 460);
+        const size = rng(4, 12);
+        
+        // Occasionally tint white with color variants
+        if(Math.random() > 0.6) {
+            const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+            ctx.fillStyle = pickVariant(palette, 0.3);
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = pickVariant(palette, 0.6);
+        } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = '#ffffff';
+        }
+        
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+
+    // 4. Foreground Swipe (Across the bottom/middle) - using primary palette
+    drawPowerStroke(-40, 320, 360, 240, primaryPalette, 50);
+    
+    // 5. Drips (Gravity) - using color variants
+    for(let i=0; i<15; i++) {
+        const x = rng(0, 320);
+        const y = rng(0, 400);
+        const w = rng(1.5, 4);
+        const h = rng(60, 180);
+        
+        const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+        ctx.fillStyle = pickVariant(palette, rng(0.7, 1));
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.arc(x + w/2, y + h, w, 0, Math.PI*2); // Drop at end
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+    
+    // 6. Add some accent splatter spots with mixed variants
+    for(let i=0; i<5; i++) {
+        const x = rng(20, 300);
+        const y = rng(20, 460);
+        const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+        drawPaintball(x, y, rng(5, 15), palette);
+    }
+}
     else if (backgroundStyle === 'velocity') {
   // Speed base
   ctx.fillStyle = '#0f172a';
@@ -507,137 +536,221 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
   }
 }
     else if (backgroundStyle === 'cyber') {
-      // Perspective Grid
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(0, 0, 320, 480);
+  // Perspective Grid
+  ctx.fillStyle = '#020617';
+  ctx.fillRect(0, 0, 320, 480);
 
-      const horizonY = 280;
-      const grad = ctx.createLinearGradient(0, horizonY - 50, 0, horizonY + 80);
-      grad.addColorStop(0, 'transparent');
-      grad.addColorStop(0.4, hexToRgba(colors.secondary, 0.8));
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, horizonY - 50, 320, 130);
+  const horizonY = 280;
+  
+  // Horizon glow with color variants
+  const grad = ctx.createLinearGradient(0, horizonY - 50, 0, horizonY + 80);
+  grad.addColorStop(0, 'transparent');
+  grad.addColorStop(0.3, pickVariant(secondaryPalette, 0.6));
+  grad.addColorStop(0.5, pickVariant(secondaryPalette, 0.9));
+  grad.addColorStop(0.7, pickVariant(secondaryPalette, 0.6));
+  grad.addColorStop(1, 'transparent');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, horizonY - 50, 320, 130);
 
-      ctx.strokeStyle = hexToRgba(colors.primary, 0.6);
-      ctx.lineWidth = 1;
+  const centerX = 160;
+  
+  // Vertical grid lines with color variants
+  ctx.lineWidth = 1;
+  ctx.lineCap = 'round';
+  
+  for (let x = -400; x <= 720; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 480);
+      ctx.lineTo(centerX + (x - centerX) * 0.15, horizonY);
+      
+      // Vary color per line
+      const palette = Math.abs(x - centerX) < 160 ? primaryPalette : secondaryPalette;
+      const lineColor = pickVariant(palette, rng(0.5, 0.8));
+      ctx.strokeStyle = lineColor;
       ctx.shadowBlur = 8;
-      ctx.shadowColor = colors.primary;
+      ctx.shadowColor = lineColor;
+      ctx.stroke();
+  }
 
-      const centerX = 160;
-      for (let x = -400; x <= 720; x += 40) {
-          ctx.beginPath();
-          ctx.moveTo(x, 480);
-          ctx.lineTo(centerX + (x - centerX) * 0.15, horizonY);
-          ctx.stroke();
+  // Horizontal grid lines with color variants
+  let y = 480;
+  let lineCount = 0;
+  while (y > horizonY + 5) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(320, y);
+      
+      // Alternate and vary colors
+      const palette = lineCount % 3 === 0 ? primaryPalette : secondaryPalette;
+      const lineColor = pickVariant(palette, rng(0.4, 0.7));
+      ctx.strokeStyle = lineColor;
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = lineColor;
+      ctx.stroke();
+      
+      const dist = y - horizonY;
+      const step = Math.max(2, dist * 0.2); 
+      y -= step;
+      lineCount++;
+  }
+  
+  // Sun with color variants
+  const sunGrad = ctx.createLinearGradient(0, horizonY - 80, 0, horizonY + 20);
+  sunGrad.addColorStop(0, pickVariant(secondaryPalette, 1));
+  sunGrad.addColorStop(0.3, pickVariant(secondaryPalette, 0.9));
+  sunGrad.addColorStop(0.6, pickVariant(primaryPalette, 0.7));
+  sunGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = sunGrad;
+  ctx.shadowBlur = 40;
+  ctx.shadowColor = pickVariant(secondaryPalette, 0.8);
+  ctx.beginPath();
+  ctx.arc(160, horizonY - 30, 50, 0, Math.PI, true);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  
+  // Add glowing grid intersections
+  for(let gx = -360; gx <= 680; gx += 80) {
+      for(let gy = 480; gy > horizonY + 20; gy -= 40) {
+          if(Math.random() > 0.7) {
+              const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+              const glowColor = pickVariant(palette, rng(0.6, 1));
+              
+              ctx.beginPath();
+              ctx.arc(gx, gy, rng(2, 4), 0, Math.PI * 2);
+              ctx.fillStyle = glowColor;
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = glowColor;
+              ctx.fill();
+              ctx.shadowBlur = 0;
+          }
       }
+  }
+  
+  // Add floating data particles
+  for(let i=0; i<20; i++) {
+      const x = rng(0, 320);
+      const y = rng(horizonY - 100, horizonY + 50);
+      const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      const particleColor = pickVariant(palette, rng(0.7, 1));
+      
+      ctx.fillStyle = particleColor;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = particleColor;
+      ctx.fillRect(x, y, rng(1, 3), rng(1, 3));
+      ctx.shadowBlur = 0;
+  }
+}
+    else if (backgroundStyle === 'hurricane') {
+  // Stormy base
+  const grad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
+  grad.addColorStop(0, '#0f172a');
+  grad.addColorStop(1, '#020617');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 320, 480);
 
-      let y = 480;
-      while (y > horizonY + 5) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(320, y);
-          ctx.stroke();
-          const dist = y - horizonY;
-          const step = Math.max(2, dist * 0.2); 
-          y -= step;
+  // Spiral Center Glow - use primary palette
+  const eye = ctx.createRadialGradient(160, 240, 5, 160, 240, 50);
+  eye.addColorStop(0, pickVariant(primaryPalette, 0.4));
+  eye.addColorStop(0.5, pickVariant(primaryPalette, 0.2));
+  eye.addColorStop(1, 'transparent');
+  ctx.fillStyle = eye;
+  ctx.fillRect(0, 0, 320, 480);
+
+  const cx = 160;
+  const cy = 240;
+  const maxR = 400;
+
+  // 1. Draw Cloud Wall Particles (Dense) - with color variants
+  for(let i=0; i<500; i++) {
+      const r = rng(20, maxR);
+      const theta = rng(0, Math.PI*2);
+      const x = cx + Math.cos(theta) * r;
+      const y = cy + Math.sin(theta) * r;
+      
+      ctx.beginPath();
+      ctx.arc(x, y, rng(5, 25), 0, Math.PI*2);
+      
+      const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      const alpha = 0.02 + (1 - r/maxR) * 0.06;
+      ctx.fillStyle = pickVariant(palette, alpha);
+      ctx.fill();
+  }
+
+  // 2. Draw Swirling Arms (More defined) - with color variants
+  for (let i = 0; i < 700; i++) {
+    const r = Math.pow(Math.random(), 0.7) * maxR;
+    const armIndex = i % 3;
+    const spiralOffset = r * 0.025;
+    const theta = (armIndex * (Math.PI * 2 / 3)) + spiralOffset + (Math.random() - 0.5) * 0.6;
+
+    const x = cx + Math.cos(theta) * r;
+    const y = cy + Math.sin(theta) * r;
+
+    const trailTheta = theta - 0.2;
+    const tx = cx + Math.cos(trailTheta) * (r + 5); 
+    const ty = cy + Math.sin(trailTheta) * (r + 5);
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + (tx-x)/2, y + (ty-y)/2, tx, ty);
+    
+    const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+    ctx.strokeStyle = pickVariant(palette, rng(0.2, 0.6));
+    
+    ctx.lineWidth = rng(0.5, 3);
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+
+  // 3. Storm Lightning (Crackles inside the arms) - with color variants
+  for(let i=0; i<12; i++) {
+      const r = rng(40, 250);
+      const armIndex = i % 3;
+      const spiralOffset = r * 0.025;
+      const theta = (armIndex * (Math.PI * 2 / 3)) + spiralOffset + rng(-0.2, 0.2);
+      
+      const x = cx + Math.cos(theta) * r;
+      const y = cy + Math.sin(theta) * r;
+      
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      // Jagged bolt
+      let currX = x, currY = y;
+      for(let j=0; j<6; j++) {
+         currX += rng(-15, 15);
+         currY += rng(-15, 15);
+         ctx.lineTo(currX, currY);
       }
       
-      const sunGrad = ctx.createLinearGradient(0, horizonY - 80, 0, horizonY + 20);
-      sunGrad.addColorStop(0, colors.secondary);
-      sunGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = sunGrad;
+      const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      const boltColor = pickVariant(palette, 1);
+      
+      ctx.strokeStyle = boltColor;
+      ctx.lineWidth = 1.5;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = boltColor;
+      ctx.stroke();
+  }
+  
+  // 4. Add energized storm cores with variant glows
+  for(let i=0; i<6; i++) {
+      const r = rng(80, 200);
+      const theta = rng(0, Math.PI * 2);
+      const x = cx + Math.cos(theta) * r;
+      const y = cy + Math.sin(theta) * r;
+      
+      const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      const coreGlow = ctx.createRadialGradient(x, y, 0, x, y, 40);
+      coreGlow.addColorStop(0, pickVariant(palette, 0.6));
+      coreGlow.addColorStop(0.5, pickVariant(palette, 0.3));
+      coreGlow.addColorStop(1, 'transparent');
+      
+      ctx.fillStyle = coreGlow;
       ctx.beginPath();
-      ctx.arc(160, horizonY - 30, 50, 0, Math.PI, true);
+      ctx.arc(x, y, 40, 0, Math.PI * 2);
       ctx.fill();
-    }
-    else if (backgroundStyle === 'hurricane') {
-      // Stormy base
-      const grad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
-      grad.addColorStop(0, '#0f172a');
-      grad.addColorStop(1, '#020617');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 320, 480);
-
-      // Spiral Center Glow
-      const eye = ctx.createRadialGradient(160, 240, 5, 160, 240, 50);
-      eye.addColorStop(0, hexToRgba(colors.primary, 0.3));
-      eye.addColorStop(1, 'transparent');
-      ctx.fillStyle = eye;
-      ctx.fillRect(0, 0, 320, 480);
-
-      const cx = 160;
-      const cy = 240;
-      const maxR = 400;
-
-      // 1. Draw Cloud Wall Particles (Dense)
-      for(let i=0; i<500; i++) {
-          const r = rng(20, maxR); // Start closer to eye
-          const theta = rng(0, Math.PI*2);
-          const x = cx + Math.cos(theta) * r;
-          const y = cy + Math.sin(theta) * r;
-          
-          ctx.beginPath();
-          ctx.arc(x, y, rng(5, 25), 0, Math.PI*2);
-          // Vary opacity based on distance to create depth
-          const alpha = 0.02 + (1 - r/maxR) * 0.06;
-          ctx.fillStyle = hexToRgba(i%2===0 ? colors.primary : colors.secondary, alpha);
-          ctx.fill();
-      }
-
-      // 2. Draw Swirling Arms (More defined)
-      for (let i = 0; i < 700; i++) {
-        const r = Math.pow(Math.random(), 0.7) * maxR;
-        const armIndex = i % 3;
-        const spiralOffset = r * 0.025; // Tighter spiral
-        const theta = (armIndex * (Math.PI * 2 / 3)) + spiralOffset + (Math.random() - 0.5) * 0.6;
-
-        const x = cx + Math.cos(theta) * r;
-        const y = cy + Math.sin(theta) * r;
-
-        const trailTheta = theta - 0.2;
-        const tx = cx + Math.cos(trailTheta) * (r + 5); 
-        const ty = cy + Math.sin(trailTheta) * (r + 5);
-
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.quadraticCurveTo(x + (tx-x)/2, y + (ty-y)/2, tx, ty);
-        
-        ctx.strokeStyle = Math.random() > 0.6 
-            ? hexToRgba(colors.primary, rng(0.2, 0.6)) 
-            : hexToRgba(colors.secondary, rng(0.2, 0.6));
-        
-        ctx.lineWidth = rng(0.5, 3);
-        ctx.lineCap = 'round';
-        ctx.stroke();
-      }
-
-      // 3. Storm Lightning (Crackles inside the arms)
-      for(let i=0; i<12; i++) {
-          const r = rng(40, 250);
-          const armIndex = i % 3;
-          const spiralOffset = r * 0.025;
-          const theta = (armIndex * (Math.PI * 2 / 3)) + spiralOffset + rng(-0.2, 0.2);
-          
-          const x = cx + Math.cos(theta) * r;
-          const y = cy + Math.sin(theta) * r;
-          
-          ctx.beginPath();
-          ctx.moveTo(x,y);
-          // Jagged bolt
-          let currX = x, currY = y;
-          for(let j=0; j<6; j++) {
-             currX += rng(-15, 15);
-             currY += rng(-15, 15);
-             ctx.lineTo(currX, currY);
-          }
-          ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 1.5;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = colors.primary;
-          ctx.stroke();
-      }
-    }
+  }
+}
 
   }, [backgroundStyle, colors]);
 
@@ -646,7 +759,16 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
   const getCssBackground = () => {
     switch (backgroundStyle) {
       case 'classic':
-        return { background: `linear-gradient(135deg, ${colors.primary} 0%, #0f172a 45%, ${colors.secondary} 100%)` };
+  const midColor1 = getColorVariants(colors.primary).darker1;
+  const midColor2 = getColorVariants(colors.secondary).lighter1;
+  
+  return { 
+    background: `linear-gradient(135deg, 
+      ${colors.primary} 0%, 
+      ${midColor1} 25%,
+      ${midColor2} 75%,
+      ${colors.secondary} 100%)`
+  };
       case 'hex':
         return {
           backgroundColor: '#111',
