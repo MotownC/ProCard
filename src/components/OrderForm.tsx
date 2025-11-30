@@ -31,7 +31,7 @@ import { generatePlayerBio } from '../services/geminiService';
       darker2: darken(80)
     };
   };
-  
+
 // Define the available background styles
 const BACKGROUND_STYLES = [
   { id: 'classic', name: 'Classic Fade', type: 'css' },
@@ -337,7 +337,7 @@ ctx.fillRect(0, 0, 320, 480);
   }
   ctx.globalAlpha = 1;
 }
-    else if (backgroundStyle === 'energy') {
+  else if (backgroundStyle === 'energy') {
   // Deep space background
   ctx.fillStyle = '#020617';
   ctx.fillRect(0, 0, 320, 480);
@@ -385,14 +385,18 @@ ctx.fillRect(0, 0, 320, 480);
     }
   };
 
-  // Main Bolts - use primary palette
-  drawBolt(160, 0, 160, 480, 3, primaryPalette);
-  drawBolt(50, 0, 100, 480, 2, primaryPalette);
-  drawBolt(270, 0, 220, 480, 2, primaryPalette);
+  // Main Bolts - diagonal and crossing patterns
+  drawBolt(-50, 0, 220, 480, 3, primaryPalette);           // Diagonal left to right
+  drawBolt(370, 0, 100, 480, 3, primaryPalette);           // Diagonal right to left
+  drawBolt(50, -50, 160, 300, 2.5, secondaryPalette);      // Top left angled
+  drawBolt(270, -50, 160, 300, 2.5, secondaryPalette);     // Top right angled
+  drawBolt(160, 180, 20, 480, 2, primaryPalette);          // Center to bottom left
+  drawBolt(160, 180, 300, 480, 2, primaryPalette);         // Center to bottom right
   
-  // Additional secondary color bolts
-  drawBolt(100, 0, 160, 480, 2, secondaryPalette);
-  drawBolt(220, 0, 160, 480, 2, secondaryPalette);
+  // Additional dramatic crossing bolts
+  drawBolt(0, 240, 320, 240, 2, secondaryPalette);         // Horizontal across middle
+  drawBolt(160, 0, 80, 480, 2.5, primaryPalette);          // Slight diagonal
+  drawBolt(160, 0, 240, 480, 2.5, secondaryPalette);       // Opposite diagonal
 
   // Static Particles - mix of both palettes
   for(let i=0; i<60; i++) {
