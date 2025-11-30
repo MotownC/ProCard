@@ -229,12 +229,14 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
 }
 else if (backgroundStyle === 'classic-enhanced') {
   // Smooth base gradient
-  const baseGrad = ctx.createLinearGradient(0, 0, 320, 480);
-  baseGrad.addColorStop(0, primaryPalette.lighter1);
-  baseGrad.addColorStop(0.5, primaryPalette.base);
-  baseGrad.addColorStop(1, secondaryPalette.base);
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, 320, 480);
+  // Smooth base gradient (50/50 split)
+const baseGrad = ctx.createLinearGradient(0, 0, 320, 480);
+baseGrad.addColorStop(0, primaryPalette.base);
+baseGrad.addColorStop(0.5, pickVariant(primaryPalette, 1));
+baseGrad.addColorStop(0.5, pickVariant(secondaryPalette, 1));
+baseGrad.addColorStop(1, secondaryPalette.base);
+ctx.fillStyle = baseGrad;
+ctx.fillRect(0, 0, 320, 480);
 
   // Radial overlay for depth
   const radialGrad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
@@ -647,7 +649,80 @@ else if (backgroundStyle === 'classic-enhanced') {
   // Perspective Grid
   ctx.fillStyle = '#020617';
   ctx.fillRect(0, 0, 320, 480);
+  // Top area elements (starfield and floating geometry)
+// Starfield background
+for(let i = 0; i < 80; i++) {
+    const x = rng(0, 320);
+    const y = rng(0, horizonY - 20);
+    const size = rng(0.5, 2);
+    const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+    const starColor = pickVariant(palette, rng(0.4, 0.9));
+    
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fillStyle = starColor;
+    ctx.shadowBlur = size * 3;
+    ctx.shadowColor = starColor;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
 
+// Floating geometric shapes (circuit board style)
+for(let i = 0; i < 12; i++) {
+    const x = rng(20, 300);
+    const y = rng(20, horizonY - 40);
+    const size = rng(15, 40);
+    const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+    
+    ctx.strokeStyle = pickVariant(palette, rng(0.3, 0.6));
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = pickVariant(palette, 0.5);
+    
+    // Draw circuit-like rectangles and lines
+    ctx.strokeRect(x, y, size, size * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(x + size/2, y);
+    ctx.lineTo(x + size/2, y - rng(10, 30));
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+}
+
+// Scan lines across top
+ctx.globalAlpha = 0.1;
+for(let y = 0; y < horizonY; y += 8) {
+    const palette = y % 16 === 0 ? primaryPalette : secondaryPalette;
+    ctx.strokeStyle = pickVariant(palette, 1);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(320, y);
+    ctx.stroke();
+}
+ctx.globalAlpha = 1;
+
+// Glowing data streams
+for(let i = 0; i < 5; i++) {
+    const x = rng(40, 280);
+    const y1 = rng(0, horizonY - 100);
+    const y2 = y1 + rng(60, 120);
+    const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+    
+    const streamGrad = ctx.createLinearGradient(x, y1, x, y2);
+    streamGrad.addColorStop(0, 'transparent');
+    streamGrad.addColorStop(0.5, pickVariant(palette, 0.8));
+    streamGrad.addColorStop(1, 'transparent');
+    
+    ctx.strokeStyle = streamGrad;
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = pickVariant(palette, 0.6);
+    ctx.beginPath();
+    ctx.moveTo(x, y1);
+    ctx.lineTo(x, y2);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+}
   const horizonY = 280;
   
   // Horizon glow with color variants
