@@ -227,66 +227,88 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
   }
 }
     else if (backgroundStyle === 'energy') {
-      // Deep space background
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(0, 0, 320, 480);
+  // Deep space background
+  ctx.fillStyle = '#020617';
+  ctx.fillRect(0, 0, 320, 480);
 
-      // Glowing Center
-      const centerGlow = ctx.createRadialGradient(160, 240, 0, 160, 240, 300);
-      centerGlow.addColorStop(0, hexToRgba(colors.primary, 0.2));
-      centerGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = centerGlow;
-      ctx.fillRect(0,0, 320, 480);
+  // Glowing Center - use primary palette variants
+  const centerGlow = ctx.createRadialGradient(160, 240, 0, 160, 240, 300);
+  centerGlow.addColorStop(0, pickVariant(primaryPalette, 0.3));
+  centerGlow.addColorStop(0.5, pickVariant(primaryPalette, 0.15));
+  centerGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = centerGlow;
+  ctx.fillRect(0,0, 320, 480);
 
-      // Fractal Lightning
-      const drawBolt = (x1: number, y1: number, x2: number, y2: number, width: number, color: string, depth: number = 0) => {
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const dist = Math.sqrt(dx*dx + dy*dy);
+  // Fractal Lightning
+  const drawBolt = (x1: number, y1: number, x2: number, y2: number, width: number, colorPalette: ReturnType<typeof getColorVariants>, depth: number = 0) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx*dx + dy*dy);
 
-        if (depth > 6 || dist < 10) {
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.lineCap = 'round';
-            ctx.shadowBlur = width * 3;
-            ctx.shadowColor = color;
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            return;
-        }
-
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-        const jX = midX + (Math.random() - 0.5) * dist * 0.3;
-        const jY = midY + (Math.random() - 0.5) * dist * 0.3;
-
-        drawBolt(x1, y1, jX, jY, width, color, depth + 1);
-        drawBolt(jX, jY, x2, y2, width, color, depth + 1);
-
-        if (Math.random() > 0.7 && depth < 4) {
-            const bx = jX + (Math.random() - 0.5) * dist * 0.7;
-            const by = jY + (Math.random() - 0.5) * dist * 0.7;
-            drawBolt(jX, jY, bx, by, width * 0.5, hexToRgba(color, 0.7), depth + 1);
-        }
-      };
-
-      // Main Bolts
-      drawBolt(160, 0, 160, 480, 3, colors.primary);
-      drawBolt(50, 0, 100, 480, 2, colors.secondary);
-      drawBolt(270, 0, 220, 480, 2, colors.secondary);
-
-      // Static Particles
-      for(let i=0; i<60; i++) {
-          ctx.beginPath();
-          ctx.arc(rng(0, 320), rng(0, 480), rng(0.5, 2), 0, Math.PI*2);
-          ctx.fillStyle = Math.random() > 0.5 ? colors.primary : '#fff';
-          ctx.shadowBlur = 5;
-          ctx.shadowColor = colors.primary;
-          ctx.fill();
-      }
+    if (depth > 6 || dist < 10) {
+        const color = pickVariant(colorPalette, 1);
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.shadowBlur = width * 3;
+        ctx.shadowColor = color;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        return;
     }
+
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+    const jX = midX + (Math.random() - 0.5) * dist * 0.3;
+    const jY = midY + (Math.random() - 0.5) * dist * 0.3;
+
+    drawBolt(x1, y1, jX, jY, width, colorPalette, depth + 1);
+    drawBolt(jX, jY, x2, y2, width, colorPalette, depth + 1);
+
+    if (Math.random() > 0.7 && depth < 4) {
+        const bx = jX + (Math.random() - 0.5) * dist * 0.7;
+        const by = jY + (Math.random() - 0.5) * dist * 0.7;
+        drawBolt(jX, jY, bx, by, width * 0.5, colorPalette, depth + 1);
+    }
+  };
+
+  // Main Bolts - use primary palette
+  drawBolt(160, 0, 160, 480, 3, primaryPalette);
+  drawBolt(50, 0, 100, 480, 2, primaryPalette);
+  drawBolt(270, 0, 220, 480, 2, primaryPalette);
+  
+  // Additional secondary color bolts
+  drawBolt(100, 0, 160, 480, 2, secondaryPalette);
+  drawBolt(220, 0, 160, 480, 2, secondaryPalette);
+
+  // Static Particles - mix of both palettes
+  for(let i=0; i<60; i++) {
+      ctx.beginPath();
+      ctx.arc(rng(0, 320), rng(0, 480), rng(0.5, 2), 0, Math.PI*2);
+      const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+      const particleColor = pickVariant(palette, 1);
+      ctx.fillStyle = particleColor;
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = particleColor;
+      ctx.fill();
+  }
+  
+  // Add some glowing orbs with color variants
+  for(let i=0; i<8; i++) {
+      const x = rng(0, 320);
+      const y = rng(0, 480);
+      const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      const orbGlow = ctx.createRadialGradient(x, y, 0, x, y, rng(30, 60));
+      orbGlow.addColorStop(0, pickVariant(palette, 0.4));
+      orbGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = orbGlow;
+      ctx.beginPath();
+      ctx.arc(x, y, rng(30, 60), 0, Math.PI * 2);
+      ctx.fill();
+  }
+}
     else if (backgroundStyle === 'splatter') {
         // 1. Concrete/Grunge Wall Base
         const gradient = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
