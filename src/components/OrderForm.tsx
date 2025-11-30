@@ -38,35 +38,6 @@ const OrderForm: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [enableGlow, setEnableGlow] = useState(false); 
   const [glowOpacity, setGlowOpacity] = useState(100);
-// Generate color variants for richer designs
-const getColorVariants = (hexColor: string) => {
-  const r = parseInt(hexColor.slice(1, 3), 16);
-  const g = parseInt(hexColor.slice(3, 5), 16);
-  const b = parseInt(hexColor.slice(5, 7), 16);
-  
-  // Generate lighter and darker variants
-  const lighten = (amount: number) => {
-    const nr = Math.min(255, r + amount);
-    const ng = Math.min(255, g + amount);
-    const nb = Math.min(255, b + amount);
-    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
-  };
-  
-  const darken = (amount: number) => {
-    const nr = Math.max(0, r - amount);
-    const ng = Math.max(0, g - amount);
-    const nb = Math.max(0, b - amount);
-    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
-  };
-  
-  return {
-    lighter2: lighten(80),
-    lighter1: lighten(40),
-    base: hexColor,
-    darker1: darken(40),
-    darker2: darken(80)
-  };
-};
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -97,40 +68,70 @@ const getColorVariants = (hexColor: string) => {
 
   // --- OPTION 2: PROCEDURAL GENERATION LOGIC ---
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const canvas = canvasRef.current;
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-    // High DPI Scaling
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = 320 * dpr;
-    canvas.height = 480 * dpr;
-    ctx.scale(dpr, dpr); 
+  // High DPI Scaling
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = 320 * dpr;
+  canvas.height = 480 * dpr;
+  ctx.scale(dpr, dpr); 
+  
+  // Clear
+  ctx.clearRect(0, 0, 320, 480);
+
+  // Helper: Hex to RGBA
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const rng = (min: number, max: number) => Math.random() * (max - min) + min;
+
+  // Generate color variants for richer designs
+  const getColorVariants = (hexColor: string) => {
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
     
-    // Clear
-    ctx.clearRect(0, 0, 320, 480);
-
-    // Helper: Hex to RGBA
-    const hexToRgba = (hex: string, alpha: number) => {
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    const lighten = (amount: number) => {
+      const nr = Math.min(255, r + amount);
+      const ng = Math.min(255, g + amount);
+      const nb = Math.min(255, b + amount);
+      return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
     };
+    
+    const darken = (amount: number) => {
+      const nr = Math.max(0, r - amount);
+      const ng = Math.max(0, g - amount);
+      const nb = Math.max(0, b - amount);
+      return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+    };
+    
+    return {
+      lighter2: lighten(80),
+      lighter1: lighten(40),
+      base: hexColor,
+      darker1: darken(40),
+      darker2: darken(80)
+    };
+  };
 
-    const rng = (min: number, max: number) => Math.random() * (max - min) + min;
-// Generate color palettes
-const primaryPalette = getColorVariants(colors.primary);
-const secondaryPalette = getColorVariants(colors.secondary);
+  // Generate color palettes
+  const primaryPalette = getColorVariants(colors.primary);
+  const secondaryPalette = getColorVariants(colors.secondary);
 
-// Helper to pick random variant from a palette
-const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number = 1) => {
-  const variants = [palette.lighter2, palette.lighter1, palette.base, palette.darker1, palette.darker2];
-  const chosen = variants[Math.floor(Math.random() * variants.length)];
-  return alpha < 1 ? hexToRgba(chosen, alpha) : chosen;
-};
+  // Helper to pick random variant from a palette
+  const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number = 1) => {
+    const variants = [palette.lighter2, palette.lighter1, palette.base, palette.darker1, palette.darker2];
+    const chosen = variants[Math.floor(Math.random() * variants.length)];
+    return alpha < 1 ? hexToRgba(chosen, alpha) : chosen;
+  };
     // --- GENERATORS ---
 
     if (backgroundStyle === 'shatter') {
@@ -232,8 +233,8 @@ else if (backgroundStyle === 'classic-enhanced') {
   // Smooth base gradient (50/50 split)
 const baseGrad = ctx.createLinearGradient(0, 0, 320, 480);
 baseGrad.addColorStop(0, primaryPalette.base);
-baseGrad.addColorStop(0.5, pickVariant(primaryPalette, 1));
-baseGrad.addColorStop(0.5, pickVariant(secondaryPalette, 1));
+baseGrad.addColorStop(0.4, primaryPalette.darker1);
+baseGrad.addColorStop(0.6, secondaryPalette.darker1);
 baseGrad.addColorStop(1, secondaryPalette.base);
 ctx.fillStyle = baseGrad;
 ctx.fillRect(0, 0, 320, 480);
