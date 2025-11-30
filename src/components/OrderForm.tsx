@@ -65,6 +65,7 @@ const OrderForm: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const foregroundCanvasRef = useRef<HTMLCanvasElement>(null);
   const [enableGlow, setEnableGlow] = useState(false); 
   const [glowOpacity, setGlowOpacity] = useState(100);
   const [glowColor, setGlowColor] = useState<'primary' | 'secondary'>('primary');
@@ -228,6 +229,32 @@ const OrderForm: React.FC = () => {
       ctx.fill();
   }
 }
+// 4. Dust/Debris
+  for(let i=0; i<150; i++) {
+      ctx.beginPath();
+      ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fill();
+  }
+} // <-- End of shatter block
+
+// --- FOREGROUND SHATTER LAYER (Option 3: Particle Debris) ---
+if (backgroundStyle === 'shatter') {
+  const fgCanvas = foregroundCanvasRef.current;
+  if (!fgCanvas) return;
+  
+  const fgCtx = fgCanvas.getContext('2d');
+  if (!fgCtx) return;
+  
+  // Match DPI scaling
+  fgCanvas.width = 320 * dpr;
+  fgCanvas.height = 480 * dpr;
+  fgCtx.scale(dpr, dpr);
+  fgCtx.clearRect(0, 0, 320, 480);
+  
+  // ... rest of the foreground code from Step 2
+}
+
 else if (backgroundStyle === 'classic-enhanced') {
   // Smooth base gradient
   // Smooth base gradient (50/50 split)
@@ -1230,7 +1257,11 @@ for(let i = 0; i < 5; i++) {
                 ref={canvasRef} 
                 className="absolute inset-0 w-full h-full z-0"
               />
-
+              {/* Foreground debris layer (shatter only) */}
+              <canvas 
+                ref={foregroundCanvasRef} 
+                className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+              />
               {/* User Uploaded Image (Layered on top) */}
               {/* User Uploaded Image (Layered on top) */}
 {imagePreview ? (
