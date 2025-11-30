@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Sparkles, Wand2, AlertCircle, CheckCircle, Layers } from 'lucide-react';
+import { Upload, Sparkles, Wand2, AlertCircle, CheckCircle, Layers, Maximize2, X } from 'lucide-react';
 import { PlayerDetails } from '../types';
 import { generatePlayerBio } from '../services/geminiService';
 
@@ -69,6 +69,16 @@ const OrderForm: React.FC = () => {
   const [enableGlow, setEnableGlow] = useState(false); 
   const [glowOpacity, setGlowOpacity] = useState(100);
   const [glowColor, setGlowColor] = useState<'primary' | 'secondary'>('primary');
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // Close full screen on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsFullScreen(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -1224,14 +1234,62 @@ const OrderForm: React.FC = () => {
         </div>
 
         {/* Right Column: Live Preview */}
-        <div className="lg:sticky lg:top-24">
-          <div className="text-center mb-6">
-             <span className="bg-slate-800 text-gray-400 px-3 py-1 rounded-full text-xs font-semibold tracking-wider border border-slate-700">LIVE PREVIEW</span>
-          </div>
+        {/* Right Column: Live Preview */}
+        {/* 
+            LOGIC: We toggle the class names of this container. 
+            If isFullScreen is true, it becomes a fixed overlay (Gallery Style).
+            If false, it sits in the sticky sidebar.
+        */}
+        <div 
+          className={`
+            transition-all duration-300 ease-in-out
+            ${isFullScreen 
+              ? 'fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md' // Gallery Modal Styles
+              : 'lg:sticky lg:top-24' // Default Sidebar Styles
+            }
+          `}
+          // Optional: click background to close
+          onClick={(e) => {
+            if (e.target === e.currentTarget && isFullScreen) setIsFullScreen(false);
+          }}
+        >
+          {/* Header/Label - Only show when NOT full screen */}
+          {!isFullScreen && (
+            <div className="text-center mb-6">
+               <span className="bg-slate-800 text-gray-400 px-3 py-1 rounded-full text-xs font-semibold tracking-wider border border-slate-700">LIVE PREVIEW</span>
+            </div>
+          )}
+
+          {/* Close Button - Gallery Style (Only visible when full screen) */}
+          {isFullScreen && (
+            <button 
+              className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors p-2 bg-white/10 rounded-full z-[110]"
+              onClick={(e) => { e.stopPropagation(); setIsFullScreen(false); }}
+            >
+              <X className="w-8 h-8" />
+            </button>
+          )}
           
-          <div className="relative w-[320px] h-[480px] mx-auto perspective-1000 group">
-            <div className="relative w-full h-full bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl transition-transform duration-500 transform group-hover:rotate-y-6 group-hover:rotate-x-6">
+          {/* Card Container Wrapper 
+              We use 'transform scale' to make the 320px card look huge in modal mode 
+              without changing the actual canvas dimensions (which would blur it).
+          */}
+          <div className={`
+             relative transition-all duration-500
+             ${isFullScreen ? 'scale-110 md:scale-125 lg:scale-[1.4]' : 'w-[320px] h-[480px] mx-auto perspective-1000 group'}
+          `}>
+            
+            <div 
+              className={`
+                relative w-[320px] h-[480px] bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl transition-transform duration-500 transform
+                ${!isFullScreen && 'group-hover:rotate-y-6 group-hover:rotate-x-6'}
+              `}
+              // Allow clicking the card itself to trigger full screen if not already
+              onClick={() => !isFullScreen && setIsFullScreen(true)}
+            >
               
+              {/* --- CARD CONTENT STARTS HERE (Your existing logic) --- */}
+
               {/* OPTION 3: CSS BACKGROUND */}
               <div className="absolute inset-0 transition-all duration-500" style={getCssBackground()}></div>
 
@@ -1246,7 +1304,7 @@ const OrderForm: React.FC = () => {
                 className="absolute inset-0 w-full h-full z-20 pointer-events-none"
               />
               
-              {/* User Uploaded Image (Layered on top) */}
+              {/* User Uploaded Image */}
               {imagePreview ? (
                 <img 
                   src={imagePreview} 
@@ -1264,19 +1322,17 @@ const OrderForm: React.FC = () => {
                 </div>
               )}
               
-              {/* Effects Overlays (On top of image) */}
+              {/* Effects Overlays */}
               <div 
                   className="absolute inset-0 z-20 opacity-60 pointer-events-none"
                   style={{ background: `linear-gradient(to top, #0f172a 0%, transparent 40%, ${colors.secondary}10 100%)` }}
               ></div>
               
-              {/* Dynamic Colored Border Overlay */}
               <div 
                   className="absolute inset-0 z-30 border-[12px] rounded-xl pointer-events-none mix-blend-overlay opacity-50"
                   style={{ borderColor: colors.primary }}
               ></div>
               
-              {/* Shine */}
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
               {/* Text Content */}
@@ -1321,19 +1377,32 @@ const OrderForm: React.FC = () => {
                  </div>
               </div>
 
+               {/* --- END CARD CONTENT --- */}
+
+               {/* "Click to Expand" Icon Overlay (Gallery Style) */}
+               {!isFullScreen && (
+                  <div className="absolute top-3 left-3 z-50 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
+                    <Maximize2 className="w-4 h-4 text-white" />
+                  </div>
+               )}
+
             </div>
             
-            {/* Reflection underneath */}
-            <div className="absolute -bottom-8 left-4 right-4 h-4 bg-black/50 blur-xl rounded-[100%]"></div>
+            {/* Reflection underneath (Hidden in full screen) */}
+            {!isFullScreen && (
+               <div className="absolute -bottom-8 left-4 right-4 h-4 bg-black/50 blur-xl rounded-[100%]"></div>
+            )}
           </div>
 
-          <div className="mt-8 bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg flex items-start gap-3">
-             <AlertCircle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-             <div>
-                <h4 className="text-yellow-400 font-bold text-sm">Pro Tip</h4>
-                <p className="text-yellow-200/60 text-xs">Upload a photo with a transparent background (PNG) for the best "cutout" effect, or let our designers handle the masking manually.</p>
-             </div>
-          </div>
+          {!isFullScreen && (
+            <div className="mt-8 bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg flex items-start gap-3">
+               <AlertCircle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+               <div>
+                  <h4 className="text-yellow-400 font-bold text-sm">Pro Tip</h4>
+                  <p className="text-yellow-200/60 text-xs">Upload a photo with a transparent background (PNG) for the best "cutout" effect, or let our designers handle the masking manually.</p>
+               </div>
+            </div>
+          )}
         </div>
 
       </div>
