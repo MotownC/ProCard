@@ -67,7 +67,7 @@ const OrderForm: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [enableGlow, setEnableGlow] = useState(false); 
   const [glowOpacity, setGlowOpacity] = useState(100);
-
+  const [glowColor, setGlowColor] = useState<'primary' | 'secondary'>('primary');
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -1096,19 +1096,36 @@ for(let i = 0; i < 5; i++) {
               </div>
             </div>
 
-            {/* Image Glow Toggle */}
+{/* Image Glow Toggle */}
 <div className="space-y-3 mt-3">
-  <label className="flex items-center gap-2 cursor-pointer group">
-    <input 
-      type="checkbox" 
-      checked={enableGlow}
-      onChange={(e) => setEnableGlow(e.target.checked)}
-      className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
-    />
-    <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-      Add glow around player image
-    </span>
-  </label>
+  <div className="flex items-center justify-between">
+    <label className="flex items-center gap-2 cursor-pointer group">
+      <input 
+        type="checkbox" 
+        checked={enableGlow}
+        onChange={(e) => setEnableGlow(e.target.checked)}
+        className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+      />
+      <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+        Add glow around player image
+      </span>
+    </label>
+    
+    {enableGlow && (
+      <button
+        type="button"
+        onClick={() => setGlowColor(glowColor === 'primary' ? 'secondary' : 'primary')}
+        className="px-3 py-1 rounded-lg text-xs font-medium transition-all border"
+        style={{ 
+          backgroundColor: `${glowColor === 'primary' ? colors.primary : colors.secondary}20`,
+          borderColor: glowColor === 'primary' ? colors.primary : colors.secondary,
+          color: glowColor === 'primary' ? colors.primary : colors.secondary
+        }}
+      >
+        {glowColor === 'primary' ? 'Primary' : 'Secondary'}
+      </button>
+    )}
+  </div>
   
   {/* Glow Intensity Slider */}
   {enableGlow && (
@@ -1125,7 +1142,7 @@ for(let i = 0; i < 5; i++) {
         onChange={(e) => setGlowOpacity(Number(e.target.value))}
         className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700"
         style={{
-          background: `linear-gradient(to right, ${colors.primary} 0%, ${colors.primary} ${glowOpacity}%, #334155 ${glowOpacity}%, #334155 100%)`
+          background: `linear-gradient(to right, ${glowColor === 'primary' ? colors.primary : colors.secondary} 0%, ${glowColor === 'primary' ? colors.primary : colors.secondary} ${glowOpacity}%, #334155 ${glowOpacity}%, #334155 100%)`
         }}
       />
     </div>
@@ -1222,7 +1239,7 @@ for(let i = 0; i < 5; i++) {
     alt="Preview" 
     className="absolute inset-0 w-full h-full object-cover z-10 mix-blend-normal" 
     style={enableGlow ? {
-      filter: `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${colors.primary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${colors.primary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
+      filter: `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
     } : undefined}
   />
 ) : (
