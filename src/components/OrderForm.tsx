@@ -770,14 +770,20 @@ const pickVariant = (palette: ReturnType<typeof getColorVariants>, alpha: number
       ${colors.secondary} 100%)`
   };
       case 'hex':
-        return {
-          backgroundColor: '#111',
-          backgroundImage: `
-            radial-gradient(circle at 50% 0%, ${colors.primary}60, transparent 60%),
-            repeating-linear-gradient(60deg, ${colors.secondary}10 0px, ${colors.secondary}10 1px, transparent 1px, transparent 20px),
-            repeating-linear-gradient(-60deg, ${colors.secondary}10 0px, ${colors.secondary}10 1px, transparent 1px, transparent 20px)
-          `
-        };
+  const primaryVariants = getColorVariants(colors.primary);
+  const secondaryVariants = getColorVariants(colors.secondary);
+  
+  return {
+    backgroundColor: '#111',
+    backgroundImage: `
+      radial-gradient(circle at 50% 0%, ${primaryVariants.base}60, ${primaryVariants.darker1}40 40%, transparent 60%),
+      radial-gradient(circle at 0% 100%, ${secondaryVariants.base}30, transparent 50%),
+      radial-gradient(circle at 100% 100%, ${primaryVariants.lighter1}20, transparent 50%),
+      repeating-linear-gradient(60deg, ${secondaryVariants.darker1}15 0px, ${secondaryVariants.darker1}15 1px, transparent 1px, transparent 20px),
+      repeating-linear-gradient(-60deg, ${secondaryVariants.base}12 0px, ${secondaryVariants.base}12 1px, transparent 1px, transparent 20px),
+      repeating-linear-gradient(0deg, ${primaryVariants.darker2}08 0px, ${primaryVariants.darker2}08 1px, transparent 1px, transparent 20px)
+    `
+  };
       default:
         return { background: 'transparent' }; // Canvas handles it
     }
