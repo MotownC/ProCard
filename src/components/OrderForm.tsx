@@ -978,20 +978,24 @@ const OrderForm: React.FC = () => {
             ${colors.secondary} 100%)`
         };
       case 'hex':
-        const primaryVariants = getColorVariants(colors.primary);
-        const secondaryVariants = getColorVariants(colors.secondary);
-        
-        return {
-          backgroundColor: '#111',
-          backgroundImage: `
-            radial-gradient(circle at 50% 0%, ${primaryVariants.base}60, ${primaryVariants.darker1}40 40%, transparent 60%),
-            radial-gradient(circle at 0% 100%, ${secondaryVariants.base}30, transparent 50%),
-            radial-gradient(circle at 100% 100%, ${primaryVariants.lighter1}20, transparent 50%),
-            repeating-linear-gradient(60deg, ${secondaryVariants.darker1}15 0px, ${secondaryVariants.darker1}15 1px, transparent 1px, transparent 20px),
-            repeating-linear-gradient(-60deg, ${secondaryVariants.base}12 0px, ${secondaryVariants.base}12 1px, transparent 1px, transparent 20px),
-            repeating-linear-gradient(0deg, ${primaryVariants.darker2}08 0px, ${primaryVariants.darker2}08 1px, transparent 1px, transparent 20px)
-          `
-        };
+  const primaryVariants = getColorVariants(colors.primary);
+  const secondaryVariants = getColorVariants(colors.secondary);
+  
+  return {
+    backgroundColor: '#0a0a0a',
+    backgroundImage: `
+      radial-gradient(circle at 50% 0%, ${primaryVariants.lighter1}90, ${primaryVariants.base}60 30%, ${primaryVariants.darker1}30 50%, transparent 70%),
+      radial-gradient(circle at 0% 100%, ${secondaryVariants.base}50, ${secondaryVariants.darker1}30 40%, transparent 60%),
+      radial-gradient(circle at 100% 100%, ${primaryVariants.base}40, transparent 55%),
+      radial-gradient(circle at 50% 50%, ${secondaryVariants.lighter1}15, transparent 40%),
+      radial-gradient(ellipse at 30% 40%, ${primaryVariants.lighter2}20, transparent 35%),
+      radial-gradient(ellipse at 70% 60%, ${secondaryVariants.lighter1}20, transparent 35%),
+      repeating-linear-gradient(60deg, ${secondaryVariants.base}25 0px, ${secondaryVariants.base}25 2px, transparent 2px, transparent 18px),
+      repeating-linear-gradient(-60deg, ${primaryVariants.base}20 0px, ${primaryVariants.base}20 2px, transparent 2px, transparent 18px),
+      repeating-linear-gradient(0deg, ${primaryVariants.darker1}15 0px, ${primaryVariants.darker1}15 1.5px, transparent 1.5px, transparent 20px),
+      repeating-linear-gradient(120deg, ${secondaryVariants.darker1}10 0px, ${secondaryVariants.darker1}10 1px, transparent 1px, transparent 22px)
+    `
+  };
       default:
         return { background: 'transparent' }; // Canvas handles it
     }
