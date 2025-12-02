@@ -43,7 +43,6 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Glowing filter */}
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge>
@@ -52,7 +51,6 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             </feMerge>
           </filter>
           
-          {/* Gradient for metallic look */}
           <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#666', stopOpacity: 1 }} />
             <stop offset="50%" style={{ stopColor: '#ccc', stopOpacity: 1 }} />
@@ -109,63 +107,41 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Chrome gradient */}
           <linearGradient id="chrome1" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#f0f0f0', stopOpacity: 1 }} />
-            <stop offset="25%" style={{ stopColor: '#888', stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: '#ddd', stopOpacity: 1 }} />
-            <stop offset="75%" style={{ stopColor: '#666', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#aaa', stopOpacity: 1 }} />
+            <stop offset="0%" style={{ stopColor: '#f0f0f0', stopOpacity: 0.9 }} />
+            <stop offset="25%" style={{ stopColor: '#888', stopOpacity: 0.7 }} />
+            <stop offset="50%" style={{ stopColor: '#ddd', stopOpacity: 0.8 }} />
+            <stop offset="75%" style={{ stopColor: '#666', stopOpacity: 0.7 }} />
+            <stop offset="100%" style={{ stopColor: '#aaa', stopOpacity: 0.9 }} />
           </linearGradient>
           
-          {/* Inner bevel */}
-          <linearGradient id="bevel" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#fff', stopOpacity: 0.4 }} />
-            <stop offset="100%" style={{ stopColor: '#000', stopOpacity: 0.4 }} />
-          </linearGradient>
-          
-          {/* Carbon fiber pattern */}
           <pattern id="carbon" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect width="10" height="10" fill="#1a1a1a"/>
-            <path d="M0,5 L5,0 M5,10 L10,5" stroke="#0a0a0a" strokeWidth="1"/>
+            <rect width="10" height="10" fill="#1a1a1a" opacity="0.8"/>
+            <path d="M0,5 L5,0 M5,10 L10,5" stroke="#0a0a0a" strokeWidth="1" opacity="0.6"/>
           </pattern>
         </defs>
         
-        {/* Outer chrome frame */}
-        <path d="M 0,20 L 20,0 L 300,0 L 320,20 L 320,460 L 300,480 L 20,480 L 0,460 Z" 
-              fill="url(#chrome1)" stroke="#333" strokeWidth="2"/>
+        {/* Beveled corner frames - ONLY STROKES, NO FILLS */}
+        <path d="M 0,20 L 20,0 L 60,0 L 60,8 L 24,8 L 8,24 L 8,60 L 0,60 Z" 
+              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
+        <path d="M 320,20 L 300,0 L 260,0 L 260,8 L 296,8 L 312,24 L 312,60 L 320,60 Z" 
+              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
+        <path d="M 0,460 L 20,480 L 60,480 L 60,472 L 24,472 L 8,456 L 8,420 L 0,420 Z" 
+              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
+        <path d="M 320,460 L 300,480 L 260,480 L 260,472 L 296,472 L 312,456 L 312,420 L 320,420 Z" 
+              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
         
-        {/* Inner frame */}
-        <path d="M 8,24 L 24,8 L 296,8 L 312,24 L 312,456 L 296,472 L 24,472 L 8,456 Z" 
-              fill="none" stroke="url(#bevel)" strokeWidth="2"/>
+        {/* Team color accent bars */}
+        <rect x="70" y="2" width="180" height="3" fill={primaryColor} opacity="0.8"/>
+        <rect x="70" y="475" width="180" height="3" fill={secondaryColor} opacity="0.8"/>
+        <rect x="2" y="70" width="3" height="340" fill={primaryColor} opacity="0.6"/>
+        <rect x="315" y="70" width="3" height="340" fill={secondaryColor} opacity="0.6"/>
         
-        {/* Team color accent bars - Top */}
-        <rect x="60" y="4" width="200" height="4" fill={primaryColor} opacity="0.8"/>
-        
-        {/* Team color accent bars - Bottom */}
-        <rect x="60" y="472" width="200" height="4" fill={secondaryColor} opacity="0.8"/>
-        
-        {/* Corner carbon fiber panels - Top Left */}
-        <polygon points="0,20 20,0 60,0 40,20" fill="url(#carbon)"/>
-        <polygon points="0,20 40,20 20,40 0,60" fill="url(#carbon)"/>
-        
-        {/* Corner carbon fiber panels - Top Right */}
-        <polygon points="320,20 300,0 260,0 280,20" fill="url(#carbon)"/>
-        <polygon points="320,20 280,20 300,40 320,60" fill="url(#carbon)"/>
-        
-        {/* Corner carbon fiber panels - Bottom Left */}
-        <polygon points="0,460 20,480 60,480 40,460" fill="url(#carbon)"/>
-        <polygon points="0,460 40,460 20,440 0,420" fill="url(#carbon)"/>
-        
-        {/* Corner carbon fiber panels - Bottom Right */}
-        <polygon points="320,460 300,480 260,480 280,460" fill="url(#carbon)"/>
-        <polygon points="320,460 280,460 300,440 320,420" fill="url(#carbon)"/>
-        
-        {/* Corner brackets with team colors */}
-        <polyline points="25,60 25,25 60,25" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
-        <polyline points="295,60 295,25 260,25" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
-        <polyline points="25,420 25,455 60,455" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
-        <polyline points="295,420 295,455 260,455" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
+        {/* Corner brackets */}
+        <polyline points="25,60 25,25 60,25" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9"/>
+        <polyline points="295,60 295,25 260,25" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9"/>
+        <polyline points="25,420 25,455 60,455" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9"/>
+        <polyline points="295,420 295,455 260,455" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9"/>
       </svg>
     );
   }
@@ -175,9 +151,9 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
           <pattern id="carbonWeave" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-            <rect width="8" height="8" fill="#0a0a0a"/>
-            <path d="M0,4 L4,0 M4,8 L8,4" stroke="#1a1a1a" strokeWidth="2"/>
-            <path d="M0,4 L4,8 M4,0 L8,4" stroke="#050505" strokeWidth="1"/>
+            <rect width="8" height="8" fill="#0a0a0a" opacity="0.7"/>
+            <path d="M0,4 L4,0 M4,8 L8,4" stroke="#1a1a1a" strokeWidth="2" opacity="0.5"/>
+            <path d="M0,4 L4,8 M4,0 L8,4" stroke="#050505" strokeWidth="1" opacity="0.4"/>
           </pattern>
           
           <filter id="innerGlow">
@@ -189,25 +165,28 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </filter>
         </defs>
         
-        {/* Wide carbon fiber border */}
-        <rect x="0" y="0" width="320" height="480" fill="url(#carbonWeave)"/>
-        <rect x="20" y="20" width="280" height="440" fill="transparent"/>
+        {/* Carbon fiber border strips - ONLY at edges */}
+        <rect x="0" y="0" width="320" height="25" fill="url(#carbonWeave)"/>
+        <rect x="0" y="455" width="320" height="25" fill="url(#carbonWeave)"/>
+        <rect x="0" y="25" width="25" height="430" fill="url(#carbonWeave)"/>
+        <rect x="295" y="25" width="25" height="430" fill="url(#carbonWeave)"/>
         
-        {/* Inner glowing frame */}
-        <rect x="18" y="18" width="284" height="444" fill="none" stroke={primaryColor} strokeWidth="3" filter="url(#innerGlow)" opacity="0.9"/>
-        <rect x="22" y="22" width="276" height="436" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.6"/>
+        {/* Inner glowing frames */}
+        <rect x="23" y="23" width="274" height="434" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#innerGlow)" opacity="0.9"/>
+        <rect x="26" y="26" width="268" height="428" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.6"/>
         
-        {/* Angled corner cuts with glow */}
-        <polygon points="0,0 60,0 40,20 0,20" fill="url(#carbonWeave)" stroke={primaryColor} strokeWidth="1"/>
-        <polygon points="320,0 260,0 280,20 320,20" fill="url(#carbonWeave)" stroke={secondaryColor} strokeWidth="1"/>
-        <polygon points="0,480 60,480 40,460 0,460" fill="url(#carbonWeave)" stroke={secondaryColor} strokeWidth="1"/>
-        <polygon points="320,480 260,480 280,460 320,460" fill="url(#carbonWeave)" stroke={primaryColor} strokeWidth="1"/>
+        {/* Corner accent cuts */}
+        <line x1="25" y1="60" x2="25" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
+        <line x1="25" y1="25" x2="60" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
         
-        {/* Metallic accents on corners */}
-        <line x1="40" y1="20" x2="50" y2="20" stroke="#666" strokeWidth="2"/>
-        <line x1="270" y1="20" x2="280" y2="20" stroke="#666" strokeWidth="2"/>
-        <line x1="40" y1="460" x2="50" y2="460" stroke="#666" strokeWidth="2"/>
-        <line x1="270" y1="460" x2="280" y2="460" stroke="#666" strokeWidth="2"/>
+        <line x1="295" y1="60" x2="295" y2="25" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
+        <line x1="295" y1="25" x2="260" y2="25" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
+        
+        <line x1="25" y1="420" x2="25" y2="455" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
+        <line x1="25" y1="455" x2="60" y2="455" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
+        
+        <line x1="295" y1="420" x2="295" y2="455" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
+        <line x1="295" y1="455" x2="260" y2="455" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
       </svg>
     );
   }
@@ -278,11 +257,11 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <polygon points="320,480 240,480 260,460 300,460 320,440" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         <polygon points="320,480 300,460 300,420 320,400" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         
-        {/* Connecting beveled edges */}
-        <polygon points="80,0 240,0 240,5 80,5" fill="#333" stroke={primaryColor} strokeWidth="1"/>
-        <polygon points="80,480 240,480 240,475 80,475" fill="#333" stroke={secondaryColor} strokeWidth="1"/>
-        <polygon points="0,80 0,400 5,400 5,80" fill="#333" stroke={primaryColor} strokeWidth="1"/>
-        <polygon points="320,80 320,400 315,400 315,80" fill="#333" stroke={secondaryColor} strokeWidth="1"/>
+        {/* Connecting beveled edges - strokes only */}
+        <line x1="80" y1="2" x2="240" y2="2" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="80" y1="478" x2="240" y2="478" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="2" y1="80" x2="2" y2="400" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="318" y1="80" x2="318" y2="400" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
       </svg>
     );
   }
@@ -292,38 +271,29 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
           <linearGradient id="classicBevel" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#ddd', stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: '#888', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#444', stopOpacity: 1 }} />
-          </linearGradient>
-          
-          <linearGradient id="teamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: primaryColor, stopOpacity: 0.3 }} />
-            <stop offset="100%" style={{ stopColor: secondaryColor, stopOpacity: 0.3 }} />
+            <stop offset="0%" style={{ stopColor: '#ddd', stopOpacity: 0.8 }} />
+            <stop offset="50%" style={{ stopColor: '#888', stopOpacity: 0.6 }} />
+            <stop offset="100%" style={{ stopColor: '#444', stopOpacity: 0.8 }} />
           </linearGradient>
         </defs>
         
-        {/* Outer beveled frame */}
-        <rect x="0" y="0" width="320" height="480" fill="url(#classicBevel)" stroke="#222" strokeWidth="2"/>
+        {/* Beveled frame - stroke only */}
+        <rect x="8" y="8" width="304" height="464" fill="none" stroke="url(#classicBevel)" strokeWidth="10"/>
+        <rect x="15" y="15" width="290" height="450" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
+        <rect x="18" y="18" width="284" height="444" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.4"/>
         
-        {/* Inner frame with team color tint */}
-        <rect x="12" y="12" width="296" height="456" fill="none" stroke="url(#teamGradient)" strokeWidth="8"/>
+        {/* Corner accents */}
+        <line x1="25" y1="50" x2="25" y2="25" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="25" y1="25" x2="50" y2="25" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
         
-        {/* Clean inner border */}
-        <rect x="18" y="18" width="284" height="444" fill="none" stroke="#fff" strokeWidth="1" opacity="0.3"/>
+        <line x1="295" y1="50" x2="295" y2="25" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="295" y1="25" x2="270" y2="25" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
         
-        {/* Subtle corner accents */}
-        <line x1="25" y1="40" x2="25" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
-        <line x1="25" y1="25" x2="40" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
+        <line x1="25" y1="430" x2="25" y2="455" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="25" y1="455" x2="50" y2="455" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
         
-        <line x1="295" y1="40" x2="295" y2="25" stroke={secondaryColor} strokeWidth="2" opacity="0.6"/>
-        <line x1="295" y1="25" x2="280" y2="25" stroke={secondaryColor} strokeWidth="2" opacity="0.6"/>
-        
-        <line x1="25" y1="440" x2="25" y2="455" stroke={secondaryColor} strokeWidth="2" opacity="0.6"/>
-        <line x1="25" y1="455" x2="40" y2="455" stroke={secondaryColor} strokeWidth="2" opacity="0.6"/>
-        
-        <line x1="295" y1="440" x2="295" y2="455" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
-        <line x1="295" y1="455" x2="280" y2="455" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
+        <line x1="295" y1="430" x2="295" y2="455" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
+        <line x1="295" y1="455" x2="270" y2="455" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
       </svg>
     );
   }
