@@ -1,10 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Sparkles, Wand2, AlertCircle, CheckCircle, Layers, Maximize2, X } from 'lucide-react';
-import { PlayerDetails } from '../types';
-import { generatePlayerBio } from '../services/geminiService';
+import { Upload, Sparkles, AlertCircle, CheckCircle, Layers, Maximize2, X } from 'lucide-react';
+
+// Player Details Interface (Bio removed)
+export interface PlayerDetails {
+  name: string;
+  team: string;
+  position: string;
+  number: string;
+  sport: string;
+}
 
 // Generate color variants for richer designs
 const getColorVariants = (hexColor: string) => {
+  // Fallback for invalid hex
+  if (!hexColor || !hexColor.startsWith('#') || hexColor.length !== 7) {
+    return {
+      lighter2: '#ffffff',
+      lighter1: '#cccccc',
+      base: '#888888',
+      darker1: '#444444',
+      darker2: '#000000'
+    };
+  }
+
   const r = parseInt(hexColor.slice(1, 3), 16);
   const g = parseInt(hexColor.slice(3, 5), 16);
   const b = parseInt(hexColor.slice(5, 7), 16);
@@ -31,6 +49,7 @@ const getColorVariants = (hexColor: string) => {
     darker2: darken(80)
   };
 };
+
 // Border Frame Component
 interface BorderFrameProps {
   style: string;
@@ -88,15 +107,11 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           <polygon points="0,-16 13.86,-8 13.86,8 0,16 -13.86,8 -13.86,-8" fill="none" stroke={primaryColor} strokeWidth="1.5" filter="url(#glow)"/>
         </g>
         
-        {/* Circuit traces - Top */}
+        {/* Circuit traces */}
         <line x1="80" y1="15" x2="240" y2="15" stroke={primaryColor} strokeWidth="1" opacity="0.6"/>
         <line x1="100" y1="18" x2="220" y2="18" stroke={primaryColor} strokeWidth="0.5" opacity="0.4"/>
-        
-        {/* Circuit traces - Bottom */}
         <line x1="80" y1="465" x2="240" y2="465" stroke={secondaryColor} strokeWidth="1" opacity="0.6"/>
         <line x1="100" y1="462" x2="220" y2="462" stroke={secondaryColor} strokeWidth="0.5" opacity="0.4"/>
-        
-        {/* Side accent lines */}
         <line x1="15" y1="80" x2="15" y2="400" stroke={primaryColor} strokeWidth="1" opacity="0.5"/>
         <line x1="305" y1="80" x2="305" y2="400" stroke={secondaryColor} strokeWidth="1" opacity="0.5"/>
       </svg>
@@ -121,7 +136,6 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </pattern>
         </defs>
         
-        {/* Beveled corner frames - ONLY STROKES, NO FILLS */}
         <path d="M 0,20 L 20,0 L 60,0 L 60,8 L 24,8 L 8,24 L 8,60 L 0,60 Z" 
               fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
         <path d="M 320,20 L 300,0 L 260,0 L 260,8 L 296,8 L 312,24 L 312,60 L 320,60 Z" 
@@ -131,13 +145,11 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <path d="M 320,460 L 300,480 L 260,480 L 260,472 L 296,472 L 312,456 L 312,420 L 320,420 Z" 
               fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
         
-        {/* Team color accent bars */}
         <rect x="70" y="2" width="180" height="3" fill={primaryColor} opacity="0.8"/>
         <rect x="70" y="475" width="180" height="3" fill={secondaryColor} opacity="0.8"/>
         <rect x="2" y="70" width="3" height="340" fill={primaryColor} opacity="0.6"/>
         <rect x="315" y="70" width="3" height="340" fill={secondaryColor} opacity="0.6"/>
         
-        {/* Corner brackets */}
         <polyline points="25,60 25,25 60,25" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9"/>
         <polyline points="295,60 295,25 260,25" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9"/>
         <polyline points="25,420 25,455 60,455" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9"/>
@@ -165,17 +177,14 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </filter>
         </defs>
         
-        {/* Carbon fiber border strips - ONLY at edges */}
         <rect x="0" y="0" width="320" height="25" fill="url(#carbonWeave)"/>
         <rect x="0" y="455" width="320" height="25" fill="url(#carbonWeave)"/>
         <rect x="0" y="25" width="25" height="430" fill="url(#carbonWeave)"/>
         <rect x="295" y="25" width="25" height="430" fill="url(#carbonWeave)"/>
         
-        {/* Inner glowing frames */}
         <rect x="23" y="23" width="274" height="434" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#innerGlow)" opacity="0.9"/>
         <rect x="26" y="26" width="268" height="428" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.6"/>
         
-        {/* Corner accent cuts */}
         <line x1="25" y1="60" x2="25" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
         <line x1="25" y1="25" x2="60" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
         
@@ -205,21 +214,17 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </filter>
         </defs>
         
-        {/* Outer glow line */}
         <rect x="10" y="10" width="300" height="460" fill="none" 
               stroke={primaryColor} strokeWidth="3" filter="url(#neonGlow)" opacity="0.9"/>
         
-        {/* Inner glow line */}
         <rect x="15" y="15" width="290" height="450" fill="none" 
               stroke={secondaryColor} strokeWidth="1.5" filter="url(#neonGlow)" opacity="0.7"/>
         
-        {/* Corner accent dots */}
         <circle cx="30" cy="30" r="4" fill={primaryColor} filter="url(#neonGlow)"/>
         <circle cx="290" cy="30" r="4" fill={secondaryColor} filter="url(#neonGlow)"/>
         <circle cx="30" cy="450" r="4" fill={secondaryColor} filter="url(#neonGlow)"/>
         <circle cx="290" cy="450" r="4" fill={primaryColor} filter="url(#neonGlow)"/>
         
-        {/* Edge accent lines */}
         <line x1="50" y1="12" x2="270" y2="12" stroke={primaryColor} strokeWidth="1" opacity="0.5"/>
         <line x1="50" y1="468" x2="270" y2="468" stroke={secondaryColor} strokeWidth="1" opacity="0.5"/>
       </svg>
@@ -241,23 +246,18 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </linearGradient>
         </defs>
         
-        {/* Angular corner pieces - Top Left */}
         <polygon points="0,0 80,0 60,20 20,20 0,40" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         <polygon points="0,0 20,20 20,60 0,80" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         
-        {/* Angular corner pieces - Top Right */}
         <polygon points="320,0 240,0 260,20 300,20 320,40" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         <polygon points="320,0 300,20 300,60 320,80" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         
-        {/* Angular corner pieces - Bottom Left */}
         <polygon points="0,480 80,480 60,460 20,460 0,440" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         <polygon points="0,480 20,460 20,420 0,400" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         
-        {/* Angular corner pieces - Bottom Right */}
         <polygon points="320,480 240,480 260,460 300,460 320,440" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         <polygon points="320,480 300,460 300,420 320,400" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
         
-        {/* Connecting beveled edges - strokes only */}
         <line x1="80" y1="2" x2="240" y2="2" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
         <line x1="80" y1="478" x2="240" y2="478" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
         <line x1="2" y1="80" x2="2" y2="400" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
@@ -277,12 +277,10 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </linearGradient>
         </defs>
         
-        {/* Beveled frame - stroke only */}
         <rect x="8" y="8" width="304" height="464" fill="none" stroke="url(#classicBevel)" strokeWidth="10"/>
         <rect x="15" y="15" width="290" height="450" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
         <rect x="18" y="18" width="284" height="444" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.4"/>
         
-        {/* Corner accents */}
         <line x1="25" y1="50" x2="25" y2="25" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
         <line x1="25" y1="25" x2="50" y2="25" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
         
@@ -300,6 +298,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
   
   return null;
 };
+
 // Define the available background styles
 const BACKGROUND_STYLES = [
   { id: 'classic', name: 'Classic Fade', type: 'css' },
@@ -319,8 +318,7 @@ const OrderForm: React.FC = () => {
     team: '',
     position: '',
     number: '',
-    sport: 'Athlete',
-    bio: ''
+    sport: 'Athlete'
   });
   
   const [colors, setColors] = useState({
@@ -330,7 +328,6 @@ const OrderForm: React.FC = () => {
 
   const [backgroundStyle, setBackgroundStyle] = useState('shatter');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const foregroundCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -379,24 +376,10 @@ const OrderForm: React.FC = () => {
       logoInputRef.current.value = '';
     }
   };
-  const handleGenerateBio = async () => {
-    if (!details.name || !details.team) {
-      alert("Please enter at least a Name and Team to generate a bio.");
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const bio = await generatePlayerBio(details);
-      setDetails(prev => ({ ...prev, bio }));
-    } catch (error) {
-      console.error("Bio generation failed", error);
-    }
-    setIsGenerating(false);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Prototype: Order submitted! In a real app, this would process payment and upload to storage.");
+    alert("Order submitted! In a real app, this would process payment and upload to storage.");
   };
 
   // --- OPTION 2: PROCEDURAL GENERATION LOGIC ---
@@ -1328,7 +1311,8 @@ const OrderForm: React.FC = () => {
                 </div>
               )}
             </div>
-{/* Team Logo Upload */}
+
+            {/* Team Logo Upload */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-300">Team Logo (Optional)</label>
               
@@ -1584,19 +1568,12 @@ const OrderForm: React.FC = () => {
                     boxShadow: `0 4px 14px 0 ${colors.primary}40`
                 }}
             >
-              <Wand2 className="w-5 h-5" />
-              Create My Card Preview
+              Order My Card
             </button>
           </form>
         </div>
 
         {/* Right Column: Live Preview */}
-        {/* Right Column: Live Preview */}
-        {/* 
-            LOGIC: We toggle the class names of this container. 
-            If isFullScreen is true, it becomes a fixed overlay (Gallery Style).
-            If false, it sits in the sticky sidebar.
-        */}
         <div 
           className={`
             transition-all duration-300 ease-in-out
@@ -1627,10 +1604,7 @@ const OrderForm: React.FC = () => {
             </button>
           )}
           
-          {/* Card Container Wrapper 
-              We use 'transform scale' to make the 320px card look huge in modal mode 
-              without changing the actual canvas dimensions (which would blur it).
-          */}
+          {/* Card Container Wrapper */}
           <div className={`
              relative transition-all duration-500
              ${isFullScreen ? 'scale-110 md:scale-125 lg:scale-[1.4]' : 'w-[320px] h-[480px] mx-auto perspective-1000 group'}
@@ -1641,16 +1615,15 @@ const OrderForm: React.FC = () => {
                 relative w-[320px] h-[480px] bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl transition-transform duration-500 transform
                 ${!isFullScreen && 'group-hover:rotate-y-6 group-hover:rotate-x-6'}
               `}
-              // Allow clicking the card itself to trigger full screen if not already
               onClick={() => !isFullScreen && setIsFullScreen(true)}
             >
               
-              {/* --- CARD CONTENT STARTS HERE (Your existing logic) --- */}
+              {/* --- CARD CONTENT STARTS HERE --- */}
 
-              {/* OPTION 3: CSS BACKGROUND */}
+              {/* CSS BACKGROUND */}
               <div className="absolute inset-0 transition-all duration-500" style={getCssBackground()}></div>
 
-              {/* OPTION 2: CANVAS PROCEDURAL BACKGROUND */}
+              {/* CANVAS PROCEDURAL BACKGROUND */}
               <canvas 
                 ref={canvasRef} 
                 className="absolute inset-0 w-full h-full z-0"
@@ -1692,8 +1665,8 @@ const OrderForm: React.FC = () => {
               
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
-              {/* Text Content */}
-              <div className="absolute bottom-16 left-8 right-8 z-50">
+              {/* Text Content - Moved down to bottom-8 now that bio is gone */}
+              <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
                 <div className="flex justify-between items-end border-b border-white/30 pb-2 mb-3">
                   <div>
                       <p 
@@ -1714,19 +1687,9 @@ const OrderForm: React.FC = () => {
                   <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
                 </div>
               </div>
-                
-                <div className="flex justify-between text-xs font-bold text-gray-300 mb-2">
-                  <span>{details.position || 'POS'}</span>
-                  <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
-                </div>
 
-                <p className="text-[10px] text-gray-300 leading-tight line-clamp-3 drop-shadow-sm">
-                  {details.bio || "Stats and legendary moments go here. Generated by AI or written by you."}
-                </p>
-              </div>
-              
               {/* Top Badge */}
-              <div className="absolute top-8 right-8 z-50">
+              <div className="absolute top-8 right-8 z-50 pointer-events-none">
                 <div 
                     className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden"
                     style={{ borderColor: colors.primary }}
@@ -1747,15 +1710,16 @@ const OrderForm: React.FC = () => {
                     )}
                 </div>
               </div>
+              
               {/* Border Frame Overlay */}
-{enableBorder && (
-  <BorderFrame 
-    style={borderStyle} 
-    primaryColor={colors.primary} 
-    secondaryColor={colors.secondary} 
-  />
-)}
-               {/* --- END CARD CONTENT --- */}
+              {enableBorder && (
+                <BorderFrame 
+                  style={borderStyle} 
+                  primaryColor={colors.primary} 
+                  secondaryColor={colors.secondary} 
+                />
+              )}
+              {/* --- END CARD CONTENT --- */}
 
                {/* "Click to Expand" Icon Overlay (Gallery Style) */}
                {!isFullScreen && (
