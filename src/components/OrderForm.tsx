@@ -1575,30 +1575,6 @@ const OrderForm: React.FC = () => {
                 </div>
               )}
             </div>
-            {/* Bio Generation */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium text-gray-300">Card Bio</label>
-                <button 
-                  type="button"
-                  onClick={handleGenerateBio}
-                  disabled={isGenerating}
-                  className="text-xs flex items-center gap-1 text-cyan-400 hover:text-cyan-300 disabled:opacity-50"
-                  style={{ color: colors.primary }}
-                >
-                  <Sparkles className="w-3 h-3" />
-                  {isGenerating ? 'Writing Legend...' : 'AI Generate Bio'}
-                </button>
-              </div>
-              <textarea 
-                value={details.bio}
-                onChange={(e) => setDetails({...details, bio: e.target.value})}
-                rows={3}
-                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:ring-2 outline-none transition-colors"
-                style={{ '--tw-ring-color': colors.primary } as React.CSSProperties}
-                placeholder="Enter stats or click AI Generate..."
-              />
-            </div>
 
             <button 
                 type="submit" 
@@ -1717,8 +1693,8 @@ const OrderForm: React.FC = () => {
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
               {/* Text Content */}
-              <div className="absolute bottom-6 left-8 right-8 z-50">
-                <div className="flex justify-between items-end border-b border-white/30 pb-2 mb-2">
+              <div className="absolute bottom-16 left-8 right-8 z-50">
+                <div className="flex justify-between items-end border-b border-white/30 pb-2 mb-3">
                   <div>
                       <p 
                         className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
@@ -1733,6 +1709,12 @@ const OrderForm: React.FC = () => {
                   </div>
                 </div>
                 
+                <div className="flex justify-between text-xs font-bold text-gray-300">
+                  <span>{details.position || 'POS'}</span>
+                  <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
+                </div>
+              </div>
+                
                 <div className="flex justify-between text-xs font-bold text-gray-300 mb-2">
                   <span>{details.position || 'POS'}</span>
                   <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
@@ -1744,8 +1726,8 @@ const OrderForm: React.FC = () => {
               </div>
               
               {/* Top Badge */}
-              <div className="absolute top-4 right-4 z-50">
-                 <div 
+              <div className="absolute top-8 right-8 z-50">
+                <div 
                     className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden"
                     style={{ borderColor: colors.primary }}
                 >
@@ -1760,10 +1742,10 @@ const OrderForm: React.FC = () => {
                           className="font-bold text-xs text-center leading-none"
                           style={{ color: colors.primary }}
                       >
-                         PRO<br/>CARD
+                        PRO<br/>CARD
                       </div>
                     )}
-                 </div>
+                </div>
               </div>
               {/* Border Frame Overlay */}
 {enableBorder && (
