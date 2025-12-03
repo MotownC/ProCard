@@ -303,6 +303,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
 const BACKGROUND_STYLES = [
   { id: 'classic', name: 'Classic Fade', type: 'css' },
   { id: 'classic-enhanced', name: 'Classic Enhanced', type: 'canvas' },
+  { id: 'radar', name: 'Tech Radar', type: 'canvas' }, // Added Tech Radar
   { id: 'cyber', name: 'Cyber Grid', type: 'canvas' },
   { id: 'velocity', name: 'Velocity', type: 'canvas' },
   { id: 'hex', name: 'Hex Tech', type: 'css' },
@@ -310,7 +311,6 @@ const BACKGROUND_STYLES = [
   { id: 'energy', name: 'Energy', type: 'canvas' },
   { id: 'splatter', name: 'Splatter', type: 'canvas' }, 
   { id: 'hurricane', name: 'Hurricane', type: 'canvas' },
-  { id: 'radar', name: 'Tech Radar', type: 'canvas' },
 ];
 
 // Define available Border Styles
@@ -350,6 +350,20 @@ const OrderForm: React.FC = () => {
   const [borderStyle, setBorderStyle] = useState('tech-frame');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Dynamic Font Size Calculator
+  const getNameFontSize = (name: string) => {
+    // Base size for short names is roughly 2.25rem (text-4xl)
+    const baseSize = 2.25; 
+    
+    if (!name) return { fontSize: `${baseSize}rem` };
+    if (name.length <= 10) return { fontSize: `${baseSize}rem` };
+    
+    // Scale down linearly based on character count
+    // Example: 20 chars -> (10/20) * 2.25 = 1.125rem
+    const scaleFactor = 10 / name.length;
+    return { fontSize: `${Math.max(1, baseSize * scaleFactor)}rem` };
+  };
 
   // Close full screen on Escape key
   useEffect(() => {
@@ -442,8 +456,7 @@ const OrderForm: React.FC = () => {
     // --- GENERATORS ---
 
     if (backgroundStyle === 'shatter') {
-      // --- BACKGROUND LAYER (Behind Player) ---
-      
+      // ... existing shatter logic ...
       // Dark base
       const grad = ctx.createLinearGradient(0, 0, 320, 480);
       grad.addColorStop(0, '#0f172a');
@@ -451,16 +464,14 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // 1. Impact Web (Spiderweb cracks radiating from center)
+      // 1. Impact Web
       ctx.beginPath();
       const cx = 160;
       const cy = 240;
-      // Radial lines
       for(let i=0; i<24; i++) {
           ctx.moveTo(cx, cy);
           const angle = (i / 24) * Math.PI * 2 + rng(-0.1, 0.1);
           const len = rng(150, 450);
-          // Zig zag cracks
           let currX = cx; 
           let currY = cy;
           let currLen = 0;
@@ -475,7 +486,6 @@ const OrderForm: React.FC = () => {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Concentric cracks
       for(let r=40; r<450; r+=40) {
           ctx.beginPath();
           for(let a=0; a<Math.PI*2; a+=0.4) {
@@ -489,7 +499,6 @@ const OrderForm: React.FC = () => {
           ctx.stroke();
       }
 
-      // 2. Background Shards (Darker/Distant)
       for (let i = 0; i < 60; i++) {
         ctx.beginPath();
         const x = rng(0, 320);
@@ -504,10 +513,6 @@ const OrderForm: React.FC = () => {
         ctx.fill();
       }
 
-      // --- FOREGROUND LAYER (In Front of Player) ---
-      // We draw these on fgCtx
-      
-      // 3. Foreground High-Energy Shards
       fgCtx.shadowBlur = 10;
       for (let i = 0; i < 90; i++) {
         fgCtx.beginPath();
@@ -526,14 +531,12 @@ const OrderForm: React.FC = () => {
         fgCtx.shadowColor = isPrimary ? colors.primary : colors.secondary;
         fgCtx.fill();
         
-        // Highlight edges
         fgCtx.lineWidth = 0.5;
         fgCtx.strokeStyle = pickVariant(palette, 0.3);
         fgCtx.stroke();
       }
-      fgCtx.shadowBlur = 0; // Reset
+      fgCtx.shadowBlur = 0;
 
-      // 4. Dust/Debris
       for(let i=0; i<150; i++) {
           fgCtx.beginPath();
           fgCtx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
@@ -541,8 +544,124 @@ const OrderForm: React.FC = () => {
           fgCtx.fill();
       }
     }
+    else if (backgroundStyle === 'radar') {
+      // 1. Tech Grid Background
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, 320, 480);
+      
+      // Tint Background
+      const radGrad = ctx.createRadialGradient(160, 200, 0, 160, 200, 350);
+      radGrad.addColorStop(0, pickVariant(primaryPalette, 0.15));
+      radGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, 0, 320, 480);
+
+      const cx = 160;
+      const cy = 200; // Center behind player chest
+
+      // 2. Concentric Target Rings (Alternating Colors)
+      ctx.shadowBlur = 10;
+      
+      let ringIndex = 0;
+      for(let r=40; r < 400; r+=35) {
+          ringIndex++;
+          ctx.beginPath();
+          const dashLen = rng(20, 100);
+          const gapLen = rng(10, 60);
+          
+          const startAngle = rng(0, Math.PI);
+          
+          ctx.arc(cx, cy, r, startAngle, startAngle + (Math.PI*1.5));
+          
+          // ALTERNATE COLORS: Even rings = Primary, Odd rings = Secondary
+          const palette = ringIndex % 2 === 0 ? primaryPalette : secondaryPalette;
+          
+          ctx.strokeStyle = pickVariant(palette, rng(0.4, 0.9));
+          ctx.shadowColor = ringIndex % 2 === 0 ? colors.primary : colors.secondary;
+          ctx.lineWidth = rng(1, 3);
+          
+          if (r % 70 === 0) {
+             ctx.setLineDash([dashLen, gapLen]);
+          } else {
+             ctx.setLineDash([]);
+          }
+          
+          ctx.stroke();
+      }
+      ctx.setLineDash([]); 
+      ctx.shadowBlur = 0;
+
+      // 3. Radial Scanner Lines (Secondary Color)
+      for(let i=0; i<12; i++) {
+         const angle = (i / 12) * Math.PI * 2;
+         ctx.beginPath();
+         ctx.moveTo(cx, cy);
+         const len = 350;
+         ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+         
+         ctx.strokeStyle = pickVariant(secondaryPalette, 0.2); // Uses secondary
+         ctx.lineWidth = 1;
+         ctx.stroke();
+      }
+
+      // 4. Tech Segments (Floating Rectangles/Brackets)
+      // We draw more of these, using alternating colors
+      for(let i=0; i<20; i++) {
+          const r = rng(100, 350);
+          const theta = rng(0, Math.PI * 2);
+          const w = rng(10, 50);
+          const h = rng(5, 20);
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(theta);
+          
+          // 40% chance of being secondary color (High Contrast)
+          const isSecondary = Math.random() > 0.6;
+          const palette = isSecondary ? secondaryPalette : primaryPalette;
+
+          ctx.fillStyle = pickVariant(palette, 0.5);
+          ctx.fillRect(r, -h/2, w, h);
+          
+          // Add highlight border
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(r, -h/2, w, h);
+          
+          ctx.restore();
+      }
+
+      // 5. Draw the Nameplate Box (White Background)
+      const nameY = 355; 
+      const nameHeight = 70;
+      
+      fgCtx.beginPath();
+      // Trapezoid shape
+      fgCtx.moveTo(20, nameY); 
+      fgCtx.lineTo(300, nameY); 
+      fgCtx.lineTo(310, nameY + nameHeight); 
+      fgCtx.lineTo(10, nameY + nameHeight); 
+      fgCtx.closePath();
+      
+      fgCtx.fillStyle = '#ffffff';
+      fgCtx.fill();
+      
+      // Outline
+      fgCtx.strokeStyle = colors.secondary;
+      fgCtx.lineWidth = 2;
+      fgCtx.stroke();
+      
+      // Dark bar below name
+      fgCtx.beginPath();
+      fgCtx.moveTo(10, nameY + nameHeight);
+      fgCtx.lineTo(310, nameY + nameHeight);
+      fgCtx.lineTo(300, nameY + nameHeight + 25);
+      fgCtx.lineTo(20, nameY + nameHeight + 25);
+      fgCtx.fillStyle = '#1a1a1a';
+      fgCtx.fill();
+    }
     else if (backgroundStyle === 'classic-enhanced') {
-      // Smooth base gradient (50/50 split)
+      // ... existing classic-enhanced logic ...
       const baseGrad = ctx.createLinearGradient(0, 0, 320, 480);
       baseGrad.addColorStop(0, primaryPalette.base);
       baseGrad.addColorStop(0.4, primaryPalette.darker1);
@@ -551,7 +670,6 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = baseGrad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // Radial overlay for depth
       const radialGrad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
       radialGrad.addColorStop(0, pickVariant(primaryPalette, 0.2));
       radialGrad.addColorStop(0.5, 'transparent');
@@ -559,7 +677,6 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = radialGrad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // Subtle diagonal brush strokes
       ctx.globalAlpha = 0.15;
       for(let i = 0; i < 40; i++) {
         const x = rng(-100, 420);
@@ -587,7 +704,6 @@ const OrderForm: React.FC = () => {
       }
       ctx.globalAlpha = 1;
 
-      // Color banding (retro poster effect)
       const bands = 6;
       ctx.globalAlpha = 0.08;
       for(let i = 0; i < bands; i++) {
@@ -600,7 +716,6 @@ const OrderForm: React.FC = () => {
       }
       ctx.globalAlpha = 1;
 
-      // Geometric accent shapes
       ctx.globalAlpha = 0.12;
       for(let i = 0; i < 15; i++) {
         ctx.beginPath();
@@ -624,7 +739,6 @@ const OrderForm: React.FC = () => {
       }
       ctx.globalAlpha = 1;
 
-      // Light particles
       for(let i = 0; i < 30; i++) {
         const x = rng(0, 320);
         const y = rng(0, 480);
@@ -641,7 +755,6 @@ const OrderForm: React.FC = () => {
         ctx.fill();
       }
 
-      // Fine texture overlay
       ctx.globalAlpha = 0.05;
       for(let i = 0; i < 3000; i++) {
         ctx.fillStyle = Math.random() > 0.5 ? '#ffffff' : '#000000';
@@ -649,12 +762,12 @@ const OrderForm: React.FC = () => {
       }
       ctx.globalAlpha = 1;
     }
+    // ... rest of the styles ...
     else if (backgroundStyle === 'energy') {
-      // Deep space background
+      // ... existing energy logic ...
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, 320, 480);
 
-      // Glowing Center
       const centerGlow = ctx.createRadialGradient(160, 240, 0, 160, 240, 300);
       centerGlow.addColorStop(0, pickVariant(primaryPalette, 0.3));
       centerGlow.addColorStop(0.5, pickVariant(primaryPalette, 0.15));
@@ -662,7 +775,6 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = centerGlow;
       ctx.fillRect(0,0, 320, 480);
 
-      // Fractal Lightning
       const drawBolt = (x1: number, y1: number, x2: number, y2: number, width: number, colorPalette: ReturnType<typeof getColorVariants>, depth: number = 0) => {
         const dx = x2 - x1;
         const dy = y2 - y1;
@@ -697,7 +809,6 @@ const OrderForm: React.FC = () => {
         }
       };
 
-      // Main Bolts
       drawBolt(-50, 0, 220, 480, 3, primaryPalette);           
       drawBolt(370, 0, 100, 480, 3, primaryPalette);           
       drawBolt(50, -50, 160, 300, 2.5, secondaryPalette);      
@@ -709,7 +820,6 @@ const OrderForm: React.FC = () => {
       drawBolt(160, 0, 80, 480, 2.5, primaryPalette);          
       drawBolt(160, 0, 240, 480, 2.5, secondaryPalette);       
 
-      // Static Particles
       for(let i=0; i<60; i++) {
           ctx.beginPath();
           ctx.arc(rng(0, 320), rng(0, 480), rng(0.5, 2), 0, Math.PI*2);
@@ -721,7 +831,6 @@ const OrderForm: React.FC = () => {
           ctx.fill();
       }
       
-      // Glowing orbs
       for(let i=0; i<8; i++) {
           const x = rng(0, 320);
           const y = rng(0, 480);
@@ -736,25 +845,22 @@ const OrderForm: React.FC = () => {
       }
     }
     else if (backgroundStyle === 'splatter') {
-      // 1. Concrete/Grunge Wall Base
+      // ... existing splatter logic ...
       const gradient = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
       gradient.addColorStop(0, '#2a2a2a');
       gradient.addColorStop(1, '#050505'); 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 320, 480);
 
-      // Add Noise Texture
       for(let i=0; i<8000; i++) {
           ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.2)';
           ctx.fillRect(Math.random() * 320, Math.random() * 480, 1.5, 1.5);
       }
 
-      // Helper: Explosive Paintball Splat
       const drawPaintball = (cx: number, cy: number, radius: number, palette: ReturnType<typeof getColorVariants>) => {
           const color = pickVariant(palette, 1);
           ctx.fillStyle = color;
           
-          // Core Impact
           ctx.beginPath();
           for(let i=0; i<Math.PI*2; i+=0.1) {
               const r = radius * (0.7 + Math.random() * 0.6); 
@@ -762,7 +868,6 @@ const OrderForm: React.FC = () => {
           }
           ctx.fill();
 
-          // Spray rays
           const rays = 15 + Math.random() * 20;
           for(let i=0; i<rays; i++) {
               const angle = Math.random() * Math.PI * 2;
@@ -779,7 +884,6 @@ const OrderForm: React.FC = () => {
               ctx.fill();
           }
 
-          // Satellite Droplets
           const droplets = 40 + Math.random() * 50;
           for(let i=0; i<droplets; i++) {
               const dist = radius * (1.5 + Math.random() * 6);
@@ -793,7 +897,6 @@ const OrderForm: React.FC = () => {
           }
       };
 
-      // Helper: Aggressive Brush Stroke
       const drawPowerStroke = (x1: number, y1: number, x2: number, y2: number, palette: ReturnType<typeof getColorVariants>, thickness: number) => {
           const dx = x2 - x1;
           const dy = y2 - y1;
@@ -826,13 +929,9 @@ const OrderForm: React.FC = () => {
           ctx.restore();
       };
 
-      // LAYOUT GENERATION
-      
-      // 1. Background Power Strokes
       drawPowerStroke(-80, 80, 380, 450, secondaryPalette, 140);
       drawPowerStroke(380, -80, -80, 520, primaryPalette, 160);
 
-      // 2. Main Paintball Impacts
       for(let i=0; i<7; i++) {
           const x = rng(40, 280);
           const y = rng(80, 400);
@@ -840,7 +939,6 @@ const OrderForm: React.FC = () => {
           drawPaintball(x, y, rng(10, 30), palette);
       }
       
-      // 3. White contrast splatters
       for(let i=0; i<3; i++) {
           const x = rng(20, 300);
           const y = rng(20, 460);
@@ -863,10 +961,8 @@ const OrderForm: React.FC = () => {
           ctx.shadowBlur = 0;
       }
 
-      // 4. Foreground Swipe
       drawPowerStroke(-40, 320, 360, 240, primaryPalette, 50);
       
-      // 5. Drips
       for(let i=0; i<15; i++) {
           const x = rng(0, 320);
           const y = rng(0, 400);
@@ -883,7 +979,6 @@ const OrderForm: React.FC = () => {
           ctx.globalAlpha = 1;
       }
       
-      // 6. Accent spots
       for(let i=0; i<5; i++) {
           const x = rng(20, 300);
           const y = rng(20, 460);
@@ -892,11 +987,10 @@ const OrderForm: React.FC = () => {
       }
     }
     else if (backgroundStyle === 'velocity') {
-      // Speed base
+      // ... existing velocity logic ...
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, 320, 480);
 
-      // Motion streaks
       for (let i = 0; i < 150; i++) {
         const x = rng(-150, 470);
         const y = rng(-150, 630);
@@ -919,7 +1013,6 @@ const OrderForm: React.FC = () => {
         ctx.stroke();
       }
       
-      // Speed particles
       for(let i=0; i<50; i++){
           ctx.beginPath();
           ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
@@ -932,7 +1025,6 @@ const OrderForm: React.FC = () => {
           ctx.fill();
       }
       
-      // Glowing speed trails
       for(let i=0; i<12; i++) {
           const x = rng(0, 320);
           const y = rng(0, 480);
@@ -957,12 +1049,11 @@ const OrderForm: React.FC = () => {
       }
     }
     else if (backgroundStyle === 'cyber') {
-      // Perspective Grid
+      // ... existing cyber logic ...
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, 320, 480);
       const horizonY = 280;
 
-      // Starfield background
       for(let i = 0; i < 80; i++) {
           const x = rng(0, 320);
           const y = rng(0, horizonY - 20);
@@ -979,7 +1070,6 @@ const OrderForm: React.FC = () => {
           ctx.shadowBlur = 0;
       }
 
-      // Floating geometric shapes
       for(let i = 0; i < 12; i++) {
           const x = rng(20, 300);
           const y = rng(20, horizonY - 40);
@@ -999,7 +1089,6 @@ const OrderForm: React.FC = () => {
           ctx.shadowBlur = 0;
       }
 
-      // Scan lines across top
       ctx.globalAlpha = 0.1;
       for(let y = 0; y < horizonY; y += 8) {
           const palette = y % 16 === 0 ? primaryPalette : secondaryPalette;
@@ -1012,7 +1101,6 @@ const OrderForm: React.FC = () => {
       }
       ctx.globalAlpha = 1;
 
-      // Glowing data streams
       for(let i = 0; i < 5; i++) {
           const x = rng(40, 280);
           const y1 = rng(0, horizonY - 100);
@@ -1034,7 +1122,6 @@ const OrderForm: React.FC = () => {
           ctx.stroke();
           ctx.shadowBlur = 0;
       }  
-      // Horizon glow
       const grad = ctx.createLinearGradient(0, horizonY - 50, 0, horizonY + 80);
       grad.addColorStop(0, 'transparent');
       grad.addColorStop(0.3, pickVariant(secondaryPalette, 0.6));
@@ -1046,7 +1133,6 @@ const OrderForm: React.FC = () => {
 
       const centerX = 160;
       
-      // Vertical grid lines
       ctx.lineWidth = 1;
       ctx.lineCap = 'round';
       
@@ -1063,7 +1149,6 @@ const OrderForm: React.FC = () => {
           ctx.stroke();
       }
 
-      // Horizontal grid lines
       let y = 480;
       let lineCount = 0;
       while (y > horizonY + 5) {
@@ -1084,7 +1169,6 @@ const OrderForm: React.FC = () => {
           lineCount++;
       }
       
-      // Sun
       const sunGrad = ctx.createLinearGradient(0, horizonY - 80, 0, horizonY + 20);
       sunGrad.addColorStop(0, pickVariant(secondaryPalette, 1));
       sunGrad.addColorStop(0.3, pickVariant(secondaryPalette, 0.9));
@@ -1098,7 +1182,6 @@ const OrderForm: React.FC = () => {
       ctx.fill();
       ctx.shadowBlur = 0;
       
-      // Add glowing grid intersections
       for(let gx = -360; gx <= 680; gx += 80) {
           for(let gy = 480; gy > horizonY + 20; gy -= 40) {
               if(Math.random() > 0.7) {
@@ -1116,7 +1199,6 @@ const OrderForm: React.FC = () => {
           }
       }
       
-      // Add floating data particles
       for(let i=0; i<20; i++) {
           const x = rng(0, 320);
           const y = rng(horizonY - 100, horizonY + 50);
@@ -1131,14 +1213,13 @@ const OrderForm: React.FC = () => {
       }
     }
     else if (backgroundStyle === 'hurricane') {
-      // Stormy base
+      // ... existing hurricane logic ...
       const grad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
       grad.addColorStop(0, '#0f172a');
       grad.addColorStop(1, '#020617');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // Spiral Center Glow
       const eye = ctx.createRadialGradient(160, 240, 5, 160, 240, 50);
       eye.addColorStop(0, pickVariant(primaryPalette, 0.4));
       eye.addColorStop(0.5, pickVariant(primaryPalette, 0.2));
@@ -1150,7 +1231,6 @@ const OrderForm: React.FC = () => {
       const cy = 240;
       const maxR = 400;
 
-      // 1. Draw Cloud Wall Particles
       for(let i=0; i<500; i++) {
           const r = rng(20, maxR);
           const theta = rng(0, Math.PI*2);
@@ -1166,7 +1246,6 @@ const OrderForm: React.FC = () => {
           ctx.fill();
       }
 
-      // 2. Draw Swirling Arms
       for (let i = 0; i < 700; i++) {
         const r = Math.pow(Math.random(), 0.7) * maxR;
         const armIndex = i % 3;
@@ -1192,7 +1271,6 @@ const OrderForm: React.FC = () => {
         ctx.stroke();
       }
 
-      // 3. Storm Lightning
       for(let i=0; i<12; i++) {
           const r = rng(40, 250);
           const armIndex = i % 3;
@@ -1222,7 +1300,6 @@ const OrderForm: React.FC = () => {
           ctx.stroke();
       }
       
-      // 4. Energized storm cores
       for(let i=0; i<6; i++) {
           const r = rng(80, 200);
           const theta = rng(0, Math.PI * 2);
@@ -1240,114 +1317,6 @@ const OrderForm: React.FC = () => {
           ctx.arc(x, y, 40, 0, Math.PI * 2);
           ctx.fill();
       }
-    }
-    else if (backgroundStyle === 'radar') {
-      // 1. Tech Grid Background
-      ctx.fillStyle = '#050505';
-      ctx.fillRect(0, 0, 320, 480);
-      
-      // Green/Primary tint
-      const radGrad = ctx.createRadialGradient(160, 200, 0, 160, 200, 350);
-      radGrad.addColorStop(0, pickVariant(primaryPalette, 0.2));
-      radGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = radGrad;
-      ctx.fillRect(0, 0, 320, 480);
-
-      const cx = 160;
-      const cy = 200; // Center behind player chest
-
-      // 2. Concentric Target Rings
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = colors.primary;
-      
-      for(let r=40; r < 400; r+=35) {
-          ctx.beginPath();
-          const dashLen = rng(20, 100);
-          const gapLen = rng(10, 60);
-          
-          // Rotate randomly so gaps don't align
-          const startAngle = rng(0, Math.PI);
-          
-          ctx.arc(cx, cy, r, startAngle, startAngle + (Math.PI*1.5));
-          
-          ctx.strokeStyle = pickVariant(primaryPalette, rng(0.3, 0.8));
-          ctx.lineWidth = rng(1, 3);
-          
-          // Make some rings dashed, some solid
-          if (r % 70 === 0) {
-             ctx.setLineDash([dashLen, gapLen]);
-          } else {
-             ctx.setLineDash([]);
-          }
-          
-          ctx.stroke();
-      }
-      ctx.setLineDash([]); // Reset
-      ctx.shadowBlur = 0;
-
-      // 3. Radial Scanner Lines
-      for(let i=0; i<12; i++) {
-         const angle = (i / 12) * Math.PI * 2;
-         ctx.beginPath();
-         ctx.moveTo(cx, cy);
-         const len = 350;
-         ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
-         
-         ctx.strokeStyle = pickVariant(primaryPalette, 0.15);
-         ctx.lineWidth = 1;
-         ctx.stroke();
-      }
-
-      // 4. Floating Tech Segments (The thick blocks)
-      for(let i=0; i<8; i++) {
-          const r = rng(100, 280);
-          const width = rng(10, 30);
-          const start = rng(0, Math.PI * 2);
-          const end = start + rng(0.2, 0.6);
-          
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, start, end);
-          ctx.strokeStyle = pickVariant(primaryPalette, 0.5);
-          ctx.lineWidth = width;
-          ctx.stroke();
-          
-          // Thin highlight line on edge
-          ctx.beginPath();
-          ctx.arc(cx, cy, r + width/2, start, end);
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-      }
-
-      // 5. Draw the Nameplate Box (White Background)
-      // We draw this on the canvas so it sits behind the text HTML layer
-      const nameY = 355;
-      const nameHeight = 70;
-      
-      fgCtx.beginPath();
-      // Trapezoid shape
-      fgCtx.moveTo(20, nameY); // Top Left
-      fgCtx.lineTo(300, nameY); // Top Right
-      fgCtx.lineTo(310, nameY + nameHeight); // Bottom Right slant
-      fgCtx.lineTo(10, nameY + nameHeight); // Bottom Left slant
-      fgCtx.closePath();
-      
-      fgCtx.fillStyle = '#ffffff';
-      fgCtx.fill();
-      
-      // Outline
-      fgCtx.strokeStyle = colors.secondary;
-      fgCtx.lineWidth = 2;
-      fgCtx.stroke();
-      
-      // Dark bar below name
-      fgCtx.beginPath();
-      fgCtx.moveTo(10, nameY + nameHeight);
-      fgCtx.lineTo(310, nameY + nameHeight);
-      fgCtx.lineTo(300, nameY + nameHeight + 25);
-      fgCtx.lineTo(20, nameY + nameHeight + 25);
-      fgCtx.fillStyle = '#1a1a1a';
-      fgCtx.fill();
     }
 
   }, [backgroundStyle, colors]);
@@ -1641,6 +1610,7 @@ const OrderForm: React.FC = () => {
                     }`}
                   >
                     <span>{style.name}</span>
+                    {/* Sparkles icon removed */}
                   </button>
                 ))}
               </div>
@@ -1673,6 +1643,7 @@ const OrderForm: React.FC = () => {
                       }`}
                     >
                       <span>{style.name}</span>
+                      {/* Frame icon removed */}
                     </button>
                   ))}
                 </div>
@@ -1785,18 +1756,19 @@ const OrderForm: React.FC = () => {
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
               {/* Text Content - Moved down to bottom-8 now that bio is gone */}
-              {/* Text Content */}
               <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
                 <div className={`flex justify-between items-end border-b pb-2 mb-3 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
-                  <div>
+                  <div className="flex-1 mr-2">
                       <p 
                         className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
                         style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary }}
                       >
                         {details.team || 'TEAM NAME'}
                       </p>
+                      {/* DYNAMIC FONT SIZING APPLIED HERE */}
                       <h1 
-                        className={`text-4xl font-['Teko'] font-bold leading-none italic uppercase drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black' : 'text-white'}`}
+                        className={`font-['Teko'] font-bold leading-none italic uppercase drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black' : 'text-white'}`}
+                        style={getNameFontSize(details.name)}
                       >
                         {details.name || 'PLAYER NAME'}
                       </h1>
@@ -1809,7 +1781,6 @@ const OrderForm: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-between text-xs font-bold text-gray-300">
-                  {/* The dark bar we drew is #1a1a1a, so white text here is fine */}
                   <span>{details.position || 'POS'}</span>
                   <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
                 </div>
