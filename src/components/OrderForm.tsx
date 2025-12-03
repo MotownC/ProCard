@@ -58,18 +58,18 @@ interface BorderFrameProps {
 }
 
 const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondaryColor }) => {
-  // 1. NEW TECH FRAME (Replaces the hexagon corners)
+  // 1. UPDATED TECH FRAME (Hourglass / Pinched Sides)
   if (style === 'tech-frame') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Carbon Fiber Pattern for the Border */}
+          {/* Carbon Fiber Pattern */}
           <pattern id="techCarbon" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-            <rect width="8" height="8" fill="#151515" />
-            <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#252525" strokeWidth="1.5" />
+            <rect width="8" height="8" fill="#111" />
+            <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#222" strokeWidth="1.5" />
           </pattern>
           
-          {/* Glow filter for the inner edge */}
+          {/* Glow filter */}
           <filter id="techGlow">
             <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
             <feMerge>
@@ -78,32 +78,32 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             </feMerge>
           </filter>
 
-          {/* Gradient for the silver bevel */}
-          <linearGradient id="silverBevel" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#ffffff', stopOpacity: 0.9 }} />
-            <stop offset="50%" style={{ stopColor: '#555555', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#ffffff', stopOpacity: 0.9 }} />
+          {/* Silver Bevel Gradient */}
+          <linearGradient id="silverBevel" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#888', stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#888', stopOpacity: 1 }} />
           </linearGradient>
         </defs>
         
         {/* 
-           The Main Frame Shape 
-           We draw the outer box (0,0 to 320,480) 
-           Then we draw the INNER 'Cutout' counter-clockwise to punch a hole.
+           The Main Frame Shape (EvenOdd Rule)
+           Outer: 0,0 Rectangle
+           Inner: The "Hourglass" Cutout
         */}
         <path 
           d="
             M 0,0 H 320 V 480 H 0 Z 
-            M 30,30 
-            L 290,30 
-            L 270,100
-            L 300,240 
-            L 270,380 
-            L 290,450 
-            L 30,450 
-            L 50,380 
-            L 20,240 
-            L 50,100 
+            M 20,20 
+            L 300,20 
+            L 305,160 
+            L 275,240 
+            L 305,320 
+            L 300,460 
+            L 20,460 
+            L 15,320 
+            L 45,240 
+            L 15,160 
             Z
           " 
           fill="url(#techCarbon)" 
@@ -112,21 +112,21 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         />
 
         {/* 
-           The Inner Bevel (Silver Line)
-           This traces just the cutout shape to make it look 3D
+           The Silver Inner Bevel 
+           Traces the hole to define the shape
         */}
         <path 
           d="
-            M 30,30 
-            L 290,30 
-            L 270,100
-            L 300,240 
-            L 270,380 
-            L 290,450 
-            L 30,450 
-            L 50,380 
-            L 20,240 
-            L 50,100 
+            M 20,20 
+            L 300,20 
+            L 305,160 
+            L 275,240 
+            L 305,320 
+            L 300,460 
+            L 20,460 
+            L 15,320 
+            L 45,240 
+            L 15,160 
             Z
           "
           fill="none"
@@ -135,17 +135,25 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           filter="url(#techGlow)"
         />
 
-        {/* Decorative Tech Accents (Thin colored lines) */}
-        {/* Top Left Accent */}
-        <path d="M 35,45 L 60,105 L 35,230" fill="none" stroke={primaryColor} strokeWidth="1.5" opacity="0.8" />
-        {/* Bottom Right Accent */}
-        <path d="M 285,435 L 260,375 L 285,250" fill="none" stroke={secondaryColor} strokeWidth="1.5" opacity="0.8" />
+        {/* 
+           Decorative Accents 
+           These follow the angled pinch 
+        */}
         
-        {/* Corner Bolts */}
-        <circle cx="20" cy="20" r="4" fill="#333" stroke="#555" strokeWidth="1" />
-        <circle cx="300" cy="20" r="4" fill="#333" stroke="#555" strokeWidth="1" />
-        <circle cx="20" cy="460" r="4" fill="#333" stroke="#555" strokeWidth="1" />
-        <circle cx="300" cy="460" r="4" fill="#333" stroke="#555" strokeWidth="1" />
+        {/* Top Left Corner Accent */}
+        <path d="M 25,25 L 100,25" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9" />
+        <path d="M 25,25 L 22,150" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9" />
+        
+        {/* Bottom Right Corner Accent */}
+        <path d="M 295,455 L 220,455" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9" />
+        <path d="M 295,455 L 298,330" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9" />
+
+        {/* The "Pinch" Highlight Lines (Middle) */}
+        <line x1="15" y1="160" x2="45" y2="240" stroke={primaryColor} strokeWidth="1" opacity="0.6" />
+        <line x1="45" y1="240" x2="15" y2="320" stroke={primaryColor} strokeWidth="1" opacity="0.6" />
+        
+        <line x1="305" y1="160" x2="275" y2="240" stroke={secondaryColor} strokeWidth="1" opacity="0.6" />
+        <line x1="275" y1="240" x2="305" y2="320" stroke={secondaryColor} strokeWidth="1" opacity="0.6" />
 
       </svg>
     );
