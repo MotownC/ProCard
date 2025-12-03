@@ -58,62 +58,95 @@ interface BorderFrameProps {
 }
 
 const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondaryColor }) => {
+  // 1. NEW TECH FRAME (Replaces the hexagon corners)
   if (style === 'tech-frame') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          {/* Carbon Fiber Pattern for the Border */}
+          <pattern id="techCarbon" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+            <rect width="8" height="8" fill="#151515" />
+            <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#252525" strokeWidth="1.5" />
+          </pattern>
+          
+          {/* Glow filter for the inner edge */}
+          <filter id="techGlow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
-          
-          <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#666', stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: '#ccc', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#444', stopOpacity: 1 }} />
+
+          {/* Gradient for the silver bevel */}
+          <linearGradient id="silverBevel" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#ffffff', stopOpacity: 0.9 }} />
+            <stop offset="50%" style={{ stopColor: '#555555', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#ffffff', stopOpacity: 0.9 }} />
           </linearGradient>
         </defs>
         
-        {/* Outer metallic frame */}
-        <rect x="4" y="4" width="312" height="472" fill="none" stroke="url(#metalGrad)" strokeWidth="8" />
+        {/* 
+           The Main Frame Shape 
+           We draw the outer box (0,0 to 320,480) 
+           Then we draw the INNER 'Cutout' counter-clockwise to punch a hole.
+        */}
+        <path 
+          d="
+            M 0,0 H 320 V 480 H 0 Z 
+            M 30,30 
+            L 290,30 
+            L 270,100
+            L 300,240 
+            L 270,380 
+            L 290,450 
+            L 30,450 
+            L 50,380 
+            L 20,240 
+            L 50,100 
+            Z
+          " 
+          fill="url(#techCarbon)" 
+          fillRule="evenodd"
+          stroke="none"
+        />
+
+        {/* 
+           The Inner Bevel (Silver Line)
+           This traces just the cutout shape to make it look 3D
+        */}
+        <path 
+          d="
+            M 30,30 
+            L 290,30 
+            L 270,100
+            L 300,240 
+            L 270,380 
+            L 290,450 
+            L 30,450 
+            L 50,380 
+            L 20,240 
+            L 50,100 
+            Z
+          "
+          fill="none"
+          stroke="url(#silverBevel)"
+          strokeWidth="3"
+          filter="url(#techGlow)"
+        />
+
+        {/* Decorative Tech Accents (Thin colored lines) */}
+        {/* Top Left Accent */}
+        <path d="M 35,45 L 60,105 L 35,230" fill="none" stroke={primaryColor} strokeWidth="1.5" opacity="0.8" />
+        {/* Bottom Right Accent */}
+        <path d="M 285,435 L 260,375 L 285,250" fill="none" stroke={secondaryColor} strokeWidth="1.5" opacity="0.8" />
         
-        {/* Inner glowing line */}
-        <rect x="12" y="12" width="296" height="456" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#glow)" opacity="0.8" />
-        
-        {/* Corner hexagons - Top Left */}
-        <g transform="translate(40, 40)">
-          <polygon points="0,-20 17.32,-10 17.32,10 0,20 -17.32,10 -17.32,-10" fill="none" stroke="url(#metalGrad)" strokeWidth="3"/>
-          <polygon points="0,-16 13.86,-8 13.86,8 0,16 -13.86,8 -13.86,-8" fill="none" stroke={primaryColor} strokeWidth="1.5" filter="url(#glow)"/>
-        </g>
-        
-        {/* Corner hexagons - Top Right */}
-        <g transform="translate(280, 40)">
-          <polygon points="0,-20 17.32,-10 17.32,10 0,20 -17.32,10 -17.32,-10" fill="none" stroke="url(#metalGrad)" strokeWidth="3"/>
-          <polygon points="0,-16 13.86,-8 13.86,8 0,16 -13.86,8 -13.86,-8" fill="none" stroke={secondaryColor} strokeWidth="1.5" filter="url(#glow)"/>
-        </g>
-        
-        {/* Corner hexagons - Bottom Left */}
-        <g transform="translate(40, 440)">
-          <polygon points="0,-20 17.32,-10 17.32,10 0,20 -17.32,10 -17.32,-10" fill="none" stroke="url(#metalGrad)" strokeWidth="3"/>
-          <polygon points="0,-16 13.86,-8 13.86,8 0,16 -13.86,8 -13.86,-8" fill="none" stroke={secondaryColor} strokeWidth="1.5" filter="url(#glow)"/>
-        </g>
-        
-        {/* Corner hexagons - Bottom Right */}
-        <g transform="translate(280, 440)">
-          <polygon points="0,-20 17.32,-10 17.32,10 0,20 -17.32,10 -17.32,-10" fill="none" stroke="url(#metalGrad)" strokeWidth="3"/>
-          <polygon points="0,-16 13.86,-8 13.86,8 0,16 -13.86,8 -13.86,-8" fill="none" stroke={primaryColor} strokeWidth="1.5" filter="url(#glow)"/>
-        </g>
-        
-        {/* Circuit traces */}
-        <line x1="80" y1="15" x2="240" y2="15" stroke={primaryColor} strokeWidth="1" opacity="0.6"/>
-        <line x1="100" y1="18" x2="220" y2="18" stroke={primaryColor} strokeWidth="0.5" opacity="0.4"/>
-        <line x1="80" y1="465" x2="240" y2="465" stroke={secondaryColor} strokeWidth="1" opacity="0.6"/>
-        <line x1="100" y1="462" x2="220" y2="462" stroke={secondaryColor} strokeWidth="0.5" opacity="0.4"/>
-        <line x1="15" y1="80" x2="15" y2="400" stroke={primaryColor} strokeWidth="1" opacity="0.5"/>
-        <line x1="305" y1="80" x2="305" y2="400" stroke={secondaryColor} strokeWidth="1" opacity="0.5"/>
+        {/* Corner Bolts */}
+        <circle cx="20" cy="20" r="4" fill="#333" stroke="#555" strokeWidth="1" />
+        <circle cx="300" cy="20" r="4" fill="#333" stroke="#555" strokeWidth="1" />
+        <circle cx="20" cy="460" r="4" fill="#333" stroke="#555" strokeWidth="1" />
+        <circle cx="300" cy="460" r="4" fill="#333" stroke="#555" strokeWidth="1" />
+
       </svg>
     );
   }
