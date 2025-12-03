@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Sparkles, AlertCircle, CheckCircle, Layers, Maximize2, X, Frame } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X } from 'lucide-react';
 
 // Player Details Interface
 export interface PlayerDetails {
@@ -1532,7 +1532,6 @@ const OrderForm: React.FC = () => {
                     }`}
                   >
                     <span>{style.name}</span>
-                    {style.type === 'canvas' && <Sparkles className="w-3 h-3 text-yellow-500" />}
                   </button>
                 ))}
               </div>
@@ -1565,7 +1564,6 @@ const OrderForm: React.FC = () => {
                       }`}
                     >
                       <span>{style.name}</span>
-                      <Frame className={`w-3 h-3 ${borderStyle === style.id ? 'text-cyan-400' : 'text-slate-600'}`} />
                     </button>
                   ))}
                 </div>
