@@ -57,8 +57,15 @@ interface BorderFrameProps {
   secondaryColor: string;
 }
 
+
+This works perfectly. I will add both elements to make the design really pop:
+Contour Glow Lines: I'll add neon tubes that follow the exact "pinch" shape on the left (Primary Color) and right (Secondary Color).
+Hexagon Tech Nodes: I will place a "locking mechanism" hexagon right at the waist of the hourglass on both sides to anchor the design.
+Here is the updated code for the BorderFrame component. Replace your existing one with this:
+code
+Tsx
 const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondaryColor }) => {
-  // 1. UPDATED TECH FRAME (Hourglass / Pinched Sides)
+  // 1. UPDATED TECH FRAME (Hourglass + Hexagons + Glow Lines)
   if (style === 'tech-frame') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
@@ -69,9 +76,9 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#222" strokeWidth="1.5" />
           </pattern>
           
-          {/* Glow filter */}
-          <filter id="techGlow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          {/* Intense Glow for Lines */}
+          <filter id="lineGlow">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -84,12 +91,16 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <stop offset="50%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: '#888', stopOpacity: 1 }} />
           </linearGradient>
+
+          {/* Hexagon Node Gradient */}
+          <radialGradient id="hexGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style={{ stopColor: '#444', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#111', stopOpacity: 1 }} />
+          </radialGradient>
         </defs>
         
         {/* 
-           The Main Frame Shape (EvenOdd Rule)
-           Outer: 0,0 Rectangle
-           Inner: The "Hourglass" Cutout
+           MAIN FRAME BODY
         */}
         <path 
           d="
@@ -111,10 +122,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           stroke="none"
         />
 
-        {/* 
-           The Silver Inner Bevel 
-           Traces the hole to define the shape
-        */}
+        {/* SILVER INNER BEVEL */}
         <path 
           d="
             M 20,20 
@@ -132,28 +140,71 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           fill="none"
           stroke="url(#silverBevel)"
           strokeWidth="3"
-          filter="url(#techGlow)"
         />
 
         {/* 
-           Decorative Accents 
-           These follow the angled pinch 
+           GLOWING CONTOUR LINES 
+           These re-trace the pinched area with the team colors
         */}
         
-        {/* Top Left Corner Accent */}
-        <path d="M 25,25 L 100,25" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9" />
-        <path d="M 25,25 L 22,150" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9" />
+        {/* Left Side Glow (Primary Color) */}
+        <path 
+          d="M 15,160 L 45,240 L 15,320" 
+          fill="none" 
+          stroke={primaryColor} 
+          strokeWidth="3" 
+          strokeLinecap="round"
+          filter="url(#lineGlow)"
+          opacity="1"
+        />
         
-        {/* Bottom Right Corner Accent */}
-        <path d="M 295,455 L 220,455" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9" />
-        <path d="M 295,455 L 298,330" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9" />
+        {/* Right Side Glow (Secondary Color) */}
+        <path 
+          d="M 305,160 L 275,240 L 305,320" 
+          fill="none" 
+          stroke={secondaryColor} 
+          strokeWidth="3" 
+          strokeLinecap="round"
+          filter="url(#lineGlow)"
+          opacity="1"
+        />
 
-        {/* The "Pinch" Highlight Lines (Middle) */}
-        <line x1="15" y1="160" x2="45" y2="240" stroke={primaryColor} strokeWidth="1" opacity="0.6" />
-        <line x1="45" y1="240" x2="15" y2="320" stroke={primaryColor} strokeWidth="1" opacity="0.6" />
+        {/* 
+           HEXAGON TECH NODES
+           Placed exactly at the center of the pinch (y=240)
+        */}
         
-        <line x1="305" y1="160" x2="275" y2="240" stroke={secondaryColor} strokeWidth="1" opacity="0.6" />
-        <line x1="275" y1="240" x2="305" y2="320" stroke={secondaryColor} strokeWidth="1" opacity="0.6" />
+        {/* Left Hexagon Group */}
+        <g transform="translate(45, 240)">
+          {/* Hexagon Shape */}
+          <polygon 
+            points="-8,-14 8,-14 16,0 8,14 -8,14 -16,0" 
+            fill="url(#hexGrad)" 
+            stroke={primaryColor} 
+            strokeWidth="2"
+          />
+          {/* Inner Glowing Dot */}
+          <circle cx="0" cy="0" r="4" fill={primaryColor} filter="url(#lineGlow)" />
+        </g>
+
+        {/* Right Hexagon Group */}
+        <g transform="translate(275, 240)">
+          {/* Hexagon Shape */}
+          <polygon 
+            points="-8,-14 8,-14 16,0 8,14 -8,14 -16,0" 
+            fill="url(#hexGrad)" 
+            stroke={secondaryColor} 
+            strokeWidth="2"
+          />
+          {/* Inner Glowing Dot */}
+          <circle cx="0" cy="0" r="4" fill={secondaryColor} filter="url(#lineGlow)" />
+        </g>
+
+        {/* Corner Decor Lines (Subtle) */}
+        <path d="M 25,25 L 100,25" fill="none" stroke={primaryColor} strokeWidth="1" opacity="0.5" />
+        <path d="M 25,25 L 25,100" fill="none" stroke={primaryColor} strokeWidth="1" opacity="0.5" />
+        <path d="M 295,455 L 220,455" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.5" />
+        <path d="M 295,455 L 295,380" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.5" />
 
       </svg>
     );
