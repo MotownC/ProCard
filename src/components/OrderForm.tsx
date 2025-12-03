@@ -1717,9 +1717,9 @@ const OrderForm: React.FC = () => {
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
               {/* Text Content */}
-              <div className="absolute bottom-6 left-4 right-4 z-50">
+              <div className="absolute bottom-6 left-8 right-8 z-50">
                 <div className="flex justify-between items-end border-b border-white/30 pb-2 mb-2">
-                   <div>
+                  <div>
                       <p 
                         className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
                         style={{ color: colors.primary }}
@@ -1727,10 +1727,10 @@ const OrderForm: React.FC = () => {
                         {details.team || 'TEAM NAME'}
                       </p>
                       <h1 className="text-4xl font-['Teko'] font-bold text-white leading-none italic uppercase drop-shadow-lg">{details.name || 'PLAYER NAME'}</h1>
-                   </div>
-                   <div className="text-5xl font-['Teko'] text-white font-bold opacity-40 outline-text drop-shadow-lg">
+                  </div>
+                  <div className="text-5xl font-['Teko'] text-white font-bold opacity-40 outline-text drop-shadow-lg">
                       {details.number || '00'}
-                   </div>
+                  </div>
                 </div>
                 
                 <div className="flex justify-between text-xs font-bold text-gray-300 mb-2">
