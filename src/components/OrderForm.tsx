@@ -1321,8 +1321,8 @@ const OrderForm: React.FC = () => {
 
       // 5. Draw the Nameplate Box (White Background)
       // We draw this on the canvas so it sits behind the text HTML layer
-      const nameY = 380;
-      const nameHeight = 50;
+      const nameY = 355;
+      const nameHeight = 70;
       
       fgCtx.beginPath();
       // Trapezoid shape
@@ -1785,23 +1785,31 @@ const OrderForm: React.FC = () => {
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
               {/* Text Content - Moved down to bottom-8 now that bio is gone */}
+              {/* Text Content */}
               <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
-                <div className="flex justify-between items-end border-b border-white/30 pb-2 mb-3">
+                <div className={`flex justify-between items-end border-b pb-2 mb-3 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
                   <div>
                       <p 
                         className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
-                        style={{ color: colors.primary }}
+                        style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary }}
                       >
                         {details.team || 'TEAM NAME'}
                       </p>
-                      <h1 className="text-4xl font-['Teko'] font-bold text-white leading-none italic uppercase drop-shadow-lg">{details.name || 'PLAYER NAME'}</h1>
+                      <h1 
+                        className={`text-4xl font-['Teko'] font-bold leading-none italic uppercase drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black' : 'text-white'}`}
+                      >
+                        {details.name || 'PLAYER NAME'}
+                      </h1>
                   </div>
-                  <div className="text-5xl font-['Teko'] text-white font-bold opacity-40 outline-text drop-shadow-lg">
+                  <div 
+                    className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
+                  >
                       {details.number || '00'}
                   </div>
                 </div>
                 
                 <div className="flex justify-between text-xs font-bold text-gray-300">
+                  {/* The dark bar we drew is #1a1a1a, so white text here is fine */}
                   <span>{details.position || 'POS'}</span>
                   <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
                 </div>
