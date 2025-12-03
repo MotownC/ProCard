@@ -58,12 +58,6 @@ interface BorderFrameProps {
 }
 
 
-This works perfectly. I will add both elements to make the design really pop:
-Contour Glow Lines: I'll add neon tubes that follow the exact "pinch" shape on the left (Primary Color) and right (Secondary Color).
-Hexagon Tech Nodes: I will place a "locking mechanism" hexagon right at the waist of the hourglass on both sides to anchor the design.
-Here is the updated code for the BorderFrame component. Replace your existing one with this:
-code
-Tsx
 const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondaryColor }) => {
   // 1. UPDATED TECH FRAME (Hourglass + Hexagons + Glow Lines)
   if (style === 'tech-frame') {
