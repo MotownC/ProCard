@@ -340,6 +340,8 @@ const OrderForm: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [enableBorder, setEnableBorder] = useState(false);
   const [borderStyle, setBorderStyle] = useState('tech-frame');
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Close full screen on Escape key
   useEffect(() => {
@@ -360,7 +362,23 @@ const OrderForm: React.FC = () => {
       reader.readAsDataURL(file);
     }
   };
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
+  const handleClearLogo = () => {
+    setLogoPreview(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
   const handleGenerateBio = async () => {
     if (!details.name || !details.team) {
       alert("Please enter at least a Name and Team to generate a bio.");
@@ -1310,6 +1328,64 @@ const OrderForm: React.FC = () => {
                 </div>
               )}
             </div>
+{/* Team Logo Upload */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-gray-300">Team Logo (Optional)</label>
+              
+              <div className="flex items-center gap-4">
+                {/* Logo Preview Circle */}
+                <div 
+                  className="w-16 h-16 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg flex-shrink-0"
+                  style={{ borderColor: colors.primary }}
+                >
+                  {logoPreview ? (
+                    <img 
+                      src={logoPreview} 
+                      alt="Team Logo" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <div 
+                      className="font-bold text-[10px] text-center leading-none"
+                      style={{ color: colors.primary }}
+                    >
+                      PRO<br/>CARD
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload/Clear Buttons */}
+                <div className="flex-1 space-y-2">
+                  <input 
+                    type="file" 
+                    ref={logoInputRef} 
+                    onChange={handleLogoChange} 
+                    className="hidden" 
+                    accept="image/*" 
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-gray-300 hover:border-slate-500 hover:text-white transition-colors"
+                  >
+                    {logoPreview ? 'Change Logo' : 'Upload Custom Logo'}
+                  </button>
+                  
+                  {logoPreview && (
+                    <button
+                      type="button"
+                      onClick={handleClearLogo}
+                      className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-red-400 hover:border-red-500 hover:text-red-300 transition-colors"
+                    >
+                      Clear Logo
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-500 pl-20">Square logos (PNG with transparent background) work best</p>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -1670,15 +1746,23 @@ const OrderForm: React.FC = () => {
               {/* Top Badge */}
               <div className="absolute top-4 right-4 z-50">
                  <div 
-                    className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg"
+                    className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden"
                     style={{ borderColor: colors.primary }}
                 >
-                    <div 
-                        className="font-bold text-xs text-center leading-none"
-                        style={{ color: colors.primary }}
-                    >
-                       PRO<br/>CARD
-                    </div>
+                    {logoPreview ? (
+                      <img 
+                        src={logoPreview} 
+                        alt="Team Logo" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div 
+                          className="font-bold text-xs text-center leading-none"
+                          style={{ color: colors.primary }}
+                      >
+                         PRO<br/>CARD
+                      </div>
+                    )}
                  </div>
               </div>
               {/* Border Frame Overlay */}
