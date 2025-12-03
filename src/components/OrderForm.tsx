@@ -310,6 +310,7 @@ const BACKGROUND_STYLES = [
   { id: 'energy', name: 'Energy', type: 'canvas' },
   { id: 'splatter', name: 'Splatter', type: 'canvas' }, 
   { id: 'hurricane', name: 'Hurricane', type: 'canvas' },
+  { id: 'radar', name: 'Tech Radar', type: 'canvas' },
 ];
 
 // Define available Border Styles
@@ -1239,6 +1240,114 @@ const OrderForm: React.FC = () => {
           ctx.arc(x, y, 40, 0, Math.PI * 2);
           ctx.fill();
       }
+    }
+    else if (backgroundStyle === 'radar') {
+      // 1. Tech Grid Background
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, 320, 480);
+      
+      // Green/Primary tint
+      const radGrad = ctx.createRadialGradient(160, 200, 0, 160, 200, 350);
+      radGrad.addColorStop(0, pickVariant(primaryPalette, 0.2));
+      radGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, 0, 320, 480);
+
+      const cx = 160;
+      const cy = 200; // Center behind player chest
+
+      // 2. Concentric Target Rings
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = colors.primary;
+      
+      for(let r=40; r < 400; r+=35) {
+          ctx.beginPath();
+          const dashLen = rng(20, 100);
+          const gapLen = rng(10, 60);
+          
+          // Rotate randomly so gaps don't align
+          const startAngle = rng(0, Math.PI);
+          
+          ctx.arc(cx, cy, r, startAngle, startAngle + (Math.PI*1.5));
+          
+          ctx.strokeStyle = pickVariant(primaryPalette, rng(0.3, 0.8));
+          ctx.lineWidth = rng(1, 3);
+          
+          // Make some rings dashed, some solid
+          if (r % 70 === 0) {
+             ctx.setLineDash([dashLen, gapLen]);
+          } else {
+             ctx.setLineDash([]);
+          }
+          
+          ctx.stroke();
+      }
+      ctx.setLineDash([]); // Reset
+      ctx.shadowBlur = 0;
+
+      // 3. Radial Scanner Lines
+      for(let i=0; i<12; i++) {
+         const angle = (i / 12) * Math.PI * 2;
+         ctx.beginPath();
+         ctx.moveTo(cx, cy);
+         const len = 350;
+         ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+         
+         ctx.strokeStyle = pickVariant(primaryPalette, 0.15);
+         ctx.lineWidth = 1;
+         ctx.stroke();
+      }
+
+      // 4. Floating Tech Segments (The thick blocks)
+      for(let i=0; i<8; i++) {
+          const r = rng(100, 280);
+          const width = rng(10, 30);
+          const start = rng(0, Math.PI * 2);
+          const end = start + rng(0.2, 0.6);
+          
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, start, end);
+          ctx.strokeStyle = pickVariant(primaryPalette, 0.5);
+          ctx.lineWidth = width;
+          ctx.stroke();
+          
+          // Thin highlight line on edge
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + width/2, start, end);
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+      }
+
+      // 5. Draw the Nameplate Box (White Background)
+      // We draw this on the canvas so it sits behind the text HTML layer
+      const nameY = 380;
+      const nameHeight = 50;
+      
+      fgCtx.beginPath();
+      // Trapezoid shape
+      fgCtx.moveTo(20, nameY); // Top Left
+      fgCtx.lineTo(300, nameY); // Top Right
+      fgCtx.lineTo(310, nameY + nameHeight); // Bottom Right slant
+      fgCtx.lineTo(10, nameY + nameHeight); // Bottom Left slant
+      fgCtx.closePath();
+      
+      fgCtx.fillStyle = '#ffffff';
+      fgCtx.fill();
+      
+      // Outline
+      fgCtx.strokeStyle = colors.secondary;
+      fgCtx.lineWidth = 2;
+      fgCtx.stroke();
+      
+      // Dark bar below name
+      fgCtx.beginPath();
+      fgCtx.moveTo(10, nameY + nameHeight);
+      fgCtx.lineTo(310, nameY + nameHeight);
+      fgCtx.lineTo(300, nameY + nameHeight + 25);
+      fgCtx.lineTo(20, nameY + nameHeight + 25);
+      fgCtx.fillStyle = '#1a1a1a';
+      fgCtx.fill();
     }
 
   }, [backgroundStyle, colors]);
