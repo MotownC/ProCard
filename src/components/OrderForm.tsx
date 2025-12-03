@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Sparkles, AlertCircle, CheckCircle, Layers, Maximize2, X } from 'lucide-react';
+import { Upload, Sparkles, AlertCircle, CheckCircle, Layers, Maximize2, X, Frame } from 'lucide-react';
 
-// Player Details Interface (Bio removed)
+// Player Details Interface
 export interface PlayerDetails {
   name: string;
   team: string;
@@ -310,6 +310,16 @@ const BACKGROUND_STYLES = [
   { id: 'energy', name: 'Energy', type: 'canvas' },
   { id: 'splatter', name: 'Splatter', type: 'canvas' }, 
   { id: 'hurricane', name: 'Hurricane', type: 'canvas' },
+];
+
+// Define available Border Styles
+const BORDER_STYLES = [
+  { id: 'tech-frame', name: 'Tech Frame' },
+  { id: 'chrome-metal', name: 'Chrome Metal' },
+  { id: 'carbon-fiber', name: 'Carbon Fiber' },
+  { id: 'neon-glow', name: 'Neon Glow' },
+  { id: 'geometric', name: 'Geometric' },
+  { id: 'classic', name: 'Classic' },
 ];
 
 const OrderForm: React.FC = () => {
@@ -1542,20 +1552,22 @@ const OrderForm: React.FC = () => {
               </label>
               
               {enableBorder && (
-                <div className="pl-6 space-y-2">
-                  <label className="text-xs text-gray-400">Frame Style</label>
-                  <select
-                    value={borderStyle}
-                    onChange={(e) => setBorderStyle(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none"
-                  >
-                    <option value="tech-frame">Tech Frame</option>
-                    <option value="chrome-metal">Chrome Metal</option>
-                    <option value="carbon-fiber">Carbon Fiber</option>
-                    <option value="neon-glow">Neon Glow</option>
-                    <option value="geometric">Geometric</option>
-                    <option value="classic">Classic</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  {BORDER_STYLES.map((style) => (
+                    <button
+                      key={style.id}
+                      type="button"
+                      onClick={() => setBorderStyle(style.id)}
+                      className={`px-3 py-2 rounded-lg text-sm font-bold uppercase tracking-wide text-left transition-all border flex items-center justify-between ${
+                        borderStyle === style.id 
+                        ? 'bg-cyan-500/20 border-cyan-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.3)]' 
+                        : 'bg-slate-900 border-slate-700 text-gray-400 hover:border-slate-500'
+                      }`}
+                    >
+                      <span>{style.name}</span>
+                      <Frame className={`w-3 h-3 ${borderStyle === style.id ? 'text-cyan-400' : 'text-slate-600'}`} />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
