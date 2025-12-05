@@ -59,203 +59,200 @@ interface BorderFrameProps {
 
 
 const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondaryColor }) => {
-  // 1. UPDATED TECH FRAME (Hourglass + Hexagons + Glow Lines)
+  // 1. UPDATED TECH FRAME (Full Height + Overlap)
   if (style === 'tech-frame') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Carbon Fiber Pattern */}
           <pattern id="techCarbon" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
             <rect width="8" height="8" fill="#111" />
             <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#222" strokeWidth="1.5" />
           </pattern>
-          
-          {/* Intense Glow for Lines */}
           <filter id="lineGlow">
-            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
-
-          {/* Silver Bevel Gradient */}
           <linearGradient id="silverBevel" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: '#888', stopOpacity: 1 }} />
+            <stop offset="0%" style={{ stopColor: '#777', stopOpacity: 1 }} />
             <stop offset="50%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#888', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#777', stopOpacity: 1 }} />
           </linearGradient>
-
-          {/* Hexagon Node Gradient */}
           <radialGradient id="hexGrad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" style={{ stopColor: '#444', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#111', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#000', stopOpacity: 1 }} />
           </radialGradient>
         </defs>
         
-        {/* 
-           MAIN FRAME BODY
-        */}
+        {/* MAIN BODY - Extended slightly outside 0-480 to prevent gaps */}
         <path 
-          d="
-            M 0,0 H 320 V 480 H 0 Z 
-            M 20,20 
-            L 300,20 
-            L 305,160 
-            L 275,240 
-            L 305,320 
-            L 300,460 
-            L 20,460 
-            L 15,320 
-            L 45,240 
-            L 15,160 
-            Z
-          " 
+          d="M -2,-2 H 322 V 482 H -2 Z M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" 
           fill="url(#techCarbon)" 
           fillRule="evenodd"
           stroke="none"
         />
 
-        {/* SILVER INNER BEVEL */}
+        {/* SILVER BEVEL */}
         <path 
-          d="
-            M 20,20 
-            L 300,20 
-            L 305,160 
-            L 275,240 
-            L 305,320 
-            L 300,460 
-            L 20,460 
-            L 15,320 
-            L 45,240 
-            L 15,160 
-            Z
-          "
-          fill="none"
-          stroke="url(#silverBevel)"
-          strokeWidth="3"
+          d="M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z"
+          fill="none" stroke="url(#silverBevel)" strokeWidth="3"
         />
 
-        {/* 
-           GLOWING CONTOUR LINES 
-           These re-trace the pinched area with the team colors
-        */}
-        
-        {/* Left Side Glow (Primary Color) */}
-        <path 
-          d="M 15,160 L 45,240 L 15,320" 
-          fill="none" 
-          stroke={primaryColor} 
-          strokeWidth="3" 
-          strokeLinecap="round"
-          filter="url(#lineGlow)"
-          opacity="1"
-        />
-        
-        {/* Right Side Glow (Secondary Color) */}
-        <path 
-          d="M 305,160 L 275,240 L 305,320" 
-          fill="none" 
-          stroke={secondaryColor} 
-          strokeWidth="3" 
-          strokeLinecap="round"
-          filter="url(#lineGlow)"
-          opacity="1"
-        />
+        {/* GLOW BARS */}
+        <path d="M -2,130 L 35,240 L -2,350" fill="none" stroke={primaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
+        <path d="M 322,130 L 285,240 L 322,350" fill="none" stroke={secondaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
 
-        {/* 
-           HEXAGON TECH NODES
-           Placed exactly at the center of the pinch (y=240)
-        */}
-        
-        {/* Left Hexagon Group */}
-        <g transform="translate(45, 240)">
-          {/* Hexagon Shape */}
-          <polygon 
-            points="-8,-14 8,-14 16,0 8,14 -8,14 -16,0" 
-            fill="url(#hexGrad)" 
-            stroke={primaryColor} 
-            strokeWidth="2"
-          />
-          {/* Inner Glowing Dot */}
+        {/* HEXAGONS */}
+        <g transform="translate(35, 240)">
+          <polygon points="-9,-15 9,-15 17,0 9,15 -9,15 -17,0" fill="url(#hexGrad)" stroke={primaryColor} strokeWidth="2"/>
           <circle cx="0" cy="0" r="4" fill={primaryColor} filter="url(#lineGlow)" />
         </g>
-
-        {/* Right Hexagon Group */}
-        <g transform="translate(275, 240)">
-          {/* Hexagon Shape */}
-          <polygon 
-            points="-8,-14 8,-14 16,0 8,14 -8,14 -16,0" 
-            fill="url(#hexGrad)" 
-            stroke={secondaryColor} 
-            strokeWidth="2"
-          />
-          {/* Inner Glowing Dot */}
+        <g transform="translate(285, 240)">
+          <polygon points="-9,-15 9,-15 17,0 9,15 -9,15 -17,0" fill="url(#hexGrad)" stroke={secondaryColor} strokeWidth="2"/>
           <circle cx="0" cy="0" r="4" fill={secondaryColor} filter="url(#lineGlow)" />
         </g>
-
-        {/* Corner Decor Lines (Subtle) */}
-        <path d="M 25,25 L 100,25" fill="none" stroke={primaryColor} strokeWidth="1" opacity="0.5" />
-        <path d="M 25,25 L 25,100" fill="none" stroke={primaryColor} strokeWidth="1" opacity="0.5" />
-        <path d="M 295,455 L 220,455" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.5" />
-        <path d="M 295,455 L 295,380" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.5" />
-
       </svg>
     );
   }
   
+ // 4. UPDATED CHROME-METAL (Big Hex + Top Border)
   if (style === 'chrome-metal') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          <linearGradient id="chrome1" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#f0f0f0', stopOpacity: 0.9 }} />
-            <stop offset="25%" style={{ stopColor: '#888', stopOpacity: 0.7 }} />
-            <stop offset="50%" style={{ stopColor: '#ddd', stopOpacity: 0.8 }} />
-            <stop offset="75%" style={{ stopColor: '#666', stopOpacity: 0.7 }} />
-            <stop offset="100%" style={{ stopColor: '#aaa', stopOpacity: 0.9 }} />
+          {/* Armor Plate Gradient */}
+          <linearGradient id="brushedWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#e6e6e6', stopOpacity: 1 }} />
+            <stop offset="20%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
+            <stop offset="40%" style={{ stopColor: '#d4d4d4', stopOpacity: 1 }} />
+            <stop offset="45%" style={{ stopColor: '#a0a0a0', stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
+            <stop offset="80%" style={{ stopColor: '#dcdcdc', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#b0b0b0', stopOpacity: 1 }} />
           </linearGradient>
-          
-          <pattern id="carbon" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect width="10" height="10" fill="#1a1a1a" opacity="0.8"/>
-            <path d="M0,5 L5,0 M5,10 L10,5" stroke="#0a0a0a" strokeWidth="1" opacity="0.6"/>
+
+          {/* Micro-Grid for White Armor */}
+          <pattern id="microGrid" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+            <rect width="4" height="4" fill="none" />
+            <circle cx="2" cy="2" r="0.5" fill="#000" opacity="0.4" />
           </pattern>
+
+          {/* Dark Gunmetal Base */}
+          <pattern id="darkTech" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="6" height="6" fill="#111" />
+            <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
+          </pattern>
+
+          {/* UPDATED: Honeycomb Pattern (2x Larger) */}
+          <pattern id="hexOverlay" x="0" y="0" width="10" height="17.32" patternUnits="userSpaceOnUse" patternTransform="scale(1.6)">
+             <path d="M5 0L10 2.89V8.66L5 11.55L0 8.66V2.89L5 0Z" fill="none" stroke="#333" strokeWidth="1" />
+          </pattern>
+
+          {/* Filters */}
+          <filter id="pipingGlow">
+            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="plateShadow">
+             <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.5" />
+          </filter>
+
+          {/* Path Definitions */}
+          <path id="leftArmorPath" d="M -10,60 L 25,90 L 25,280 L 45,295 L 45,345 L 25,360 L 25,430 L -10,460 Z" />
+          <path id="rightArmorPath" d="M 330,60 L 295,90 L 295,120 L 275,135 L 275,185 L 295,200 L 295,430 L 330,460 Z" />
+          
+          {/* Base Shapes */}
+          <path id="topLeftBase" d="M -5,-5 H 80 L 30,50 L -5,90 Z" />
+          <path id="topRightBase" d="M 325,-5 H 240 L 290,50 L 325,90 Z" />
+          
+          {/* NEW: Top Center Connecting Bar */}
+          <path id="topCenterBase" d="M 75,-5 H 245 L 235,20 H 85 L 75,-5 Z" />
+          
+          {/* Bottom Shape */}
+          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" /> 
         </defs>
+
+        {/* 
+           LAYER 1: CHASSIS BASE (Dark Tech + Honeycomb) 
+        */}
+        <g>
+            {/* Dark Backgrounds */}
+            <use href="#topLeftBase" fill="url(#darkTech)" />
+            <use href="#topRightBase" fill="url(#darkTech)" />
+            <use href="#topCenterBase" fill="url(#darkTech)" />
+            <use href="#bottomBase" fill="url(#darkTech)" />
+            
+            {/* Honeycomb Overlays */}
+            <use href="#topLeftBase" fill="url(#hexOverlay)" />
+            <use href="#topRightBase" fill="url(#hexOverlay)" />
+            <use href="#topCenterBase" fill="url(#hexOverlay)" />
+            <use href="#bottomBase" fill="url(#hexOverlay)" />
+        </g>
+
+        {/* LAYER 2: LEFT ARMOR PLATE */}
+        <g filter="url(#plateShadow)">
+            <use href="#leftArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
+            <use href="#leftArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
+            <path d="M 15,100 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
+            <g fill="#222">
+                <rect x="5" y="120" width="10" height="4" />
+                <rect x="5" y="130" width="10" height="4" />
+                <rect x="5" y="140" width="10" height="4" />
+            </g>
+        </g>
+
+        {/* LAYER 3: RIGHT ARMOR PLATE */}
+        <g filter="url(#plateShadow)">
+            <use href="#rightArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
+            <use href="#rightArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
+            <path d="M 305,100 L 305,115 L 285,130 L 285,190 L 305,205 L 305,420" fill="none" stroke={secondaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
+            <g fill="#222">
+                <rect x="305" y="360" width="10" height="4" />
+                <rect x="305" y="370" width="10" height="4" />
+                <rect x="305" y="380" width="10" height="4" />
+            </g>
+        </g>
+
+        {/* LAYER 4: ACCENTS */}
         
-        <path d="M 0,20 L 20,0 L 60,0 L 60,8 L 24,8 L 8,24 L 8,60 L 0,60 Z" 
-              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
-        <path d="M 320,20 L 300,0 L 260,0 L 260,8 L 296,8 L 312,24 L 312,60 L 320,60 Z" 
-              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
-        <path d="M 0,460 L 20,480 L 60,480 L 60,472 L 24,472 L 8,456 L 8,420 L 0,420 Z" 
-              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
-        <path d="M 320,460 L 300,480 L 260,480 L 260,472 L 296,472 L 312,456 L 312,420 L 320,420 Z" 
-              fill="none" stroke="url(#chrome1)" strokeWidth="3"/>
+        {/* Top Accent Line */}
+        <rect x="85" y="16" width="150" height="2" fill={primaryColor} filter="url(#pipingGlow)" />
         
-        <rect x="70" y="2" width="180" height="3" fill={primaryColor} opacity="0.8"/>
-        <rect x="70" y="475" width="180" height="3" fill={secondaryColor} opacity="0.8"/>
-        <rect x="2" y="70" width="3" height="340" fill={primaryColor} opacity="0.6"/>
-        <rect x="315" y="70" width="3" height="340" fill={secondaryColor} opacity="0.6"/>
-        
-        <polyline points="25,60 25,25 60,25" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9"/>
-        <polyline points="295,60 295,25 260,25" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9"/>
-        <polyline points="25,420 25,455 60,455" fill="none" stroke={secondaryColor} strokeWidth="2" opacity="0.9"/>
-        <polyline points="295,420 295,455 260,455" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.9"/>
+        {/* Bottom Connectors */}
+        <rect x="40" y="468" width="240" height="4" fill="#111" stroke="#333" />
+        <rect x="120" y="470" width="80" height="2" fill={secondaryColor} filter="url(#pipingGlow)" />
+
+        {/* Indent Highlight Lines */}
+        <line x1="50" y1="295" x2="50" y2="345" stroke={primaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
+        <line x1="270" y1="135" x2="270" y2="185" stroke={secondaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
+
       </svg>
     );
   }
   
+  // 2. UPDATED CARBON FIBER (Notched Top/Bottom + Side Armor)
   if (style === 'carbon-fiber') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
+          {/* Carbon Pattern */}
           <pattern id="carbonWeave" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-            <rect width="8" height="8" fill="#0a0a0a" opacity="0.7"/>
-            <path d="M0,4 L4,0 M4,8 L8,4" stroke="#1a1a1a" strokeWidth="2" opacity="0.5"/>
-            <path d="M0,4 L4,8 M4,0 L8,4" stroke="#050505" strokeWidth="1" opacity="0.4"/>
+            <rect width="8" height="8" fill="#181818" />
+            <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#2a2a2a" strokeWidth="1.5" />
           </pattern>
           
-          <filter id="innerGlow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          {/* Metallic Gradient for Plates */}
+          <linearGradient id="plateGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#222', stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: '#555', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#111', stopOpacity: 1 }} />
+          </linearGradient>
+
+          {/* Intense Neon Glow */}
+          <filter id="neonTube">
+            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -263,25 +260,86 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </filter>
         </defs>
         
-        <rect x="0" y="0" width="320" height="25" fill="url(#carbonWeave)"/>
-        <rect x="0" y="455" width="320" height="25" fill="url(#carbonWeave)"/>
-        <rect x="0" y="25" width="25" height="430" fill="url(#carbonWeave)"/>
-        <rect x="295" y="25" width="25" height="430" fill="url(#carbonWeave)"/>
+        {/* 
+           MAIN FRAME HULL 
+           Features "Notched" top and bottom:
+           - Thicker at corners (25px) to look sturdy
+           - Thinner in middle (10px) to reveal text
+        */}
+        <path 
+          d="
+            M -10,-10 H 330 V 490 H -10 Z 
+            M 15,25 
+            L 80,25 L 95,10 L 225,10 L 240,25 L 305,25 
+            L 305,100 L 295,130 L 295,350 L 305,380 
+            L 305,455 
+            L 240,455 L 225,470 L 95,470 L 80,455 L 15,455
+            L 15,380 L 25,350 L 25,130 L 15,100 
+            Z
+          " 
+          fill="url(#carbonWeave)" 
+          fillRule="evenodd"
+          stroke="#000"
+          strokeWidth="2"
+        />
+
+        {/* 
+           FULL PERIMETER GLOW PIPES
+           Tracing the new angular notches
+        */}
         
-        <rect x="23" y="23" width="274" height="434" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#innerGlow)" opacity="0.9"/>
-        <rect x="26" y="26" width="268" height="428" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.6"/>
+        {/* Primary Color (Top & Left) */}
+        <path 
+          d="M 305,25 L 240,25 L 225,10 L 95,10 L 80,25 L 15,25 L 15,100 L 25,130 L 25,350 L 15,380 L 15,455"
+          fill="none"
+          stroke={primaryColor}
+          strokeWidth="3"
+          strokeLinecap="round"
+          filter="url(#neonTube)"
+        />
+
+        {/* Secondary Color (Bottom & Right) */}
+        <path 
+          d="M 15,455 L 80,455 L 95,470 L 225,470 L 240,455 L 305,455 L 305,380 L 295,350 L 295,130 L 305,100 L 305,25"
+          fill="none"
+          stroke={secondaryColor}
+          strokeWidth="3"
+          strokeLinecap="round"
+          filter="url(#neonTube)"
+        />
+
+        {/* 
+           SIDE ARMOR PLATES
+        */}
         
-        <line x1="25" y1="60" x2="25" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
-        <line x1="25" y1="25" x2="60" y2="25" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
-        
-        <line x1="295" y1="60" x2="295" y2="25" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
-        <line x1="295" y1="25" x2="260" y2="25" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
-        
-        <line x1="25" y1="420" x2="25" y2="455" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
-        <line x1="25" y1="455" x2="60" y2="455" stroke={secondaryColor} strokeWidth="2" opacity="0.8"/>
-        
-        <line x1="295" y1="420" x2="295" y2="455" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
-        <line x1="295" y1="455" x2="260" y2="455" stroke={primaryColor} strokeWidth="2" opacity="0.8"/>
+        {/* Left Armor Plate */}
+        <path 
+          d="M -5,90 L 35,120 L 35,360 L -5,390 Z" 
+          fill="url(#plateGrad)" 
+          stroke="#444" 
+          strokeWidth="1"
+        />
+        <path d="M 0,130 L 20,145 L 20,335 L 0,350" fill="#111" opacity="0.6" />
+        <rect x="22" y="220" width="4" height="40" fill={primaryColor} filter="url(#neonTube)" />
+
+        {/* Right Armor Plate */}
+        <path 
+          d="M 325,90 L 285,120 L 285,360 L 325,390 Z" 
+          fill="url(#plateGrad)" 
+          stroke="#444" 
+          strokeWidth="1"
+        />
+        <path d="M 320,130 L 300,145 L 300,335 L 320,350" fill="#111" opacity="0.6" />
+        <rect x="294" y="220" width="4" height="40" fill={secondaryColor} filter="url(#neonTube)" />
+
+        {/* 
+           CORNER JOINTS (Visual Anchors)
+        */}
+        <path d="M 15,25 L 45,25 L 35,35 L 15,35 Z" fill="#333" stroke="none" />
+        <path d="M 305,25 L 275,25 L 285,35 L 305,35 Z" fill="#333" stroke="none" />
+        <path d="M 15,455 L 45,455 L 35,445 L 15,445 Z" fill="#333" stroke="none" />
+        <path d="M 305,455 L 275,455 L 285,445 L 305,445 Z" fill="#333" stroke="none" />
+
       </svg>
     );
   }
@@ -317,37 +375,153 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
+ // 3. UPDATED TITANIUM ARMOR (With Solid Base Chassis)
   if (style === 'geometric') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          <linearGradient id="geomGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: primaryColor, stopOpacity: 0.8 }} />
-            <stop offset="100%" style={{ stopColor: secondaryColor, stopOpacity: 0.8 }} />
+          {/* Dark Mesh Pattern (Carbon Armor) */}
+          <pattern id="titaniumMesh" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+            <rect width="4" height="4" fill="#151515" />
+            <path d="M0,4 L4,0" stroke="#252525" strokeWidth="1" />
+          </pattern>
+
+          {/* NEW: Industrial Gunmetal Pattern (The Base Fill) */}
+          <pattern id="gunmetal" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="6" height="6" fill="#1a1a1a" />
+            <rect width="3" height="6" fill="#262626" />
+          </pattern>
+
+          {/* Brushed Silver Gradient */}
+          <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
+            <stop offset="30%" style={{ stopColor: '#999', stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
+            <stop offset="70%" style={{ stopColor: '#999', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
           </linearGradient>
-          
-          <linearGradient id="geomGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{ stopColor: secondaryColor, stopOpacity: 0.8 }} />
-            <stop offset="100%" style={{ stopColor: primaryColor, stopOpacity: 0.8 }} />
-          </linearGradient>
+
+          {/* Deep Shadow */}
+          <filter id="dropShadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000" floodOpacity="0.8"/>
+          </filter>
         </defs>
+
+        {/* 
+           LAYER 0: BASE CHASSIS (The Fix)
+           This fills ALL gaps between the frame and the edge of the card.
+           It uses the "gunmetal" texture.
+        */}
+        <path 
+          d="
+            M 0,0 H 320 V 480 H 0 Z 
+            M 20,20 
+            L 100,20 L 115,35 L 205,35 L 220,20 
+            L 300,20 
+            L 300,100 L 270,130 L 270,350 L 300,380
+            L 300,460 
+            L 220,460 L 205,445 L 115,445 L 100,460
+            L 20,460 
+            L 20,380 L 50,350 L 50,130 L 20,100 
+            Z
+          " 
+          fill="url(#gunmetal)" 
+          fillRule="evenodd"
+          stroke="#000"
+          strokeWidth="1"
+        />
+
+        {/* 
+           LAYER 1: THE COLOR CORE 
+           Peaks out from under the skeleton
+        */}
+        <path 
+          d="
+            M 15,15 
+            L 100,15 L 115,30 L 205,30 L 220,15 
+            L 305,15 
+            L 305,100 L 275,130 L 275,350 L 305,380
+            L 305,465 
+            L 220,465 L 205,450 L 115,450 L 100,465
+            L 15,465 
+            L 15,380 L 45,350 L 45,130 L 15,100 
+            Z
+          " 
+          fill="none" 
+          stroke={primaryColor} 
+          strokeWidth="8"
+          strokeLinejoin="round"
+          filter="url(#dropShadow)"
+        />
+
+        {/* 
+           LAYER 2: THE SILVER SKELETON
+           The main frame shape
+        */}
+        <path 
+          d="
+            M 10,10 
+            L 105,10 L 120,25 L 200,25 L 215,10 
+            L 310,10 
+            L 310,105 L 280,135 L 280,345 L 310,375
+            L 310,470 
+            L 215,470 L 200,455 L 120,455 L 105,470
+            L 10,470 
+            L 10,375 L 40,345 L 40,135 L 10,105 
+            Z
+          " 
+          fill="none" 
+          stroke="url(#silverGrad)" 
+          strokeWidth="3"
+          strokeLinecap="square"
+        />
+
+        {/* 
+           LAYER 3: BLACK CARBON ARMOR PLATES
+           Corner and Top/Bottom details
+        */}
         
-        <polygon points="0,0 80,0 60,20 20,20 0,40" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        <polygon points="0,0 20,20 20,60 0,80" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        
-        <polygon points="320,0 240,0 260,20 300,20 320,40" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        <polygon points="320,0 300,20 300,60 320,80" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        
-        <polygon points="0,480 80,480 60,460 20,460 0,440" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        <polygon points="0,480 20,460 20,420 0,400" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        
-        <polygon points="320,480 240,480 260,460 300,460 320,440" fill="url(#geomGrad1)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        <polygon points="320,480 300,460 300,420 320,400" fill="url(#geomGrad2)" stroke="#fff" strokeWidth="1" opacity="0.9"/>
-        
-        <line x1="80" y1="2" x2="240" y2="2" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="80" y1="478" x2="240" y2="478" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="2" y1="80" x2="2" y2="400" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="318" y1="80" x2="318" y2="400" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
+        {/* Top Left Corner */}
+        <path d="M 5,5 L 80,5 L 90,15 L 15,15 L 15,90 L 5,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        {/* Top Right Corner */}
+        <path d="M 315,5 L 240,5 L 230,15 L 305,15 L 305,90 L 315,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        {/* Bottom Left Corner */}
+        <path d="M 5,475 L 80,475 L 90,465 L 15,465 L 15,390 L 5,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        {/* Bottom Right Corner */}
+        <path d="M 315,475 L 240,475 L 230,465 L 305,465 L 305,390 L 315,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+
+        {/* 
+           LAYER 4: SIDE WINGS
+        */}
+        <polygon points="0,120 40,160 40,320 0,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <polygon points="320,120 280,160 280,320 320,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+
+        {/* 
+           LAYER 5: DETAILS & ACCENTS
+        */}
+        {/* Secondary color glowing pipes */}
+        <line x1="35" y1="165" x2="35" y2="315" stroke={secondaryColor} strokeWidth="2" />
+        <line x1="285" y1="165" x2="285" y2="315" stroke={secondaryColor} strokeWidth="2" />
+
+        {/* Inner white hairline */}
+        <path 
+          d="
+            M 20,20 
+            L 100,20 L 115,35 L 205,35 L 220,20 
+            L 300,20 
+            L 300,100 L 270,130 L 270,350 L 300,380
+            L 300,460 
+            L 220,460 L 205,445 L 115,445 L 100,460
+            L 20,460 
+            L 20,380 L 50,350 L 50,130 L 20,100 
+            Z
+          " 
+          fill="none" 
+          stroke="#fff" 
+          strokeWidth="0.5"
+          opacity="0.5"
+        />
+
       </svg>
     );
   }
@@ -396,6 +570,7 @@ const BACKGROUND_STYLES = [
   { id: 'shatter', name: 'Shatter', type: 'canvas' },
   { id: 'energy', name: 'Energy', type: 'canvas' },
   { id: 'splatter', name: 'Splatter', type: 'canvas' }, 
+  { id: 'impact', name: 'Impact', type: 'canvas' },
   { id: 'hurricane', name: 'Hurricane', type: 'canvas' },
 ];
 
@@ -405,7 +580,7 @@ const BORDER_STYLES = [
   { id: 'chrome-metal', name: 'Chrome Metal' },
   { id: 'carbon-fiber', name: 'Carbon Fiber' },
   { id: 'neon-glow', name: 'Neon Glow' },
-  { id: 'geometric', name: 'Geometric' },
+  { id: 'geometric', name: 'Titanium' },
   { id: 'classic', name: 'Classic' },
 ];
 
@@ -435,20 +610,17 @@ const OrderForm: React.FC = () => {
   const [enableBorder, setEnableBorder] = useState(false);
   const [borderStyle, setBorderStyle] = useState('tech-frame');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [showLogo, setShowLogo] = useState(true);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  // Dynamic Font Size Calculator
-  const getNameFontSize = (name: string) => {
-    // Base size for short names is roughly 2.25rem (text-4xl)
-    const baseSize = 2.25; 
-    
-    if (!name) return { fontSize: `${baseSize}rem` };
-    if (name.length <= 10) return { fontSize: `${baseSize}rem` };
+ // Dynamic Font Size Calculator (Now accepts a base size)
+  const getNameFontSize = (name: string, baseRem = 2.25) => {
+    if (!name) return { fontSize: `${baseRem}rem` };
+    if (name.length <= 10) return { fontSize: `${baseRem}rem` };
     
     // Scale down linearly based on character count
-    // Example: 20 chars -> (10/20) * 2.25 = 1.125rem
     const scaleFactor = 10 / name.length;
-    return { fontSize: `${Math.max(1, baseSize * scaleFactor)}rem` };
+    return { fontSize: `${Math.max(1, baseRem * scaleFactor)}rem` };
   };
 
   // Close full screen on Escape key
@@ -541,188 +713,319 @@ const OrderForm: React.FC = () => {
 
     // --- GENERATORS ---
 
-    if (backgroundStyle === 'shatter') {
-      // ... existing shatter logic ...
-      // Dark base
-      const grad = ctx.createLinearGradient(0, 0, 320, 480);
-      grad.addColorStop(0, '#0f172a');
-      grad.addColorStop(1, '#020617');
+if (backgroundStyle === 'shatter') {
+      const cx = 160;
+      const cy = 240;
+
+      // 1. BACKGROUND LAYER (Behind Player - ctx) -----------------------
+      
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 350);
+      grad.addColorStop(0, '#1a1a1a');
+      grad.addColorStop(1, '#000000');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // 1. Impact Web
-      ctx.beginPath();
-      const cx = 160;
-      const cy = 240;
-      for(let i=0; i<24; i++) {
-          ctx.moveTo(cx, cy);
-          const angle = (i / 24) * Math.PI * 2 + rng(-0.1, 0.1);
-          const len = rng(150, 450);
-          let currX = cx; 
-          let currY = cy;
-          let currLen = 0;
-          while(currLen < len) {
-            currLen += rng(15, 40);
-            currX += Math.cos(angle) * rng(15,40) + rng(-3,3);
-            currY += Math.sin(angle) * rng(15,40) + rng(-3,3);
-            ctx.lineTo(currX, currY);
-          }
-      }
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      for(let r=40; r<450; r+=40) {
-          ctx.beginPath();
-          for(let a=0; a<Math.PI*2; a+=0.4) {
-              const radius = r + rng(-15, 15);
-              const x = cx + Math.cos(a)*radius;
-              const y = cy + Math.sin(a)*radius;
-              ctx.lineTo(x,y);
-          }
-          ctx.closePath();
-          ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-          ctx.stroke();
-      }
-
-      for (let i = 0; i < 60; i++) {
+      // B. MASSIVE BACKGROUND PLATES
+      for (let i = 0; i < 30; i++) {
         ctx.beginPath();
-        const x = rng(0, 320);
-        const y = rng(0, 480);
-        const s = rng(15, 50);
+        const x = rng(-50, 370);
+        const y = rng(-50, 530);
+        const s = rng(80, 250); 
+        
         ctx.moveTo(x, y);
         ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
         ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
+        
         ctx.fillStyle = i % 2 === 0 
-          ? pickVariant(primaryPalette, 0.03) 
-          : pickVariant(secondaryPalette, 0.03);
+          ? pickVariant(primaryPalette, 0.15) 
+          : pickVariant(secondaryPalette, 0.15);
         ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.stroke();
       }
 
-      fgCtx.shadowBlur = 10;
-      for (let i = 0; i < 90; i++) {
-        fgCtx.beginPath();
-        const x = rng(-50, 370);
-        const y = rng(-50, 530);
-        
-        fgCtx.moveTo(x, y);
-        const s = rng(5, 70);
-        fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
-        fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
-        fgCtx.closePath();
+      // C. BACKGROUND SMOKE (Softened)
+      // We use lower opacity (0.08) and larger radius to remove the "hard edge"
+      ctx.globalCompositeOperation = 'screen'; 
+      for(let i=0; i<80; i++) {
+          const x = rng(20, 300); 
+          const y = rng(100, 400); 
+          const r = rng(40, 100); // Larger radius for softer blend
+          
+          const dustGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
+          dustGrad.addColorStop(0, 'rgba(220, 220, 220, 0.08)'); // Very faint center
+          dustGrad.addColorStop(0.4, pickVariant(primaryPalette, 0.03)); 
+          dustGrad.addColorStop(1, 'rgba(0,0,0,0)'); // Fade to zero
+          
+          ctx.fillStyle = dustGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI*2);
+          ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
 
-        const isPrimary = Math.random() > 0.4;
-        const palette = isPrimary ? primaryPalette : secondaryPalette;
-        fgCtx.fillStyle = pickVariant(palette, rng(0.1, 0.35));
-        fgCtx.shadowColor = isPrimary ? colors.primary : colors.secondary;
+      // D. Spiderweb Cracks
+      ctx.beginPath();
+      for(let i=0; i<12; i++) {
+          const angle = (i / 12) * Math.PI * 2 + rng(-0.2, 0.2);
+          ctx.moveTo(cx, cy);
+          let currX = cx, currY = cy, dist = 0;
+          while(dist < 300) {
+            dist += rng(20, 60);
+            currX += Math.cos(angle) * dist * 0.5 + rng(-5, 5);
+            currY += Math.sin(angle) * dist * 0.5 + rng(-5, 5);
+            ctx.lineTo(currX, currY);
+          }
+      }
+      ctx.strokeStyle = pickVariant(primaryPalette, 0.4);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 2. FOREGROUND LAYER (Overlays Player - fgCtx) ----------------------
+      
+      // A. FOREGROUND MIST (The "Running Through" Effect)
+      // This draws subtle smoke ON TOP of the player (fgCtx)
+      fgCtx.globalCompositeOperation = 'screen';
+      for(let i=0; i<40; i++) {
+          const x = rng(20, 300);
+          const y = rng(250, 480); // Concentrated on lower body
+          const r = rng(30, 80);
+          
+          const mistGrad = fgCtx.createRadialGradient(x, y, 0, x, y, r);
+          mistGrad.addColorStop(0, 'rgba(220, 220, 220, 0.06)'); // Extremely subtle
+          mistGrad.addColorStop(0.5, pickVariant(primaryPalette, 0.02));
+          mistGrad.addColorStop(1, 'transparent');
+          
+          fgCtx.fillStyle = mistGrad;
+          fgCtx.beginPath();
+          fgCtx.arc(x, y, r, 0, Math.PI*2);
+          fgCtx.fill();
+      }
+      fgCtx.globalCompositeOperation = 'source-over';
+
+      // B. Center Overlay Shards (Transparent Glass)
+      fgCtx.shadowBlur = 10;
+      for (let i = 0; i < 8; i++) {
+        const x = rng(50, 270);
+        const y = rng(100, 400);
+        const dist = Math.sqrt(Math.pow(x-160,2) + Math.pow(y-160,2));
+        if(dist < 120) continue; 
+
+        fgCtx.beginPath();
+        fgCtx.moveTo(x, y);
+        const s = rng(20, 60);
+        fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
+        fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
+        
+        const isPrimary = Math.random() > 0.5;
+        fgCtx.fillStyle = isPrimary ? pickVariant(primaryPalette, 0.25) : pickVariant(secondaryPalette, 0.25);
         fgCtx.fill();
         
+        fgCtx.strokeStyle = 'rgba(255,255,255,0.4)';
         fgCtx.lineWidth = 0.5;
-        fgCtx.strokeStyle = pickVariant(palette, 0.3);
+        fgCtx.stroke();
+      }
+
+      // C. Perimeter Shards (Sides & Top)
+      for (let i = 0; i < 60; i++) {
+        let x, y;
+        const zone = Math.random();
+        if (zone < 0.33) { x = rng(-20, 50); y = rng(0, 480); } 
+        else if (zone < 0.66) { x = rng(270, 340); y = rng(0, 480); } 
+        else { x = rng(0, 320); y = rng(-20, 80); } 
+
+        fgCtx.beginPath();
+        fgCtx.moveTo(x, y);
+        const s = rng(10, 40);
+        fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
+        fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
+        
+        const style = Math.random();
+        if (style > 0.6) fgCtx.fillStyle = pickVariant(primaryPalette, 0.7);
+        else if (style > 0.3) fgCtx.fillStyle = pickVariant(secondaryPalette, 0.7);
+        else fgCtx.fillStyle = 'rgba(255,255,255,0.6)';
+        
+        fgCtx.fill();
+        fgCtx.strokeStyle = 'rgba(0,0,0,0.2)'; 
+        fgCtx.lineWidth = 0.5;
         fgCtx.stroke();
       }
       fgCtx.shadowBlur = 0;
 
-      for(let i=0; i<150; i++) {
+      // D. Large Glass Lens
+      for(let i=0; i<8; i++) {
+          const x = rng(0, 320);
+          const y = rng(0, 480);
+          if (Math.abs(x - 160) < 100 && Math.abs(y - 200) < 100) continue;
+
+          const s = rng(50, 100);
           fgCtx.beginPath();
-          fgCtx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
-          fgCtx.fillStyle = 'rgba(255,255,255,0.6)';
+          fgCtx.moveTo(x, y);
+          fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
+          fgCtx.lineTo(x + rng(-s, s), y + rng(-s, s));
+          
+          fgCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
           fgCtx.fill();
+          fgCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+          fgCtx.lineWidth = 0.5;
+          fgCtx.stroke();
       }
+      
+      // E. Texture Specks
+      for(let i=0; i<250; i++) {
+          const x = rng(0, 320);
+          const y = rng(0, 480);
+          fgCtx.fillStyle = Math.random() > 0.5 ? '#fff' : '#000';
+          fgCtx.globalAlpha = rng(0.3, 0.7);
+          fgCtx.fillRect(x, y, rng(1,2), rng(1,2));
+      }
+      fgCtx.globalAlpha = 1;
     }
-    else if (backgroundStyle === 'radar') {
-      // 1. Tech Grid Background
-      ctx.fillStyle = '#050505';
-      ctx.fillRect(0, 0, 320, 480);
-      
-      // Tint Background
-      const radGrad = ctx.createRadialGradient(160, 200, 0, 160, 200, 350);
-      radGrad.addColorStop(0, pickVariant(primaryPalette, 0.15));
-      radGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = radGrad;
-      ctx.fillRect(0, 0, 320, 480);
-
+else if (backgroundStyle === 'radar') {
       const cx = 160;
-      const cy = 200; // Center behind player chest
+      const cy = 200;
 
-      // 2. Concentric Target Rings (Alternating Colors)
-      ctx.shadowBlur = 10;
-      
-      let ringIndex = 0;
-      for(let r=40; r < 400; r+=35) {
-          ringIndex++;
+      // 1. Deep Mixed Background
+      // Blend both colors for the deep base so it doesn't look flat
+      const baseGrad = ctx.createLinearGradient(0, 0, 320, 480);
+      baseGrad.addColorStop(0, pickVariant(primaryPalette, 0.15));
+      baseGrad.addColorStop(1, pickVariant(secondaryPalette, 0.1)); // Hint of secondary
+      ctx.fillStyle = baseGrad;
+      ctx.fillRect(0, 0, 320, 480);
+
+      // 2. The "Energy Core" Gradient
+      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 350);
+      coreGrad.addColorStop(0, pickVariant(primaryPalette, 0.3)); 
+      coreGrad.addColorStop(0.5, pickVariant(secondaryPalette, 0.1)); // Secondary glow
+      coreGrad.addColorStop(1, '#020202');
+      ctx.fillStyle = coreGrad;
+      ctx.fillRect(0, 0, 320, 480);
+
+      // 3. Tech Grid (Subtle Background)
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      for(let i=-200; i<600; i+=40) {
           ctx.beginPath();
-          const dashLen = rng(20, 100);
-          const gapLen = rng(10, 60);
-          
-          const startAngle = rng(0, Math.PI);
-          
-          ctx.arc(cx, cy, r, startAngle, startAngle + (Math.PI*1.5));
-          
-          // ALTERNATE COLORS: Even rings = Primary, Odd rings = Secondary
-          const palette = ringIndex % 2 === 0 ? primaryPalette : secondaryPalette;
-          
-          ctx.strokeStyle = pickVariant(palette, rng(0.4, 0.9));
-          ctx.shadowColor = ringIndex % 2 === 0 ? colors.primary : colors.secondary;
-          ctx.lineWidth = rng(1, 3);
-          
-          if (r % 70 === 0) {
-             ctx.setLineDash([dashLen, gapLen]);
-          } else {
-             ctx.setLineDash([]);
-          }
-          
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i-100, 480);
           ctx.stroke();
       }
-      ctx.setLineDash([]); 
-      ctx.shadowBlur = 0;
 
-      // 3. Radial Scanner Lines (Secondary Color)
-      for(let i=0; i<12; i++) {
-         const angle = (i / 12) * Math.PI * 2;
-         ctx.beginPath();
-         ctx.moveTo(cx, cy);
-         const len = 350;
-         ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
-         
-         ctx.strokeStyle = pickVariant(secondaryPalette, 0.2); // Uses secondary
-         ctx.lineWidth = 1;
-         ctx.stroke();
+      // 4. DENSE TECH RINGS (50/50 Split for Contrast)
+      // Loop creates layers of background texture
+      for(let r=20; r < 500; r+=rng(8, 20)) {
+          ctx.beginPath();
+          const startAngle = rng(0, Math.PI * 2);
+          const endAngle = startAngle + rng(2, 5); 
+          ctx.arc(cx, cy, r, startAngle, endAngle);
+          
+          // STRICT ALTERNATING COLORS for maximum contrast
+          const isSecondary = Math.random() > 0.5;
+          const palette = isSecondary ? secondaryPalette : primaryPalette;
+
+          if (Math.random() > 0.6) {
+              // Thick Translucent Bands
+              ctx.strokeStyle = pickVariant(palette, 0.2);
+              ctx.lineWidth = rng(15, 40);
+          } else {
+              // Thin Bright Lines
+              ctx.strokeStyle = pickVariant(palette, 0.6);
+              ctx.lineWidth = rng(1, 3);
+              if(Math.random() > 0.5) ctx.setLineDash([rng(5, 20), rng(5, 10)]);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
       }
 
-      // 4. Tech Segments (Floating Rectangles/Brackets)
-      // We draw more of these, using alternating colors
-      for(let i=0; i<20; i++) {
-          const r = rng(100, 350);
+      // 5. HIGH CONTRAST ARCS (The "Pop" Layer)
+      // These are purely SECONDARY color to cut through the primary background
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = colors.secondary;
+      for(let i=0; i<12; i++) {
+          const r = rng(80, 420);
+          const width = rng(2, 6);
+          const start = rng(0, Math.PI * 2);
+          const end = start + rng(0.5, 1.5);
+          
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, start, end);
+          ctx.strokeStyle = pickVariant(secondaryPalette, 1); // Full Opacity
+          ctx.lineWidth = width;
+          ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+
+      // 6. SOLID TECH WEDGES
+      for(let i=0; i<6; i++) {
+          const r = rng(150, 450);
+          const width = rng(30, 80);
+          const start = rng(0, Math.PI * 2);
+          const end = start + rng(0.1, 0.3);
+          
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, start, end);
+          // 70% chance of Secondary color here
+          const palette = Math.random() > 0.3 ? secondaryPalette : primaryPalette;
+          ctx.strokeStyle = pickVariant(palette, 0.2); 
+          ctx.lineWidth = width;
+          ctx.stroke();
+          
+          // Edge Highlight
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + width/2, start, end);
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+      }
+
+      // 7. FLOATING DATA BLOCKS
+      for(let i=0; i<25; i++) {
+          const r = rng(60, 400);
           const theta = rng(0, Math.PI * 2);
-          const w = rng(10, 50);
-          const h = rng(5, 20);
+          const w = rng(15, 50);
+          const h = rng(6, 15);
 
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(theta);
           
-          // 40% chance of being secondary color (High Contrast)
-          const isSecondary = Math.random() > 0.6;
-          const palette = isSecondary ? secondaryPalette : primaryPalette;
-
-          ctx.fillStyle = pickVariant(palette, 0.5);
+          // Force Secondary color on outer edges for contrast
+          const palette = r > 250 ? secondaryPalette : primaryPalette;
+          ctx.fillStyle = pickVariant(palette, 0.8);
           ctx.fillRect(r, -h/2, w, h);
           
-          // Add highlight border
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 0.5;
-          ctx.strokeRect(r, -h/2, w, h);
-          
+          // Connector Line
+          ctx.beginPath();
+          ctx.moveTo(r+w, 0);
+          ctx.lineTo(r+w+rng(20,60), 0);
+          ctx.strokeStyle = pickVariant(palette, 0.5);
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
           ctx.restore();
       }
 
-      // 5. Draw the Nameplate Box (White Background)
+      // 8. ENERGY NODES (Bright dots at intersections)
+      for(let i=0; i<15; i++) {
+          const r = rng(50, 350);
+          const theta = rng(0, Math.PI * 2);
+          const x = cx + Math.cos(theta) * r;
+          const y = cy + Math.sin(theta) * r;
+
+          ctx.beginPath();
+          ctx.arc(x, y, rng(2, 5), 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = colors.secondary;
+          ctx.shadowBlur = 10;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+      }
+
+      // 9. NAMEPLATE BOX (Standard)
       const nameY = 355; 
       const nameHeight = 70;
       
       fgCtx.beginPath();
-      // Trapezoid shape
       fgCtx.moveTo(20, nameY); 
       fgCtx.lineTo(300, nameY); 
       fgCtx.lineTo(310, nameY + nameHeight); 
@@ -731,13 +1034,10 @@ const OrderForm: React.FC = () => {
       
       fgCtx.fillStyle = '#ffffff';
       fgCtx.fill();
-      
-      // Outline
       fgCtx.strokeStyle = colors.secondary;
       fgCtx.lineWidth = 2;
       fgCtx.stroke();
       
-      // Dark bar below name
       fgCtx.beginPath();
       fgCtx.moveTo(10, nameY + nameHeight);
       fgCtx.lineTo(310, nameY + nameHeight);
@@ -1073,66 +1373,118 @@ const OrderForm: React.FC = () => {
       }
     }
     else if (backgroundStyle === 'velocity') {
-      // ... existing velocity logic ...
-      ctx.fillStyle = '#0f172a';
+      // 1. Dynamic Gradient Background (Diagonal)
+      // Creates a sense of movement right from the base
+      const bgGrad = ctx.createLinearGradient(0, 480, 320, 0);
+      bgGrad.addColorStop(0, '#020617');
+      bgGrad.addColorStop(0.4, pickVariant(primaryPalette, 0.2));
+      bgGrad.addColorStop(1, pickVariant(secondaryPalette, 0.15));
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 320, 480);
 
-      for (let i = 0; i < 150; i++) {
-        const x = rng(-150, 470);
-        const y = rng(-150, 630);
-        const length = rng(50, 300);
-        const angle = 60 * (Math.PI / 180);
+      // Motion Settings
+      const angle = 60 * (Math.PI / 180); // Diagonal Up-Right
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
 
-        const isPrimary = i % 3 !== 0; 
-        const palette = isPrimary ? primaryPalette : secondaryPalette;
+      // 2. Background "Warp Grid"
+      // Faint lines to give structure to the speed
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      for(let i=-200; i<600; i+=40) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i + 300 * cos, 480);
+          ctx.stroke();
+      }
 
-        const grad = ctx.createLinearGradient(x, y, x + Math.cos(angle)*length, y + Math.sin(angle)*length);
-        grad.addColorStop(0, 'transparent');
-        grad.addColorStop(0.5, pickVariant(palette, rng(0.2, 0.8)));
-        grad.addColorStop(1, 'transparent');
+      // 3. Dense Speed Lines (Layered for Depth)
+      // We draw 300 lines of varying thickness and speed
+      for (let i = 0; i < 300; i++) {
+        const x = rng(-200, 500);
+        const y = rng(-200, 680);
+        const length = rng(50, 400);
+        const speed = rng(0.5, 1.5); // Multiplier for thickness/opacity
+
+        // Determine color based on "speed" (layer)
+        let strokeColor;
+        if (speed > 1.2) {
+            strokeColor = '#ffffff'; // Top layer = White hot
+        } else if (Math.random() > 0.5) {
+            strokeColor = pickVariant(primaryPalette, 0.6 * speed);
+        } else {
+            strokeColor = pickVariant(secondaryPalette, 0.6 * speed);
+        }
+
+        // Gradient line for motion blur effect (fade out at tail)
+        const lineGrad = ctx.createLinearGradient(x, y, x + cos*length, y + sin*length);
+        lineGrad.addColorStop(0, 'transparent');
+        lineGrad.addColorStop(0.5, strokeColor);
+        lineGrad.addColorStop(1, 'transparent');
 
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = rng(1, 3);
+        ctx.lineTo(x + cos * length, y + sin * length);
+        ctx.strokeStyle = lineGrad;
+        ctx.lineWidth = speed * 2; // Thicker lines for faster layers
+        ctx.lineCap = 'round';
         ctx.stroke();
       }
       
-      for(let i=0; i<50; i++){
-          ctx.beginPath();
-          ctx.arc(rng(0,320), rng(0,480), rng(0.5, 1.5), 0, Math.PI*2);
-          if(Math.random() > 0.7) {
-              const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
-              ctx.fillStyle = pickVariant(palette, 0.8);
-          } else {
-              ctx.fillStyle = '#fff';
-          }
-          ctx.fill();
-      }
-      
-      for(let i=0; i<12; i++) {
-          const x = rng(0, 320);
-          const y = rng(0, 480);
-          const length = rng(100, 250);
-          const angle = 60 * (Math.PI / 180);
-          const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+      // 4. Floating Chevrons (The "Boost" Arrows)
+      // Adds geometric interest and direction
+      for(let i=0; i<15; i++) {
+          const x = rng(0, 300);
+          const y = rng(0, 450);
+          const size = rng(10, 30);
           
-          const trailGrad = ctx.createLinearGradient(x, y, x + Math.cos(angle)*length, y + Math.sin(angle)*length);
-          trailGrad.addColorStop(0, pickVariant(palette, 0.6));
-          trailGrad.addColorStop(0.3, pickVariant(palette, 0.4));
-          trailGrad.addColorStop(1, 'transparent');
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle); // Rotate to match flow
+          
+          ctx.beginPath();
+          // Draw ">>" shape
+          ctx.moveTo(0, 0);
+          ctx.lineTo(size/2, size/2);
+          ctx.lineTo(0, size);
+          ctx.moveTo(size/2, 0);
+          ctx.lineTo(size, size/2);
+          ctx.lineTo(size/2, size);
+          
+          ctx.strokeStyle = i % 2 === 0 ? pickVariant(primaryPalette, 0.8) : pickVariant(secondaryPalette, 0.8);
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = ctx.strokeStyle;
+          ctx.stroke();
+          ctx.restore();
+      }
+      ctx.shadowBlur = 0;
+      
+      // 5. High Velocity Particles (Stretched Dashes)
+      for(let i=0; i<80; i++){
+          const x = rng(0,320);
+          const y = rng(0,480);
+          const len = rng(5, 20);
           
           ctx.beginPath();
           ctx.moveTo(x, y);
-          ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-          ctx.strokeStyle = trailGrad;
-          ctx.lineWidth = rng(3, 6);
-          ctx.lineCap = 'round';
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = pickVariant(palette, 0.8);
+          ctx.lineTo(x + cos*len, y + sin*len);
+          
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = rng(0.5, 1.5);
+          ctx.globalAlpha = rng(0.3, 0.8);
           ctx.stroke();
       }
+      ctx.globalAlpha = 1;
+
+      // 6. Corner Vignette (Focus attention)
+      const vig = ctx.createRadialGradient(160, 240, 150, 160, 240, 400);
+      vig.addColorStop(0, 'transparent');
+      vig.addColorStop(1, 'rgba(0,0,0,0.6)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(0,0,320,480);
     }
     else if (backgroundStyle === 'cyber') {
       // ... existing cyber logic ...
@@ -1298,6 +1650,95 @@ const OrderForm: React.FC = () => {
           ctx.shadowBlur = 0;
       }
     }
+    else if (backgroundStyle === 'impact') {
+      // 1. Comic Background Base (Darker Halftone)
+      ctx.fillStyle = '#e0e0e0'; // Slightly darker base
+      ctx.fillRect(0, 0, 320, 480);
+      
+      // Halftone dots
+      ctx.fillStyle = '#cccccc';
+      for(let x=0; x<320; x+=8) {
+          for(let y=0; y<480; y+=8) {
+              if ((x+y)%16 === 0) {
+                  ctx.beginPath();
+                  ctx.arc(x, y, 3, 0, Math.PI*2); // Larger dots
+                  ctx.fill();
+              }
+          }
+      }
+
+      const cx = 160;
+      const cy = 200;
+
+      const drawSpikeBurst = (count: number, minLen: number, maxLen: number, widthMin: number, widthMax: number, colorPalette: any) => {
+          for(let i=0; i<count; i++) {
+              const angle = rng(0, Math.PI * 2);
+              const length = rng(minLen, maxLen);
+              const width = rng(widthMin, widthMax);
+              
+              ctx.save();
+              ctx.translate(cx, cy);
+              ctx.rotate(angle);
+              
+              ctx.beginPath();
+              ctx.moveTo(0, -width/2);
+              ctx.lineTo(length, 0); 
+              ctx.lineTo(0, width/2);
+              
+              // High opacity for dense color look
+              ctx.fillStyle = pickVariant(colorPalette, 0.9);
+              ctx.fill();
+              
+              // Heavy Ink Outline
+              ctx.strokeStyle = '#000'; 
+              ctx.lineWidth = 1;
+              ctx.stroke();
+              
+              ctx.restore();
+          }
+      };
+
+      // Layer 0: Background Filler (Wide, low opacity shards to kill white space)
+      drawSpikeBurst(20, 200, 400, 40, 100, primaryPalette);
+
+      // Layer 1: Primary Explosions (Dense)
+      drawSpikeBurst(50, 100, 380, 10, 50, primaryPalette);
+      
+      // Layer 2: Secondary Sharp Cuts (Dense)
+      drawSpikeBurst(40, 80, 300, 5, 30, secondaryPalette);
+      
+      // Layer 3: Black "Impact" Ink Shards
+      for(let i=0; i<30; i++) {
+          const angle = rng(0, Math.PI * 2);
+          const length = rng(50, 250);
+          const width = rng(2, 12);
+          
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+          ctx.fillStyle = '#000000';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(length, -width);
+          ctx.lineTo(length * 0.9, 0);
+          ctx.lineTo(length, width);
+          ctx.fill();
+          ctx.restore();
+      }
+
+      // 3. Foreground Grunge
+      fgCtx.fillStyle = '#111';
+      for(let i=0; i<500; i++) {
+          const x = rng(0, 320);
+          const y = rng(0, 480);
+          const s = rng(0.5, 3);
+          const dist = Math.sqrt(Math.pow(x-160,2) + Math.pow(y-200,2));
+          if(dist < 80 && Math.random() > 0.2) continue; // Keep face clean
+
+          if (Math.random() > 0.5) fgCtx.fillRect(x, y, s, s); 
+          else { fgCtx.beginPath(); fgCtx.arc(x, y, s/2, 0, Math.PI*2); fgCtx.fill(); }
+      }
+    }
     else if (backgroundStyle === 'hurricane') {
       // ... existing hurricane logic ...
       const grad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
@@ -1447,6 +1888,22 @@ const OrderForm: React.FC = () => {
   };
 
   return (
+      <>
+      <svg width="0" height="0" className="absolute">
+        <filter id="sticker-effect" x="-20%" y="-20%" width="140%" height="140%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="thick" />
+          <feFlood floodColor="white" result="white" />
+          <feComposite in="white" in2="thick" operator="in" result="outline" />
+          <feMorphology in="outline" operator="dilate" radius="1" result="outline_thick" />
+          <feDropShadow dx="3" dy="3" stdDeviation="0" floodColor="black" floodOpacity="1" in="outline_thick" result="shadow"/>
+          <feMerge>
+            <feMergeNode in="shadow" />
+            <feMergeNode in="outline_thick" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </svg>  
+
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
         
@@ -1486,7 +1943,7 @@ const OrderForm: React.FC = () => {
               )}
             </div>
 
-            {/* Team Logo Upload */}
+           {/* Team Logo Upload */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-300">Team Logo (Optional)</label>
               
@@ -1543,6 +2000,19 @@ const OrderForm: React.FC = () => {
               </div>
               
               <p className="text-xs text-gray-500 pl-20">Square logos (PNG with transparent background) work best</p>
+
+              {/* Add Team Logo Checkbox - Moved to bottom */}
+              <label className="flex items-center gap-2 cursor-pointer group mt-2 pt-2">
+                <input 
+                  type="checkbox" 
+                  checked={showLogo}
+                  onChange={(e) => setShowLogo(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                />
+                <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                  Add team logo
+                </span>
+              </label>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -1807,7 +2277,7 @@ const OrderForm: React.FC = () => {
               {/* Foreground debris layer (shatter only) */}
               <canvas 
                 ref={foregroundCanvasRef} 
-                className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+                className="absolute inset-0 w-full h-full z-40 pointer-events-none"
               />
               
               {/* User Uploaded Image */}
@@ -1815,10 +2285,16 @@ const OrderForm: React.FC = () => {
                 <img 
                   src={imagePreview} 
                   alt="Preview" 
-                  className="absolute inset-0 w-full h-full object-cover z-10 mix-blend-normal" 
-                  style={enableGlow ? {
-                    filter: `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
-                  } : undefined}
+                  // Z-INDEX UPDATE: Changed z-10 to z-30 so the player pops OVER the text banner
+                  className="absolute inset-0 w-full h-full object-cover z-30 mix-blend-normal" 
+                  style={{
+                    filter: backgroundStyle === 'impact' 
+                      // Apply the SVG filter we added in Step 1
+                      ? 'url(#sticker-effect)' 
+                      : enableGlow 
+                        ? `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
+                        : undefined
+                  }}
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -1841,60 +2317,109 @@ const OrderForm: React.FC = () => {
               
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
-              {/* Text Content - Moved down to bottom-8 now that bio is gone */}
-              <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
-                <div className={`flex justify-between items-end border-b pb-2 mb-3 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
-                  <div className="flex-1 mr-2">
-                      <p 
-                        className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
-                        style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary }}
-                      >
-                        {details.team || 'TEAM NAME'}
-                      </p>
-                      {/* DYNAMIC FONT SIZING APPLIED HERE */}
-                      <h1 
-                        className={`font-['Teko'] font-bold leading-none italic uppercase drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black' : 'text-white'}`}
-                        style={getNameFontSize(details.name)}
-                      >
-                        {details.name || 'PLAYER NAME'}
-                      </h1>
-                  </div>
-                  <div 
-                    className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
-                  >
-                      {details.number || '00'}
-                  </div>
-                </div>
-                
-                <div className="flex justify-between text-xs font-bold text-gray-300">
-                  <span>{details.position || 'POS'}</span>
-                  <span style={{color: colors.secondary}}>{backgroundStyle.toUpperCase()} ED.</span>
-                </div>
-              </div>
-
-              {/* Top Badge */}
-              <div className="absolute top-8 right-8 z-50 pointer-events-none">
-                <div 
-                    className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden"
-                    style={{ borderColor: colors.primary }}
-                >
-                    {logoPreview ? (
-                      <img 
-                        src={logoPreview} 
-                        alt="Team Logo" 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div 
-                          className="font-bold text-xs text-center leading-none"
-                          style={{ color: colors.primary }}
-                      >
-                        PRO<br/>CARD
+{/* Text Content Logic */}
+              {backgroundStyle === 'impact' ? (
+                // --- 1. COMIC IMPACT LAYOUT ---
+                <>
+                  {/* TOP: Player Name (z-20: Sits BEHIND the player image) */}
+                  <div className="absolute top-6 left-0 w-full z-20 pointer-events-none overflow-visible">
+                    <div className="relative transform -rotate-2 translate-x-[-10px] scale-110">
+                      
+                      {/* Name Banner */}
+                      <div className="bg-white border-y-4 border-black py-2 px-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative z-20">
+                        <h1 
+                          className="font-['Teko'] font-bold text-black uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap"
+                          style={getNameFontSize(details.name, 3.5)} 
+                        >
+                          {details.name || 'PLAYER NAME'}
+                        </h1>
                       </div>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* BOTTOM: Team & Position Ribbon (z-40: Sits OVER the player image) */}
+                  <div className="absolute bottom-8 left-0 w-full z-40 pointer-events-none overflow-visible">
+                     <div 
+                        className="inline-block px-8 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px]"
+                        style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}
+                      >
+                        <div className="flex gap-3 text-black font-['Teko'] font-bold text-2xl uppercase tracking-widest leading-none">
+                          <span>{details.team || 'TEAM'}</span>
+                          <span className="opacity-50">•</span>
+                          <span>{details.position || 'POS'}</span>
+                        </div>
+                      </div>
+                  </div>
+
+                  {/* JERSEY NUMBER (z-40: Sits OVER the player image) */}
+                  <div className="absolute bottom-6 right-4 transform -rotate-6 z-40 pointer-events-none">
+                     <span 
+                       className="text-8xl font-['Teko'] font-bold text-transparent"
+                       style={{ 
+                         WebkitTextStroke: '3px white',
+                         textShadow: `4px 4px 0 ${colors.secondary}`
+                       }}
+                     >
+                        {details.number || '00'}
+                     </span>
+                  </div>
+                </>
+              ) : (
+                // --- 2. STANDARD / RADAR LAYOUT (Bottom) ---
+                <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
+                  <div className={`flex justify-between items-end border-b pb-2 mb-3 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
+                    <div className="flex-1 mr-2">
+                        <p 
+                          className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
+                          style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary }}
+                        >
+                          {details.team || 'TEAM NAME'}
+                        </p>
+                        <h1 
+                          className={`font-['Teko'] font-bold leading-none italic uppercase drop-shadow-lg whitespace-nowrap ${backgroundStyle === 'radar' ? 'text-black' : 'text-white'}`}
+                          style={getNameFontSize(details.name)}
+                        >
+                          {details.name || 'PLAYER NAME'}
+                        </h1>
+                    </div>
+                    <div 
+                      className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
+                    >
+                        {details.number || '00'}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between text-xs font-bold text-gray-300">
+                    <span>{details.position || 'POS'}</span>
+                  </div>
                 </div>
-              </div>
-              
+              )}
+
+             {/* Top Badge - Only render if showLogo is true */}
+              {showLogo && (
+                <div className="absolute top-8 right-8 z-50 pointer-events-none">
+                  <div 
+                      className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden"
+                      style={{ borderColor: colors.primary }}
+                  >
+                      {logoPreview ? (
+                        <img 
+                          src={logoPreview} 
+                          alt="Team Logo" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div 
+                            className="font-bold text-xs text-center leading-none"
+                            style={{ color: colors.primary }}
+                        >
+                          PRO<br/>CARD
+                        </div>
+                      )}
+                  </div>
+                </div>
+              )}
+
               {/* Border Frame Overlay */}
               {enableBorder && (
                 <BorderFrame 
@@ -1933,6 +2458,7 @@ const OrderForm: React.FC = () => {
 
       </div>
     </div>
+    </>
   );
 };
 
