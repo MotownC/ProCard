@@ -12,7 +12,6 @@ export interface PlayerDetails {
 
 // Generate color variants for richer designs
 const getColorVariants = (hexColor: string) => {
-  // Fallback for invalid hex
   if (!hexColor || !hexColor.startsWith('#') || hexColor.length !== 7) {
     return {
       lighter2: '#ffffff',
@@ -117,7 +116,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
- // 4. UPDATED CHROME-METAL (Big Hex + Top Border)
+ // 4. UPDATED CHROME-METAL (Squared/90° Top Corners)
   if (style === 'chrome-metal') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
@@ -145,7 +144,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
           </pattern>
 
-          {/* UPDATED: Honeycomb Pattern (2x Larger) */}
+          {/* Honeycomb Pattern */}
           <pattern id="hexOverlay" x="0" y="0" width="10" height="17.32" patternUnits="userSpaceOnUse" patternTransform="scale(1.6)">
              <path d="M5 0L10 2.89V8.66L5 11.55L0 8.66V2.89L5 0Z" fill="none" stroke="#333" strokeWidth="1" />
           </pattern>
@@ -160,31 +159,41 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </filter>
 
           {/* Path Definitions */}
-          <path id="leftArmorPath" d="M -10,60 L 25,90 L 25,280 L 45,295 L 45,345 L 25,360 L 25,430 L -10,460 Z" />
-          <path id="rightArmorPath" d="M 330,60 L 295,90 L 295,120 L 275,135 L 275,185 L 295,200 L 295,430 L 330,460 Z" />
           
-          {/* Base Shapes */}
-          <path id="topLeftBase" d="M -5,-5 H 80 L 30,50 L -5,90 Z" />
-          <path id="topRightBase" d="M 325,-5 H 240 L 290,50 L 325,90 Z" />
+          {/* Side Armor Plates (Unchanged) */}
+          <path id="leftArmorPath" d="M -10,75 L 25,105 L 25,280 L 45,295 L 45,345 L 25,360 L 25,445 L -10,475 Z" />
+          <path id="rightArmorPath" d="M 330,5 L 295,35 L 295,90 L 275,105 L 275,155 L 295,170 L 295,375 L 330,405 Z" />
           
-          {/* NEW: Top Center Connecting Bar */}
-          <path id="topCenterBase" d="M 75,-5 H 245 L 235,20 H 85 L 75,-5 Z" />
+          {/* Base Shapes - UPDATED TO 90 DEGREE CORNERS */}
           
-          {/* Bottom Shape */}
-          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" /> 
+          {/* Top Left: Square Step Down */}
+          <path id="topLeftBase" d="M -5,-5 H 80 V 25 H 20 V 90 H -5 Z" />
+          
+          {/* Top Right: Square Step Down */}
+          <path id="topRightBase" d="M 325,-5 H 240 V 25 H 300 V 90 H 325 Z" />
+          
+          {/* Top Center: Solid Rectangle */}
+          <path id="topCenterBase" d="M 75,-5 H 245 V 20 H 75 Z" />
+          
+          {/* Bottom Shape (Existing) */}
+          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" />
+          
+          {/* Side Fillers */}
+          <rect id="leftSideFill" x="-5" y="0" width="20" height="480" />
+          <rect id="rightSideFill" x="305" y="0" width="20" height="480" />
         </defs>
 
-        {/* 
-           LAYER 1: CHASSIS BASE (Dark Tech + Honeycomb) 
-        */}
+        {/* LAYER 1: CHASSIS BASE */}
         <g>
-            {/* Dark Backgrounds */}
+            <use href="#leftSideFill" fill="url(#darkTech)" />
+            <use href="#rightSideFill" fill="url(#darkTech)" />
             <use href="#topLeftBase" fill="url(#darkTech)" />
             <use href="#topRightBase" fill="url(#darkTech)" />
             <use href="#topCenterBase" fill="url(#darkTech)" />
             <use href="#bottomBase" fill="url(#darkTech)" />
             
-            {/* Honeycomb Overlays */}
+            <use href="#leftSideFill" fill="url(#hexOverlay)" />
+            <use href="#rightSideFill" fill="url(#hexOverlay)" />
             <use href="#topLeftBase" fill="url(#hexOverlay)" />
             <use href="#topRightBase" fill="url(#hexOverlay)" />
             <use href="#topCenterBase" fill="url(#hexOverlay)" />
@@ -195,11 +204,11 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <g filter="url(#plateShadow)">
             <use href="#leftArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#leftArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
-            <path d="M 15,100 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
+            <path d="M 15,115 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
             <g fill="#222">
-                <rect x="5" y="120" width="10" height="4" />
-                <rect x="5" y="130" width="10" height="4" />
-                <rect x="5" y="140" width="10" height="4" />
+                <rect x="5" y="135" width="10" height="4" />
+                <rect x="5" y="145" width="10" height="4" />
+                <rect x="5" y="155" width="10" height="4" />
             </g>
         </g>
 
@@ -207,139 +216,63 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <g filter="url(#plateShadow)">
             <use href="#rightArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#rightArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
-            <path d="M 305,100 L 305,115 L 285,130 L 285,190 L 305,205 L 305,420" fill="none" stroke={secondaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
+            <path d="M 305,45 L 305,85 L 285,100 L 285,160 L 305,175 L 305,360" fill="none" stroke={secondaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
             <g fill="#222">
-                <rect x="305" y="360" width="10" height="4" />
-                <rect x="305" y="370" width="10" height="4" />
-                <rect x="305" y="380" width="10" height="4" />
+                <rect x="305" y="330" width="10" height="4" />
+                <rect x="305" y="340" width="10" height="4" />
+                <rect x="305" y="350" width="10" height="4" />
             </g>
         </g>
 
         {/* LAYER 4: ACCENTS */}
-        
-        {/* Top Accent Line */}
-        <rect x="85" y="16" width="150" height="2" fill={primaryColor} filter="url(#pipingGlow)" />
-        
-        {/* Bottom Connectors */}
+        <rect x="70" y="16" width="180" height="2" fill={primaryColor} filter="url(#pipingGlow)" />
         <rect x="40" y="468" width="240" height="4" fill="#111" stroke="#333" />
         <rect x="120" y="470" width="80" height="2" fill={secondaryColor} filter="url(#pipingGlow)" />
 
-        {/* Indent Highlight Lines */}
         <line x1="50" y1="295" x2="50" y2="345" stroke={primaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
-        <line x1="270" y1="135" x2="270" y2="185" stroke={secondaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
+        <line x1="270" y1="105" x2="270" y2="155" stroke={secondaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
 
       </svg>
     );
   }
   
-  // 2. UPDATED CARBON FIBER (Notched Top/Bottom + Side Armor)
+  // 3. CARBON FIBER (Notched & Armored)
   if (style === 'carbon-fiber') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Carbon Pattern */}
           <pattern id="carbonWeave" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
             <rect width="8" height="8" fill="#181818" />
             <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#2a2a2a" strokeWidth="1.5" />
           </pattern>
-          
-          {/* Metallic Gradient for Plates */}
           <linearGradient id="plateGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style={{ stopColor: '#222', stopOpacity: 1 }} />
             <stop offset="50%" style={{ stopColor: '#555', stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: '#111', stopOpacity: 1 }} />
           </linearGradient>
-
-          {/* Intense Neon Glow */}
           <filter id="neonTube">
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
         
-        {/* 
-           MAIN FRAME HULL 
-           Features "Notched" top and bottom:
-           - Thicker at corners (25px) to look sturdy
-           - Thinner in middle (10px) to reveal text
-        */}
-        <path 
-          d="
-            M -10,-10 H 330 V 490 H -10 Z 
-            M 15,25 
-            L 80,25 L 95,10 L 225,10 L 240,25 L 305,25 
-            L 305,100 L 295,130 L 295,350 L 305,380 
-            L 305,455 
-            L 240,455 L 225,470 L 95,470 L 80,455 L 15,455
-            L 15,380 L 25,350 L 25,130 L 15,100 
-            Z
-          " 
-          fill="url(#carbonWeave)" 
-          fillRule="evenodd"
-          stroke="#000"
-          strokeWidth="2"
-        />
+        <path d="M -10,-10 H 330 V 490 H -10 Z M 15,25 L 80,25 L 95,10 L 225,10 L 240,25 L 305,25 L 305,100 L 295,130 L 295,350 L 305,380 L 305,455 L 240,455 L 225,470 L 95,470 L 80,455 L 15,455 L 15,380 L 25,350 L 25,130 L 15,100 Z" fill="url(#carbonWeave)" fillRule="evenodd" stroke="#000" strokeWidth="2"/>
 
-        {/* 
-           FULL PERIMETER GLOW PIPES
-           Tracing the new angular notches
-        */}
-        
-        {/* Primary Color (Top & Left) */}
-        <path 
-          d="M 305,25 L 240,25 L 225,10 L 95,10 L 80,25 L 15,25 L 15,100 L 25,130 L 25,350 L 15,380 L 15,455"
-          fill="none"
-          stroke={primaryColor}
-          strokeWidth="3"
-          strokeLinecap="round"
-          filter="url(#neonTube)"
-        />
+        <path d="M 305,25 L 240,25 L 225,10 L 95,10 L 80,25 L 15,25 L 15,100 L 25,130 L 25,350 L 15,380 L 15,455" fill="none" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" filter="url(#neonTube)"/>
+        <path d="M 15,455 L 80,455 L 95,470 L 225,470 L 240,455 L 305,455 L 305,380 L 295,350 L 295,130 L 305,100 L 305,25" fill="none" stroke={secondaryColor} strokeWidth="3" strokeLinecap="round" filter="url(#neonTube)"/>
 
-        {/* Secondary Color (Bottom & Right) */}
-        <path 
-          d="M 15,455 L 80,455 L 95,470 L 225,470 L 240,455 L 305,455 L 305,380 L 295,350 L 295,130 L 305,100 L 305,25"
-          fill="none"
-          stroke={secondaryColor}
-          strokeWidth="3"
-          strokeLinecap="round"
-          filter="url(#neonTube)"
-        />
-
-        {/* 
-           SIDE ARMOR PLATES
-        */}
-        
-        {/* Left Armor Plate */}
-        <path 
-          d="M -5,90 L 35,120 L 35,360 L -5,390 Z" 
-          fill="url(#plateGrad)" 
-          stroke="#444" 
-          strokeWidth="1"
-        />
+        <path d="M -5,90 L 35,120 L 35,360 L -5,390 Z" fill="url(#plateGrad)" stroke="#444" strokeWidth="1"/>
         <path d="M 0,130 L 20,145 L 20,335 L 0,350" fill="#111" opacity="0.6" />
         <rect x="22" y="220" width="4" height="40" fill={primaryColor} filter="url(#neonTube)" />
 
-        {/* Right Armor Plate */}
-        <path 
-          d="M 325,90 L 285,120 L 285,360 L 325,390 Z" 
-          fill="url(#plateGrad)" 
-          stroke="#444" 
-          strokeWidth="1"
-        />
+        <path d="M 325,90 L 285,120 L 285,360 L 325,390 Z" fill="url(#plateGrad)" stroke="#444" strokeWidth="1"/>
         <path d="M 320,130 L 300,145 L 300,335 L 320,350" fill="#111" opacity="0.6" />
         <rect x="294" y="220" width="4" height="40" fill={secondaryColor} filter="url(#neonTube)" />
 
-        {/* 
-           CORNER JOINTS (Visual Anchors)
-        */}
         <path d="M 15,25 L 45,25 L 35,35 L 15,35 Z" fill="#333" stroke="none" />
         <path d="M 305,25 L 275,25 L 285,35 L 305,35 Z" fill="#333" stroke="none" />
         <path d="M 15,455 L 45,455 L 35,445 L 15,445 Z" fill="#333" stroke="none" />
         <path d="M 305,455 L 275,455 L 285,445 L 305,445 Z" fill="#333" stroke="none" />
-
       </svg>
     );
   }
@@ -350,49 +283,36 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <defs>
           <filter id="neonGlow">
             <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        
-        <rect x="10" y="10" width="300" height="460" fill="none" 
-              stroke={primaryColor} strokeWidth="3" filter="url(#neonGlow)" opacity="0.9"/>
-        
-        <rect x="15" y="15" width="290" height="450" fill="none" 
-              stroke={secondaryColor} strokeWidth="1.5" filter="url(#neonGlow)" opacity="0.7"/>
-        
+        <rect x="10" y="10" width="300" height="460" fill="none" stroke={primaryColor} strokeWidth="3" filter="url(#neonGlow)" opacity="0.9"/>
+        <rect x="15" y="15" width="290" height="450" fill="none" stroke={secondaryColor} strokeWidth="1.5" filter="url(#neonGlow)" opacity="0.7"/>
         <circle cx="30" cy="30" r="4" fill={primaryColor} filter="url(#neonGlow)"/>
         <circle cx="290" cy="30" r="4" fill={secondaryColor} filter="url(#neonGlow)"/>
         <circle cx="30" cy="450" r="4" fill={secondaryColor} filter="url(#neonGlow)"/>
         <circle cx="290" cy="450" r="4" fill={primaryColor} filter="url(#neonGlow)"/>
-        
         <line x1="50" y1="12" x2="270" y2="12" stroke={primaryColor} strokeWidth="1" opacity="0.5"/>
         <line x1="50" y1="468" x2="270" y2="468" stroke={secondaryColor} strokeWidth="1" opacity="0.5"/>
       </svg>
     );
   }
   
- // 3. UPDATED TITANIUM ARMOR (With Solid Base Chassis)
+  // 4. TITANIUM (REVERTED + ENHANCED CLAMPS)
   if (style === 'geometric') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Dark Mesh Pattern (Carbon Armor) */}
           <pattern id="titaniumMesh" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
             <rect width="4" height="4" fill="#151515" />
             <path d="M0,4 L4,0" stroke="#252525" strokeWidth="1" />
           </pattern>
-
-          {/* NEW: Industrial Gunmetal Pattern (The Base Fill) */}
           <pattern id="gunmetal" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <rect width="6" height="6" fill="#1a1a1a" />
             <rect width="3" height="6" fill="#262626" />
           </pattern>
-
-          {/* Brushed Silver Gradient */}
+          
+          {/* Silver Frame Gradient */}
           <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
             <stop offset="30%" style={{ stopColor: '#999', stopOpacity: 1 }} />
@@ -401,127 +321,104 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <stop offset="100%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
           </linearGradient>
 
-          {/* Deep Shadow */}
+          {/* NEW: Gloss Sheen for Clamps */}
+          <linearGradient id="glossSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: 'rgba(255,255,255,0)' }} />
+            <stop offset="40%" style={{ stopColor: 'rgba(255,255,255,0.1)' }} />
+            <stop offset="50%" style={{ stopColor: 'rgba(255,255,255,0.4)' }} />
+            <stop offset="60%" style={{ stopColor: 'rgba(255,255,255,0.1)' }} />
+            <stop offset="100%" style={{ stopColor: 'rgba(255,255,255,0)' }} />
+          </linearGradient>
+
           <filter id="dropShadow">
             <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000" floodOpacity="0.8"/>
           </filter>
+          
+          <filter id="ventGlow">
+            <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
         </defs>
 
-        {/* 
-           LAYER 0: BASE CHASSIS (The Fix)
-           This fills ALL gaps between the frame and the edge of the card.
-           It uses the "gunmetal" texture.
-        */}
+        {/* LAYER 0: BASE CHASSIS */}
         <path 
           d="
-            M 0,0 H 320 V 480 H 0 Z 
+            M -2,-2 H 322 V 482 H -2 Z 
             M 20,20 
             L 100,20 L 115,35 L 205,35 L 220,20 
             L 300,20 
-            L 300,100 L 270,130 L 270,350 L 300,380
+            L 300,100 L 270,130 L 270,350 L 300,380 
             L 300,460 
-            L 220,460 L 205,445 L 115,445 L 100,460
+            L 220,460 L 205,445 L 115,445 L 100,460 
             L 20,460 
             L 20,380 L 50,350 L 50,130 L 20,100 
             Z
           " 
           fill="url(#gunmetal)" 
-          fillRule="evenodd"
-          stroke="#000"
+          fillRule="evenodd" 
+          stroke="#000" 
           strokeWidth="1"
         />
 
-        {/* 
-           LAYER 1: THE COLOR CORE 
-           Peaks out from under the skeleton
-        */}
-        <path 
-          d="
-            M 15,15 
-            L 100,15 L 115,30 L 205,30 L 220,15 
-            L 305,15 
-            L 305,100 L 275,130 L 275,350 L 305,380
-            L 305,465 
-            L 220,465 L 205,450 L 115,450 L 100,465
-            L 15,465 
-            L 15,380 L 45,350 L 45,130 L 15,100 
-            Z
-          " 
-          fill="none" 
-          stroke={primaryColor} 
-          strokeWidth="8"
-          strokeLinejoin="round"
-          filter="url(#dropShadow)"
-        />
-
-        {/* 
-           LAYER 2: THE SILVER SKELETON
-           The main frame shape
-        */}
-        <path 
-          d="
-            M 10,10 
-            L 105,10 L 120,25 L 200,25 L 215,10 
-            L 310,10 
-            L 310,105 L 280,135 L 280,345 L 310,375
-            L 310,470 
-            L 215,470 L 200,455 L 120,455 L 105,470
-            L 10,470 
-            L 10,375 L 40,345 L 40,135 L 10,105 
-            Z
-          " 
-          fill="none" 
-          stroke="url(#silverGrad)" 
-          strokeWidth="3"
-          strokeLinecap="square"
-        />
-
-        {/* 
-           LAYER 3: BLACK CARBON ARMOR PLATES
-           Corner and Top/Bottom details
-        */}
+        {/* LAYER 1: COLOR CORE */}
+        <path d="M 15,15 L 100,15 L 115,30 L 205,30 L 220,15 L 305,15 L 305,100 L 275,130 L 275,350 L 305,380 L 305,465 L 220,465 L 205,450 L 115,450 L 100,465 L 15,465 L 15,380 L 45,350 L 45,130 L 15,100 Z" fill="none" stroke={primaryColor} strokeWidth="8" strokeLinejoin="round" filter="url(#dropShadow)"/>
         
-        {/* Top Left Corner */}
-        <path d="M 5,5 L 80,5 L 90,15 L 15,15 L 15,90 L 5,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-        {/* Top Right Corner */}
-        <path d="M 315,5 L 240,5 L 230,15 L 305,15 L 305,90 L 315,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-        {/* Bottom Left Corner */}
-        <path d="M 5,475 L 80,475 L 90,465 L 15,465 L 15,390 L 5,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-        {/* Bottom Right Corner */}
-        <path d="M 315,475 L 240,475 L 230,465 L 305,465 L 305,390 L 315,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        {/* LAYER 2: SILVER SKELETON */}
+        <path d="M 10,10 L 105,10 L 120,25 L 200,25 L 215,10 L 310,10 L 310,105 L 280,135 L 280,345 L 310,375 L 310,470 L 215,470 L 200,455 L 120,455 L 105,470 L 10,470 L 10,375 L 40,345 L 40,135 L 10,105 Z" fill="none" stroke="url(#silverGrad)" strokeWidth="3" strokeLinecap="square"/>
 
-        {/* 
-           LAYER 4: SIDE WINGS
-        */}
-        <polygon points="0,120 40,160 40,320 0,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <polygon points="320,120 280,160 280,320 320,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        {/* LAYER 3: CORNER PLATES */}
+        <path d="M 5,-2 L 80,-2 L 90,15 L 15,15 L 15,90 L 5,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        <path d="M 315,-2 L 240,-2 L 230,15 L 305,15 L 305,90 L 315,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        <path d="M 5,482 L 80,482 L 90,465 L 15,465 L 15,390 L 5,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
+        <path d="M 315,482 L 240,482 L 230,465 L 305,465 L 305,390 L 315,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
 
-        {/* 
-           LAYER 5: DETAILS & ACCENTS
-        */}
-        {/* Secondary color glowing pipes */}
+        {/* LAYER 4: SIDE CLAMPS (Enhanced with Vents & Gloss) */}
+        
+        {/* Left Clamp Group */}
+        <g>
+            {/* Base Shape */}
+            <polygon points="0,120 40,160 40,320 0,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+            
+            {/* Glowing Vents */}
+            <g fill={secondaryColor} filter="url(#ventGlow)">
+                <rect x="5" y="200" width="10" height="4" transform="skewY(-10)" />
+                <rect x="5" y="210" width="10" height="4" transform="skewY(-10)" />
+                <rect x="5" y="220" width="10" height="4" transform="skewY(-10)" />
+                
+                <rect x="5" y="260" width="10" height="4" transform="skewY(10)" />
+                <rect x="5" y="270" width="10" height="4" transform="skewY(10)" />
+                <rect x="5" y="280" width="10" height="4" transform="skewY(10)" />
+            </g>
+
+            {/* Gloss Overlay */}
+            <polygon points="0,120 40,160 40,320 0,360" fill="url(#glossSheen)" style={{ mixBlendMode: 'overlay' }} pointerEvents="none" />
+        </g>
+
+        {/* Right Clamp Group */}
+        <g>
+            {/* Base Shape */}
+            <polygon points="320,120 280,160 280,320 320,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+            
+            {/* Glowing Vents */}
+            <g fill={secondaryColor} filter="url(#ventGlow)">
+                <rect x="305" y="200" width="10" height="4" transform="skewY(10)" />
+                <rect x="305" y="210" width="10" height="4" transform="skewY(10)" />
+                <rect x="305" y="220" width="10" height="4" transform="skewY(10)" />
+                
+                <rect x="305" y="260" width="10" height="4" transform="skewY(-10)" />
+                <rect x="305" y="270" width="10" height="4" transform="skewY(-10)" />
+                <rect x="305" y="280" width="10" height="4" transform="skewY(-10)" />
+            </g>
+
+            {/* Gloss Overlay */}
+            <polygon points="320,120 280,160 280,320 320,360" fill="url(#glossSheen)" style={{ mixBlendMode: 'overlay' }} pointerEvents="none" />
+        </g>
+
+        {/* LAYER 5: ACCENTS */}
         <line x1="35" y1="165" x2="35" y2="315" stroke={secondaryColor} strokeWidth="2" />
         <line x1="285" y1="165" x2="285" y2="315" stroke={secondaryColor} strokeWidth="2" />
-
-        {/* Inner white hairline */}
-        <path 
-          d="
-            M 20,20 
-            L 100,20 L 115,35 L 205,35 L 220,20 
-            L 300,20 
-            L 300,100 L 270,130 L 270,350 L 300,380
-            L 300,460 
-            L 220,460 L 205,445 L 115,445 L 100,460
-            L 20,460 
-            L 20,380 L 50,350 L 50,130 L 20,100 
-            Z
-          " 
-          fill="none" 
-          stroke="#fff" 
-          strokeWidth="0.5"
-          opacity="0.5"
-        />
-
+        
+        <path d="M 20,20 L 100,20 L 115,35 L 205,35 L 220,20 L 300,20 L 300,100 L 270,130 L 270,350 L 300,380 L 300,460 L 220,460 L 205,445 L 115,445 L 100,460 L 20,460 L 20,380 L 50,350 L 50,130 L 20,100 Z" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.5"/>
       </svg>
     );
   }
@@ -577,10 +474,10 @@ const BACKGROUND_STYLES = [
 // Define available Border Styles
 const BORDER_STYLES = [
   { id: 'tech-frame', name: 'Tech Frame' },
-  { id: 'chrome-metal', name: 'Chrome Metal' },
+  { id: 'chrome-metal', name: 'Mecha Sport' }, // Renamed
   { id: 'carbon-fiber', name: 'Carbon Fiber' },
   { id: 'neon-glow', name: 'Neon Glow' },
-  { id: 'geometric', name: 'Titanium' },
+  { id: 'geometric', name: 'Titanium' }, // Renamed
   { id: 'classic', name: 'Classic' },
 ];
 
@@ -613,14 +510,20 @@ const OrderForm: React.FC = () => {
   const [showLogo, setShowLogo] = useState(true);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
- // Dynamic Font Size Calculator (Now accepts a base size)
+  // 1. Calculate Font Size Helper
   const getNameFontSize = (name: string, baseRem = 2.25) => {
-    if (!name) return { fontSize: `${baseRem}rem` };
-    if (name.length <= 10) return { fontSize: `${baseRem}rem` };
-    
-    // Scale down linearly based on character count
+    if (!name) return `${baseRem}rem`;
+    if (name.length <= 10) return `${baseRem}rem`;
     const scaleFactor = 10 / name.length;
-    return { fontSize: `${Math.max(1, baseRem * scaleFactor)}rem` };
+    return `${Math.max(1, baseRem * scaleFactor)}rem`;
+  };
+
+  // 2. Define Chrome Gradient Style
+  const chromeTextStyle = {
+    background: 'linear-gradient(180deg, #FFFFFF 20%, #E0E0E0 45%, #888888 50%, #D0D0D0 55%, #F0F0F0 90%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    filter: 'drop-shadow(0 2px 0px rgba(0,0,0,0.1))' // Subtle inner depth
   };
 
   // Close full screen on Escape key
@@ -713,7 +616,7 @@ const OrderForm: React.FC = () => {
 
     // --- GENERATORS ---
 
-if (backgroundStyle === 'shatter') {
+    if (backgroundStyle === 'shatter') {
       const cx = 160;
       const cy = 240;
 
@@ -725,7 +628,7 @@ if (backgroundStyle === 'shatter') {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // B. MASSIVE BACKGROUND PLATES
+      // B. MASSIVE BACKGROUND PLATES (Updated for Darker/More Solid Look)
       for (let i = 0; i < 30; i++) {
         ctx.beginPath();
         const x = rng(-50, 370);
@@ -736,14 +639,16 @@ if (backgroundStyle === 'shatter') {
         ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
         ctx.lineTo(x + rng(-s, s), y + rng(-s, s));
         
+        // CHANGE: Increased opacity from 0.15 to 0.5 and 0.4 to make them darker/solid
         ctx.fillStyle = i % 2 === 0 
-          ? pickVariant(primaryPalette, 0.15) 
-          : pickVariant(secondaryPalette, 0.15);
+          ? pickVariant(primaryPalette, 0.5) 
+          : pickVariant(secondaryPalette, 0.4);
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        
+        // Made the outline slightly more visible to define the edges
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
         ctx.stroke();
       }
-
       // C. BACKGROUND SMOKE (Softened)
       // We use lower opacity (0.08) and larger radius to remove the "hard edge"
       ctx.globalCompositeOperation = 'screen'; 
@@ -881,7 +786,7 @@ if (backgroundStyle === 'shatter') {
       }
       fgCtx.globalAlpha = 1;
     }
-else if (backgroundStyle === 'radar') {
+    else if (backgroundStyle === 'radar') {
       const cx = 160;
       const cy = 200;
 
@@ -1230,148 +1135,114 @@ else if (backgroundStyle === 'radar') {
           ctx.fill();
       }
     }
-    else if (backgroundStyle === 'splatter') {
-      // ... existing splatter logic ...
-      const gradient = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
-      gradient.addColorStop(0, '#2a2a2a');
-      gradient.addColorStop(1, '#050505'); 
-      ctx.fillStyle = gradient;
+   else if (backgroundStyle === 'splatter') {
+      const cx = 160;
+      const cy = 220;
+
+      // 1. STADIUM ATMOSPHERE
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, 480);
+      bgGrad.addColorStop(0, '#050505');
+      bgGrad.addColorStop(0.6, '#1a1a1a'); 
+      bgGrad.addColorStop(1, '#050505');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 320, 480);
 
-      for(let i=0; i<8000; i++) {
-          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.2)';
-          ctx.fillRect(Math.random() * 320, Math.random() * 480, 1.5, 1.5);
+      // A. Crowd
+      for(let i=0; i<3000; i++) {
+          const x = rng(0, 320);
+          const y = rng(0, 300); 
+          const s = rng(0.5, 1.5);
+          const alpha = rng(0.05, 0.2);
+          ctx.fillStyle = `rgba(200, 200, 200, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x, y, s, 0, Math.PI*2);
+          ctx.fill();
       }
 
-      const drawPaintball = (cx: number, cy: number, radius: number, palette: ReturnType<typeof getColorVariants>) => {
-          const color = pickVariant(palette, 1);
-          ctx.fillStyle = color;
-          
+      // B. Lights
+      ctx.globalCompositeOperation = 'screen';
+      for(let i=0; i<6; i++) {
+          const x = i * (320/5) + rng(-20, 20);
+          const y = rng(20, 80);
+          const r = rng(30, 60);
+          const lightGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
+          lightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+          lightGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = lightGrad;
           ctx.beginPath();
-          for(let i=0; i<Math.PI*2; i+=0.1) {
-              const r = radius * (0.7 + Math.random() * 0.6); 
-              ctx.lineTo(cx + Math.cos(i)*r, cy + Math.sin(i)*r);
-          }
+          ctx.arc(x, y, r, 0, Math.PI*2);
           ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
 
-          const rays = 15 + Math.random() * 20;
-          for(let i=0; i<rays; i++) {
-              const angle = Math.random() * Math.PI * 2;
-              const len = radius * (3 + Math.random() * 6);
-              
-              ctx.fillStyle = pickVariant(palette, rng(0.7, 1));
-              ctx.beginPath();
-              ctx.moveTo(cx + Math.cos(angle)*radius*0.5, cy + Math.sin(angle)*radius*0.5);
-              const endx = cx + Math.cos(angle) * len;
-              const endy = cy + Math.sin(angle) * len;
-              
-              ctx.lineTo(endx, endy);
-              ctx.lineTo(cx + Math.cos(angle + 0.15)*radius*0.5, cy + Math.sin(angle + 0.15)*radius*0.5);
-              ctx.fill();
-          }
-
-          const droplets = 40 + Math.random() * 50;
-          for(let i=0; i<droplets; i++) {
-              const dist = radius * (1.5 + Math.random() * 6);
-              const angle = Math.random() * Math.PI * 2;
-              const size = Math.random() * (radius * 0.25);
-              
-              ctx.fillStyle = pickVariant(palette, rng(0.6, 1));
-              ctx.beginPath();
-              ctx.arc(cx + Math.cos(angle)*dist, cy + Math.sin(angle)*dist, size, 0, Math.PI*2);
-              ctx.fill();
-          }
-      };
-
-      const drawPowerStroke = (x1: number, y1: number, x2: number, y2: number, palette: ReturnType<typeof getColorVariants>, thickness: number) => {
-          const dx = x2 - x1;
-          const dy = y2 - y1;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          const angle = Math.atan2(dy, dx);
+      // 2. ORGANIC EXPLOSION
+      for(let i=0; i<25; i++) {
+          const angle = rng(0, Math.PI * 2);
+          const dist = rng(50, 250);
+          const size = rng(10, 40);
+          
+          // REMOVED UNUSED X/Y CALCULATIONS HERE
           
           ctx.save();
-          ctx.translate(x1, y1);
+          ctx.translate(cx, cy);
           ctx.rotate(angle);
-          
-          const bristles = thickness * 3;
-          for(let i=0; i<bristles; i++) {
-              const offset = (Math.random() - 0.5) * thickness;
-              const lengthFactor = 0.5 + Math.random() * 0.7; 
-              const currentLen = dist * lengthFactor;
-              
-              ctx.globalAlpha = 0.4 + Math.random() * 0.6;
-              ctx.lineWidth = 0.5 + Math.random() * 2.5;
-              ctx.strokeStyle = pickVariant(palette, 1);
-
-              ctx.beginPath();
-              ctx.moveTo(0, offset);
-              ctx.bezierCurveTo(
-                  currentLen * 0.3, offset + rng(-15, 15),
-                  currentLen * 0.7, offset + rng(-30, 30),
-                  currentLen, offset + rng(-10, 10)
-              );
-              ctx.stroke();
-          }
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(dist/2, size, dist, 0); 
+          ctx.quadraticCurveTo(dist/2, -size, 0, 0); 
+          ctx.fillStyle = i % 2 === 0 ? pickVariant(primaryPalette, 0.8) : pickVariant(secondaryPalette, 0.8);
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = ctx.fillStyle;
+          ctx.fill();
           ctx.restore();
-      };
-
-      drawPowerStroke(-80, 80, 380, 450, secondaryPalette, 140);
-      drawPowerStroke(380, -80, -80, 520, primaryPalette, 160);
-
-      for(let i=0; i<7; i++) {
-          const x = rng(40, 280);
-          const y = rng(80, 400);
-          const palette = Math.random() > 0.4 ? primaryPalette : secondaryPalette;
-          drawPaintball(x, y, rng(10, 30), palette);
       }
-      
-      for(let i=0; i<3; i++) {
-          const x = rng(20, 300);
-          const y = rng(20, 460);
-          const size = rng(4, 12);
-          
-          if(Math.random() > 0.6) {
-              const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
-              ctx.fillStyle = pickVariant(palette, 0.3);
-              ctx.shadowBlur = 8;
-              ctx.shadowColor = pickVariant(palette, 0.6);
-          } else {
-              ctx.fillStyle = '#ffffff';
-              ctx.shadowBlur = 6;
-              ctx.shadowColor = '#ffffff';
-          }
-          
+      ctx.shadowBlur = 0;
+
+      // Sharp Shards
+      for(let i=0; i<30; i++) {
+          const angle = rng(0, Math.PI * 2);
+          const len = rng(80, 300);
+          const w = rng(2, 8);
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
           ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI*2);
+          ctx.moveTo(0, 0);
+          ctx.lineTo(len, -w);
+          ctx.lineTo(len * 0.9, 0);
+          ctx.lineTo(len, w);
+          ctx.fillStyle = i % 3 === 0 ? '#ffffff' : (i % 2 === 0 ? colors.primary : colors.secondary);
           ctx.fill();
-          ctx.shadowBlur = 0;
+          ctx.restore();
       }
 
-      drawPowerStroke(-40, 320, 360, 240, primaryPalette, 50);
+      // 3. INNER FRAME LINES
+      const pad = 20;
+      ctx.strokeStyle = colors.primary;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pad, pad + 40, 320 - (pad*2), 480 - (pad*2) - 110);
       
-      for(let i=0; i<15; i++) {
+      // Accents
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(pad - 2, 100, 4, 40);
+      ctx.fillRect(320 - pad - 2, 100, 4, 40);
+
+      // 4. FOREGROUND PARTICLES
+      fgCtx.globalCompositeOperation = 'screen';
+      for(let i=0; i<150; i++) {
           const x = rng(0, 320);
-          const y = rng(0, 400);
-          const w = rng(1.5, 4);
-          const h = rng(60, 180);
-          
-          const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
-          ctx.fillStyle = pickVariant(palette, rng(0.7, 1));
-          ctx.globalAlpha = 0.9;
-          ctx.beginPath();
-          ctx.rect(x, y, w, h);
-          ctx.arc(x + w/2, y + h, w, 0, Math.PI*2); 
-          ctx.fill();
-          ctx.globalAlpha = 1;
+          const y = rng(0, 480);
+          const s = rng(1, 3);
+          const d = Math.sqrt(Math.pow(x-160,2) + Math.pow(y-180,2));
+          if(d < 80) continue;
+          fgCtx.fillStyle = Math.random() > 0.5 ? pickVariant(primaryPalette, 1) : '#ffffff';
+          fgCtx.beginPath();
+          fgCtx.arc(x, y, s, 0, Math.PI*2);
+          fgCtx.fill();
       }
-      
-      for(let i=0; i<5; i++) {
-          const x = rng(20, 300);
-          const y = rng(20, 460);
-          const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
-          drawPaintball(x, y, rng(5, 15), palette);
-      }
+      fgCtx.globalCompositeOperation = 'source-over';
     }
+
     else if (backgroundStyle === 'velocity') {
       // 1. Dynamic Gradient Background (Diagonal)
       // Creates a sense of movement right from the base
@@ -1487,169 +1358,179 @@ else if (backgroundStyle === 'radar') {
       ctx.fillRect(0,0,320,480);
     }
     else if (backgroundStyle === 'cyber') {
-      // ... existing cyber logic ...
-      ctx.fillStyle = '#020617';
+      const horizonY = 180; // Horizon line for perspective
+
+      // 1. Deep Digital Void Background
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, 480);
+      bgGrad.addColorStop(0, '#020205'); // Deepest black-blue
+      bgGrad.addColorStop(0.6, '#0a0f1e'); 
+      bgGrad.addColorStop(1, pickVariant(primaryPalette, 0.15)); // Glow at bottom
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 320, 480);
-      const horizonY = 280;
 
-      for(let i = 0; i < 80; i++) {
+      // 2. Perspective Grid (The Floor)
+      ctx.lineWidth = 1;
+      
+      // Vertical converging lines
+      for (let i = -300; i <= 620; i += 40) {
+        ctx.beginPath();
+        ctx.moveTo(i, 480);
+        const perspectiveFactor = (i - 160) * 0.15; 
+        ctx.lineTo(160 + perspectiveFactor, horizonY);
+        
+        const lineGrad = ctx.createLinearGradient(0, 480, 0, horizonY);
+        lineGrad.addColorStop(0, pickVariant(primaryPalette, 0.4));
+        lineGrad.addColorStop(1, 'transparent');
+        
+        ctx.strokeStyle = lineGrad;
+        ctx.stroke();
+      }
+
+      // Horizontal scan lines
+      for (let i = 1; i <= 20; i++) {
+        const t = i / 20;
+        const y = horizonY + (480 - horizonY) * (t * t);
+
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(320, y);
+        
+        const hGrad = ctx.createLinearGradient(0, 0, 320, 0);
+        hGrad.addColorStop(0, 'transparent');
+        hGrad.addColorStop(0.5, pickVariant(primaryPalette, 0.3));
+        hGrad.addColorStop(1, 'transparent');
+        
+        ctx.strokeStyle = hGrad;
+        ctx.stroke();
+      }
+
+      // 3. EXTENDED DIGITAL SKYSCRAPERS (Background)
+      for(let i=0; i<35; i++) {
+         const w = rng(15, 50);
+         const h = rng(200, 500);
+         const x = rng(-20, 340);
+         
+         if(Math.abs(x - 160) < 50) continue; 
+
+         const topY = rng(-50, 100); 
+         const bottomY = horizonY + rng(20, 100);
+         
+         const blockGrad = ctx.createLinearGradient(x, topY, x, bottomY);
+         blockGrad.addColorStop(0, 'transparent');
+         blockGrad.addColorStop(0.3, pickVariant(primaryPalette, 0.15));
+         blockGrad.addColorStop(0.9, pickVariant(primaryPalette, 0.05));
+         blockGrad.addColorStop(1, 'transparent');
+         
+         ctx.fillStyle = blockGrad;
+         ctx.fillRect(x, topY, w, bottomY - topY);
+         
+         ctx.strokeStyle = pickVariant(primaryPalette, 0.2);
+         ctx.lineWidth = 0.5;
+         ctx.strokeRect(x, topY, w, bottomY - topY);
+         
+         if(Math.random() > 0.6) {
+             const lightY = rng(topY + 50, bottomY - 50);
+             ctx.fillStyle = pickVariant(secondaryPalette, 0.9);
+             ctx.fillRect(x + rng(2, w-4), lightY, 2, rng(2, 10));
+         }
+      }
+
+      // 4. Sky Data Streams
+      ctx.lineWidth = 1;
+      for(let i=0; i<15; i++) {
           const x = rng(0, 320);
-          const y = rng(0, horizonY - 20);
-          const size = rng(0.5, 2);
-          const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
-          const starColor = pickVariant(palette, rng(0.4, 0.9));
-          
-          ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fillStyle = starColor;
-          ctx.shadowBlur = size * 3;
-          ctx.shadowColor = starColor;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-      }
+          if(Math.abs(x - 160) < 40) continue;
 
-      for(let i = 0; i < 12; i++) {
-          const x = rng(20, 300);
-          const y = rng(20, horizonY - 40);
-          const size = rng(15, 40);
-          const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+          const top = rng(0, 100);
+          const height = rng(50, 150);
           
-          ctx.strokeStyle = pickVariant(palette, rng(0.3, 0.6));
-          ctx.lineWidth = 1.5;
-          ctx.shadowBlur = 6;
-          ctx.shadowColor = pickVariant(palette, 0.5);
-          
-          ctx.strokeRect(x, y, size, size * 0.6);
-          ctx.beginPath();
-          ctx.moveTo(x + size/2, y);
-          ctx.lineTo(x + size/2, y - rng(10, 30));
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-      }
-
-      ctx.globalAlpha = 0.1;
-      for(let y = 0; y < horizonY; y += 8) {
-          const palette = y % 16 === 0 ? primaryPalette : secondaryPalette;
-          ctx.strokeStyle = pickVariant(palette, 1);
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(320, y);
-          ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-
-      for(let i = 0; i < 5; i++) {
-          const x = rng(40, 280);
-          const y1 = rng(0, horizonY - 100);
-          const y2 = y1 + rng(60, 120);
-          const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
-          
-          const streamGrad = ctx.createLinearGradient(x, y1, x, y2);
+          const streamGrad = ctx.createLinearGradient(0, top, 0, top+height);
           streamGrad.addColorStop(0, 'transparent');
-          streamGrad.addColorStop(0.5, pickVariant(palette, 0.8));
+          streamGrad.addColorStop(0.5, pickVariant(secondaryPalette, 0.3));
           streamGrad.addColorStop(1, 'transparent');
           
           ctx.strokeStyle = streamGrad;
-          ctx.lineWidth = 2;
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = pickVariant(palette, 0.6);
           ctx.beginPath();
-          ctx.moveTo(x, y1);
-          ctx.lineTo(x, y2);
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-      }  
-      const grad = ctx.createLinearGradient(0, horizonY - 50, 0, horizonY + 80);
-      grad.addColorStop(0, 'transparent');
-      grad.addColorStop(0.3, pickVariant(secondaryPalette, 0.6));
-      grad.addColorStop(0.5, pickVariant(secondaryPalette, 0.9));
-      grad.addColorStop(0.7, pickVariant(secondaryPalette, 0.6));
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, horizonY - 50, 320, 130);
-
-      const centerX = 160;
-      
-      ctx.lineWidth = 1;
-      ctx.lineCap = 'round';
-      
-      for (let x = -400; x <= 720; x += 40) {
-          ctx.beginPath();
-          ctx.moveTo(x, 480);
-          ctx.lineTo(centerX + (x - centerX) * 0.15, horizonY);
-          
-          const palette = Math.abs(x - centerX) < 160 ? primaryPalette : secondaryPalette;
-          const lineColor = pickVariant(palette, rng(0.5, 0.8));
-          ctx.strokeStyle = lineColor;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = lineColor;
+          ctx.moveTo(x, top);
+          ctx.lineTo(x, top+height);
           ctx.stroke();
       }
 
-      let y = 480;
-      let lineCount = 0;
-      while (y > horizonY + 5) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(320, y);
-          
-          const palette = lineCount % 3 === 0 ? primaryPalette : secondaryPalette;
-          const lineColor = pickVariant(palette, rng(0.4, 0.7));
-          ctx.strokeStyle = lineColor;
-          ctx.shadowBlur = 6;
-          ctx.shadowColor = lineColor;
-          ctx.stroke();
-          
-          const dist = y - horizonY;
-          const step = Math.max(2, dist * 0.2); 
-          y -= step;
-          lineCount++;
-      }
-      
-      const sunGrad = ctx.createLinearGradient(0, horizonY - 80, 0, horizonY + 20);
-      sunGrad.addColorStop(0, pickVariant(secondaryPalette, 1));
-      sunGrad.addColorStop(0.3, pickVariant(secondaryPalette, 0.9));
-      sunGrad.addColorStop(0.6, pickVariant(primaryPalette, 0.7));
-      sunGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = sunGrad;
-      ctx.shadowBlur = 40;
-      ctx.shadowColor = pickVariant(secondaryPalette, 0.8);
-      ctx.beginPath();
-      ctx.arc(160, horizonY - 30, 50, 0, Math.PI, true);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      
-      for(let gx = -360; gx <= 680; gx += 80) {
-          for(let gy = 480; gy > horizonY + 20; gy -= 40) {
-              if(Math.random() > 0.7) {
-                  const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
-                  const glowColor = pickVariant(palette, rng(0.6, 1));
-                  
-                  ctx.beginPath();
-                  ctx.arc(gx, gy, rng(2, 4), 0, Math.PI * 2);
-                  ctx.fillStyle = glowColor;
-                  ctx.shadowBlur = 10;
-                  ctx.shadowColor = glowColor;
-                  ctx.fill();
-                  ctx.shadowBlur = 0;
-              }
-          }
-      }
-      
+      // 5. Circuit Traces (UPDATED: Varied Colors)
+      const drawCircuit = (startX: number, startY: number, color: string, width: number) => {
+         ctx.beginPath();
+         ctx.moveTo(startX, startY);
+         
+         let currX = startX;
+         let currY = startY;
+         const segments = Math.floor(rng(5, 10)); 
+         
+         for(let i=0; i<segments; i++) {
+             // Move Up/Down
+             const lenY = rng(30, 90);
+             currY -= lenY; 
+             ctx.lineTo(currX, currY);
+             
+             if (currY < horizonY + 20) break;
+
+             // Move Left/Right
+             const lenX = rng(-40, 40);
+             ctx.lineTo(currX + lenX, currY);
+             currX += lenX;
+         }
+         
+         ctx.strokeStyle = color;
+         ctx.lineWidth = width;
+         ctx.lineCap = 'square';
+         ctx.lineJoin = 'round';
+         ctx.shadowColor = color;
+         ctx.shadowBlur = 10; 
+         ctx.stroke();
+         ctx.shadowBlur = 0;
+         
+         // Circuit Head Spark
+         ctx.fillStyle = '#ffffff';
+         ctx.beginPath();
+         ctx.arc(currX, currY, width + 1, 0, Math.PI*2);
+         ctx.fill();
+      };
+
+      // Primary Circuits (Varied Shades)
       for(let i=0; i<20; i++) {
           const x = rng(0, 320);
-          const y = rng(horizonY - 100, horizonY + 50);
-          const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
-          const particleColor = pickVariant(palette, rng(0.7, 1));
-          
-          ctx.fillStyle = particleColor;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = particleColor;
-          ctx.fillRect(x, y, rng(1, 3), rng(1, 3));
-          ctx.shadowBlur = 0;
+          // Pick a random shade from the Primary Palette + Random Opacity
+          const variantColor = pickVariant(primaryPalette, rng(0.7, 1.0));
+          drawCircuit(x, 490, variantColor, rng(1, 2.5));
       }
+      
+      // Secondary Circuits (Varied Shades)
+      for(let i=0; i<12; i++) {
+          const x = rng(0, 320);
+          // Pick a random shade from the Secondary Palette + Random Opacity
+          const variantColor = pickVariant(secondaryPalette, rng(0.7, 1.0));
+          drawCircuit(x, 490, variantColor, rng(1, 2));
+      }
+
+      // 6. Binary Dust Particles
+      for(let i=0; i<60; i++) {
+         const x = rng(0, 320);
+         const y = rng(0, 480);
+         const s = rng(1, 2.5);
+         
+         ctx.fillStyle = Math.random() > 0.7 ? '#ffffff' : pickVariant(primaryPalette, 0.5);
+         ctx.globalAlpha = rng(0.3, 0.8);
+         ctx.fillRect(x, y, s, s);
+      }
+      ctx.globalAlpha = 1;
+      
+      // 7. Central Horizon Flare
+      const flare = ctx.createRadialGradient(160, horizonY, 0, 160, horizonY, 200);
+      flare.addColorStop(0, pickVariant(primaryPalette, 0.4));
+      flare.addColorStop(0.5, 'transparent');
+      ctx.fillStyle = flare;
+      ctx.fillRect(0, 0, 320, 480);
     }
+    
     else if (backgroundStyle === 'impact') {
       // 1. Comic Background Base (Darker Halftone)
       ctx.fillStyle = '#e0e0e0'; // Slightly darker base
@@ -2318,56 +2199,126 @@ else if (backgroundStyle === 'radar') {
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
 {/* Text Content Logic */}
-              {backgroundStyle === 'impact' ? (
-                // --- 1. COMIC IMPACT LAYOUT ---
+              {backgroundStyle === 'impact' || backgroundStyle === 'splatter' ? (
+                // --- COMIC IMPACT & SPLATTER LAYOUTS ---
                 <>
-                  {/* TOP: Player Name (z-20: Sits BEHIND the player image) */}
-                  <div className="absolute top-6 left-0 w-full z-20 pointer-events-none overflow-visible">
-                    <div className="relative transform -rotate-2 translate-x-[-10px] scale-110">
-                      
-                      {/* Name Banner */}
-                      <div className="bg-white border-y-4 border-black py-2 px-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative z-20">
-                        <h1 
-                          className="font-['Teko'] font-bold text-black uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap"
-                          style={getNameFontSize(details.name, 3.5)} 
-                        >
-                          {details.name || 'PLAYER NAME'}
-                        </h1>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* BOTTOM: Team & Position Ribbon (z-40: Sits OVER the player image) */}
-                  <div className="absolute bottom-8 left-0 w-full z-40 pointer-events-none overflow-visible">
-                     <div 
-                        className="inline-block px-8 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px]"
-                        style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}
-                      >
-                        <div className="flex gap-3 text-black font-['Teko'] font-bold text-2xl uppercase tracking-widest leading-none">
-                          <span>{details.team || 'TEAM'}</span>
-                          <span className="opacity-50">•</span>
-                          <span>{details.position || 'POS'}</span>
+                  {/* TOP HEADER (Z-20: Sits BEHIND player head) */}
+                  <div className="absolute top-6 left-0 w-full z-20 pointer-events-none overflow-visible flex justify-center">
+                    
+                    {/* SPLATTER HEADER */}
+                    {backgroundStyle === 'splatter' ? (
+                       <div className="w-[92%] bg-[#1a1a1a] border-y-2 border-white/20 py-2 relative shadow-lg">
+                          <div className="absolute top-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
+                          <div className="absolute bottom-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
+                          
+                          <h1 
+                            className="font-['Teko'] font-bold text-center uppercase tracking-widest leading-none relative z-10 whitespace-nowrap"
+                            style={{ 
+                                fontSize: getNameFontSize(details.name, 2.8),
+                                color: colors.primary,
+                                textShadow: '0 2px 10px rgba(0,0,0,0.8)'
+                            }} 
+                          >
+                            {details.name || 'PLAYER NAME'}
+                          </h1>
+                       </div>
+                    ) : (
+                      // IMPACT HEADER
+                      <div className="relative transform -rotate-2 translate-x-[-10px] scale-110 w-full">
+                        <div className="bg-[#1a1a1a] border-y-4 border-white py-2 px-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative z-20">
+                          <div className="relative">
+                            {/* Layer 1: Outline */}
+                            <h1 
+                              className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap absolute top-0 left-0 w-full"
+                              style={{
+                                fontSize: getNameFontSize(details.name, 3.5),
+                                color: colors.primary,           
+                                WebkitTextStroke: `5px ${colors.primary}`, 
+                                zIndex: 10,
+                                filter: 'drop-shadow(3px 3px 0px rgba(0,0,0,0.5))'
+                              }} 
+                            >
+                              {details.name || 'PLAYER NAME'}
+                            </h1>
+                            {/* Layer 2: Fill */}
+                            <h1 
+                              className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap relative"
+                              style={{
+                                fontSize: getNameFontSize(details.name, 3.5),
+                                ...chromeTextStyle,
+                                zIndex: 20
+                              }} 
+                            >
+                              {details.name || 'PLAYER NAME'}
+                            </h1>
+                          </div>
                         </div>
                       </div>
+                    )}
                   </div>
 
-                  {/* JERSEY NUMBER (z-40: Sits OVER the player image) */}
-                  <div className="absolute bottom-6 right-4 transform -rotate-6 z-40 pointer-events-none">
-                     <span 
-                       className="text-8xl font-['Teko'] font-bold text-transparent"
-                       style={{ 
-                         WebkitTextStroke: '3px white',
-                         textShadow: `4px 4px 0 ${colors.secondary}`
-                       }}
-                     >
-                        {details.number || '00'}
-                     </span>
+                  {/* BOTTOM FOOTER (Z-40: Sits ON TOP of player legs) */}
+                  <div className="absolute bottom-8 left-0 w-full z-40 pointer-events-none overflow-visible flex flex-col items-center">
+                     
+                     {backgroundStyle === 'splatter' ? (
+                        // SPLATTER FOOTER (Updated)
+                        <div className="w-full text-center">
+                            {/* Position Bar + Number */}
+                            <div className="bg-[#111] border-y border-white/30 py-1 mb-1 relative inline-block px-10 shadow-md">
+                                <div className="absolute left-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
+                                <div className="absolute right-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
+                                <span className="text-white font-['Teko'] text-xl tracking-[0.15em] uppercase font-bold relative z-10">
+                                    {details.position || 'POSITION'} <span className="text-gray-500 mx-2">|</span> #{details.number || '00'}
+                                </span>
+                            </div>
+                            {/* Team Name - Cleaned up rendering */}
+                            <div className="relative">
+                                <h2 
+                                    className="text-6xl font-['Teko'] font-bold uppercase italic leading-none" 
+                                    style={{
+                                        color: colors.primary,
+                                        // Replaced WebkitTextStroke with text-shadow for cleaner edges
+                                        textShadow: '2px 2px 0px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000' 
+                                    }}
+                                >
+                                    {details.team || 'TEAM'}
+                                </h2>
+                            </div>
+                        </div>
+                     ) : (
+                        // IMPACT FOOTER
+                        <div 
+                            className="inline-block px-8 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px] self-start"
+                            style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}
+                        >
+                            <div className="flex gap-3 text-black font-['Teko'] font-bold text-2xl uppercase tracking-widest leading-none">
+                            <span>{details.team || 'TEAM'}</span>
+                            <span className="opacity-50">•</span>
+                            <span>{details.position || 'POS'}</span>
+                            </div>
+                        </div>
+                     )}
                   </div>
+
+                  {/* JERSEY NUMBER (Only Impact) */}
+                  {backgroundStyle === 'impact' && (
+                    <div className="absolute bottom-6 right-4 transform -rotate-6 z-40 pointer-events-none">
+                        <span 
+                        className="text-8xl font-['Teko'] font-bold text-transparent"
+                        style={{ 
+                            WebkitTextStroke: '3px white',
+                            textShadow: `4px 4px 0 ${colors.secondary}`
+                        }}
+                        >
+                            {details.number || '00'}
+                        </span>
+                    </div>
+                  )}
                 </>
               ) : (
                 // --- 2. STANDARD / RADAR LAYOUT (Bottom) ---
                 <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
-                  <div className={`flex justify-between items-end border-b pb-2 mb-3 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
+                  <div className={`flex justify-between items-end border-b pb-2 mb-1 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
                     <div className="flex-1 mr-2">
                         <p 
                           className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
@@ -2375,12 +2326,33 @@ else if (backgroundStyle === 'radar') {
                         >
                           {details.team || 'TEAM NAME'}
                         </p>
-                        <h1 
-                          className={`font-['Teko'] font-bold leading-none italic uppercase drop-shadow-lg whitespace-nowrap ${backgroundStyle === 'radar' ? 'text-black' : 'text-white'}`}
-                          style={getNameFontSize(details.name)}
-                        >
-                          {details.name || 'PLAYER NAME'}
-                        </h1>
+                        
+                        {/* Chrome Name Standard */}
+                        <div className="relative">
+                          <h1 
+                            className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
+                            style={{
+                              fontSize: getNameFontSize(details.name),
+                              color: colors.primary, 
+                              WebkitTextStroke: `4px ${colors.primary}`,
+                              zIndex: 10,
+                              filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))'
+                            }}
+                          >
+                            {details.name || 'PLAYER NAME'}
+                          </h1>
+
+                          <h1 
+                            className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
+                            style={{
+                              fontSize: getNameFontSize(details.name),
+                              ...chromeTextStyle,
+                              zIndex: 20
+                            }}
+                          >
+                            {details.name || 'PLAYER NAME'}
+                          </h1>
+                        </div>
                     </div>
                     <div 
                       className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
