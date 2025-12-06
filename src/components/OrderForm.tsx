@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X, Loader2 } from 'lucide-react';
+import { removeBackground } from '@imgly/background-removal';
 
 // Player Details Interface
 export interface PlayerDetails {
@@ -502,6 +503,8 @@ const OrderForm: React.FC = () => {
 
   const [backgroundStyle, setBackgroundStyle] = useState('shatter');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [imageScale, setImageScale] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const foregroundCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -514,6 +517,8 @@ const OrderForm: React.FC = () => {
   
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showLogo, setShowLogo] = useState(true);
+  const [logoCropCircle, setLogoCropCircle] = useState(true);
+  const [logoScale, setLogoScale] = useState(1);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
  // --- 2. MULTI-ITEM DRAG & DROP STATE ---
@@ -633,14 +638,33 @@ const OrderForm: React.FC = () => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      
+      setIsProcessing(true); // Turn on loading spinner
+      setImagePreview(null); // Clear previous image
+
+      try {
+        // 1. Run the AI Background Removal (Runs in browser)
+        const blob = await removeBackground(file);
+        
+        // 2. Convert the result (Blob) into a viewable URL
+        const url = URL.createObjectURL(blob);
+        setImagePreview(url);
+      } catch (error) {
+        console.error("Background removal failed:", error);
+        alert("Could not remove background. Using original image.");
+        
+        // Fallback: Show original image if AI fails
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        setIsProcessing(false); // Turn off loading spinner
+      }
     }
   };
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1895,48 +1919,78 @@ const OrderForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
             
-            {/* File Upload */}
-            <div 
-              className="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-cyan-500 transition-colors cursor-pointer bg-slate-900/50"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleImageChange} 
-                className="hidden" 
-                accept="image/*" 
-              />
-              {imagePreview ? (
-                <div className="flex items-center justify-center gap-4">
-                  <CheckCircle className="text-green-500 w-6 h-6" />
-                  <span className="text-white font-medium">Photo Uploaded</span>
-                  <span className="text-xs text-gray-500">(Click to change)</span>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center">
-                  <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                  <span className="text-gray-300 font-medium">Click to upload action shot</span>
-                  <span className="text-xs text-gray-500 mt-1">High resolution works best</span>
+            {/* File Upload & Player Size */}
+            <div className="space-y-4">
+              <div 
+                className={`border-2 border-dashed border-slate-600 rounded-xl p-6 text-center transition-all relative ${isProcessing ? 'bg-slate-800 cursor-wait' : 'hover:border-cyan-500 cursor-pointer bg-slate-900/50'}`}
+                onClick={() => !isProcessing && fileInputRef.current?.click()}
+              >
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageChange} 
+                  className="hidden" 
+                  accept="image/*" 
+                />
+                
+                {isProcessing ? (
+                  <div className="flex flex-col items-center animate-pulse py-2">
+                    <Loader2 className="w-10 h-10 text-cyan-500 animate-spin mb-2" />
+                    <span className="text-cyan-400 font-bold">Removing Background...</span>
+                    <span className="text-xs text-gray-500 mt-1">AI processing in browser...</span>
+                  </div>
+                ) : imagePreview ? (
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center gap-4 mb-2">
+                      <CheckCircle className="text-green-500 w-6 h-6" />
+                      <span className="text-white font-medium">Photo Processed</span>
+                    </div>
+                    <span className="text-xs text-gray-500">(Click box to change photo)</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center py-2">
+                    <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                    <span className="text-gray-300 font-medium">Click to upload action shot</span>
+                    <span className="text-xs text-gray-500 mt-1">High resolution works best</span>
+                  </div>
+                )}
+              </div>
+
+              {/* PLAYER SIZE SLIDER (Only shows if image exists) */}
+              {imagePreview && !isProcessing && (
+                <div className="bg-slate-900 border border-slate-700 rounded-lg p-3">
+                  <div className="flex justify-between text-xs text-gray-400 mb-2 uppercase tracking-wider">
+                    <span>Player Scale</span>
+                    <span>{Math.round(imageScale * 100)}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0.5" 
+                    max="2.0" 
+                    step="0.05" 
+                    value={imageScale}
+                    onChange={(e) => setImageScale(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  />
                 </div>
               )}
             </div>
 
-           {/* Team Logo Upload */}
+{/* Team Logo Upload */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-300">Team Logo (Optional)</label>
               
               <div className="flex items-center gap-4">
-                {/* Logo Preview Circle */}
+                {/* Logo Preview Circle (Always circular in form for tidiness) */}
                 <div 
-                  className="w-16 h-16 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg flex-shrink-0"
+                  className="w-16 h-16 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg flex-shrink-0 overflow-hidden"
                   style={{ borderColor: colors.primary }}
                 >
                   {logoPreview ? (
                     <img 
                       src={logoPreview} 
                       alt="Team Logo" 
-                      className="w-full h-full object-cover rounded-full"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div 
@@ -1948,7 +2002,7 @@ const OrderForm: React.FC = () => {
                   )}
                 </div>
 
-                {/* Upload/Clear Buttons */}
+                {/* Controls */}
                 <div className="flex-1 space-y-2">
                   <input 
                     type="file" 
@@ -1958,42 +2012,77 @@ const OrderForm: React.FC = () => {
                     accept="image/*" 
                   />
                   
-                  <button
-                    type="button"
-                    onClick={() => logoInputRef.current?.click()}
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-gray-300 hover:border-slate-500 hover:text-white transition-colors"
-                  >
-                    {logoPreview ? 'Change Logo' : 'Upload Custom Logo'}
-                  </button>
-                  
-                  {logoPreview && (
+                  <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={handleClearLogo}
-                      className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-red-400 hover:border-red-500 hover:text-red-300 transition-colors"
+                      onClick={() => logoInputRef.current?.click()}
+                      className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs text-gray-300 hover:border-slate-500 hover:text-white transition-colors"
                     >
-                      Clear Logo
+                      {logoPreview ? 'Change' : 'Upload'}
                     </button>
+                    {logoPreview && (
+                      <button
+                        type="button"
+                        onClick={handleClearLogo}
+                        className="bg-red-900/30 border border-red-900/50 rounded-lg px-3 py-2 text-xs text-red-400 hover:bg-red-900/50 transition-colors"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {/* LOGO SIZE SLIDER */}
+                  {showLogo && (
+                    <div className="pt-1">
+                      <div className="flex justify-between text-[10px] text-gray-500 uppercase tracking-wider mb-1">
+                        <span>Size</span>
+                        <span>{Math.round(logoScale * 100)}%</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="0.5" 
+                        max="2.5" 
+                        step="0.1" 
+                        value={logoScale}
+                        onChange={(e) => setLogoScale(parseFloat(e.target.value))}
+                        className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                      />
+                    </div>
                   )}
                 </div>
               </div>
-              
-              <p className="text-xs text-gray-500 pl-20">Square logos (PNG with transparent background) work best</p>
 
-              {/* Add Team Logo Checkbox - Moved to bottom */}
-              <label className="flex items-center gap-2 cursor-pointer group mt-2 pt-2">
-                <input 
-                  type="checkbox" 
-                  checked={showLogo}
-                  onChange={(e) => setShowLogo(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
-                />
-                <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-                  Add team logo
-                </span>
-              </label>
+              {/* Checkboxes Row */}
+              <div className="flex items-center gap-6 mt-1">
+                {/* Toggle Show/Hide */}
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input 
+                    type="checkbox" 
+                    checked={showLogo}
+                    onChange={(e) => setShowLogo(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                    Show logo
+                  </span>
+                </label>
+
+                {/* Toggle Crop Circle (Only visible if logo shown) */}
+                {showLogo && (
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      checked={logoCropCircle}
+                      onChange={(e) => setLogoCropCircle(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                      Crop to circle
+                    </span>
+                  </label>
+                )}
+              </div>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Player Name</label>
@@ -2270,9 +2359,13 @@ const OrderForm: React.FC = () => {
                 <img 
                   src={imagePreview} 
                   alt="Preview" 
-                  // ADDED: pointer-events-none (Allows clicking text behind the image)
                   className="absolute inset-0 w-full h-full object-cover z-30 mix-blend-normal pointer-events-none" 
                   style={{
+                    // NEW: Apply the Scale Transform
+                    transform: `scale(${imageScale})`,
+                    transformOrigin: 'center center', // Zooms from the middle
+                    
+                    // Existing Filter Logic
                     filter: backgroundStyle === 'impact' 
                       ? 'url(#sticker-effect)' 
                       : enableGlow 
@@ -2507,39 +2600,62 @@ const OrderForm: React.FC = () => {
                     </div>
                 </>
               )}
-{/* Top Badge - Only render if showLogo is true */}
+{/* DRAGGABLE TEAM LOGO */}
               {showLogo && (
                 <div 
-                  className="absolute z-50 cursor-move active:cursor-grabbing hover:scale-110 transition-transform"
+                  className="absolute z-50 cursor-move active:cursor-grabbing hover:brightness-110 transition-all pointer-events-auto"
                   style={{ 
-                    // USE NEW POSITIONS STATE
                     left: positions.logo.x, 
                     top: positions.logo.y,
-                    touchAction: 'none' 
+                    touchAction: 'none'
                   }}
-                  // USE NEW DRAG HANDLER
                   onMouseDown={(e) => startDrag(e, 'logo')}
                   onTouchStart={(e) => startDrag(e, 'logo')}
                 >
-                  <div 
-                      className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden select-none"
-                      style={{ borderColor: colors.primary }}
-                  >
-                      {logoPreview ? (
+                  {logoPreview ? (
+                    logoCropCircle ? (
+                      // OPTION A: CROPPED CIRCLE (Badge Style)
+                      <div 
+                        className="rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden select-none"
+                        style={{ 
+                            width: `${48 * logoScale}px`, 
+                            height: `${48 * logoScale}px`,
+                            borderColor: colors.primary 
+                        }}
+                      >
                         <img 
                           src={logoPreview} 
                           alt="Team Logo" 
                           className="w-full h-full object-cover pointer-events-none"
                         />
-                      ) : (
+                      </div>
+                    ) : (
+                      // OPTION B: ORIGINAL ASPECT RATIO (Freeform)
+                      <div style={{ width: `${50 * logoScale}px` }}>
+                          <img 
+                            src={logoPreview} 
+                            alt="Team Logo" 
+                            className="w-full h-auto drop-shadow-lg pointer-events-none select-none"
+                          />
+                      </div>
+                    )
+                  ) : (
+                    // PLACEHOLDER (Always circular)
+                    <div 
+                        className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden select-none"
+                        style={{ 
+                            borderColor: colors.primary,
+                            transform: `scale(${logoScale})`
+                        }}
+                    >
                         <div 
                             className="font-bold text-xs text-center leading-none pointer-events-none"
                             style={{ color: colors.primary }}
                         >
                           PRO<br/>CARD
                         </div>
-                      )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
               {/* Border Frame Overlay */}
