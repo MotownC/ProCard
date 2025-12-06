@@ -84,7 +84,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         </defs>
         
         {/* Main Body */}
-        <path d="M 0,0 H 320 V 480 H 0 Z M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="url(#techCarbon)" fillRule="evenodd" stroke="none"/>
+        <path d="M -2,-2 H 322 V 482 H -2 Z M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="url(#techCarbon)" fillRule="evenodd" stroke="none"/>
         <path d="M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="none" stroke="url(#silverBevel)" strokeWidth="3"/>
 
         {/* V-Shape Glow Bars */}
@@ -219,78 +219,309 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
+  // 6. NEON GLOW (Updated with Gradients)
   if (style === 'neon-glow') {
+    // Generate variants for the gradients
+    const pVars = getColorVariants(primaryColor);
+    const sVars = getColorVariants(secondaryColor);
+
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
           <filter id="neonGlow">
             <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
           </filter>
+
+          {/* Primary Color Gradient (Diagonal Top-Left to Bottom-Right) */}
+          <linearGradient id="neonPrimaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="25%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: pVars.darker1, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+          </linearGradient>
+
+          {/* Secondary Color Gradient (Diagonal Top-Right to Bottom-Left) */}
+          <linearGradient id="neonSecondaryGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: sVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: sVars.base, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker1, stopOpacity: 1 }} />
+          </linearGradient>
         </defs>
-        <rect x="10" y="10" width="300" height="460" fill="none" stroke={primaryColor} strokeWidth="3" filter="url(#neonGlow)" opacity="0.9"/>
-        <rect x="15" y="15" width="290" height="450" fill="none" stroke={secondaryColor} strokeWidth="1.5" filter="url(#neonGlow)" opacity="0.7"/>
-        <circle cx="30" cy="30" r="4" fill={primaryColor} filter="url(#neonGlow)"/>
-        <circle cx="290" cy="30" r="4" fill={secondaryColor} filter="url(#neonGlow)"/>
-        <circle cx="30" cy="450" r="4" fill={secondaryColor} filter="url(#neonGlow)"/>
-        <circle cx="290" cy="450" r="4" fill={primaryColor} filter="url(#neonGlow)"/>
-        <line x1="50" y1="12" x2="270" y2="12" stroke={primaryColor} strokeWidth="1" opacity="0.5"/>
-        <line x1="50" y1="468" x2="270" y2="468" stroke={secondaryColor} strokeWidth="1" opacity="0.5"/>
+        
+        {/* Outer Glow Line (Primary Gradient) */}
+        <rect 
+          x="10" y="10" width="300" height="460" 
+          fill="none" 
+          stroke="url(#neonPrimaryGrad)" 
+          strokeWidth="3" 
+          filter="url(#neonGlow)" 
+          opacity="0.9"
+        />
+        
+        {/* Inner Glow Line (Secondary Gradient) */}
+        <rect 
+          x="15" y="15" width="290" height="450" 
+          fill="none" 
+          stroke="url(#neonSecondaryGrad)" 
+          strokeWidth="1.5" 
+          filter="url(#neonGlow)" 
+          opacity="0.8"
+        />
+        
+        {/* Corner Dots - using variants for depth */}
+        <circle cx="30" cy="30" r="4" fill={pVars.lighter1} filter="url(#neonGlow)"/>
+        <circle cx="290" cy="30" r="4" fill={sVars.lighter1} filter="url(#neonGlow)"/>
+        <circle cx="30" cy="450" r="4" fill={sVars.lighter1} filter="url(#neonGlow)"/>
+        <circle cx="290" cy="450" r="4" fill={pVars.lighter1} filter="url(#neonGlow)"/>
+        
+        {/* Accent Lines */}
+        <line x1="50" y1="12" x2="270" y2="12" stroke={pVars.lighter2} strokeWidth="1" opacity="0.6"/>
+        <line x1="50" y1="468" x2="270" y2="468" stroke={sVars.lighter2} strokeWidth="1" opacity="0.6"/>
       </svg>
     );
   }
   
-  // 4. TITANIUM (REPLACES GEOMETRIC)
+// 4. TITANIUM (REPLACES GEOMETRIC) - Thinner Top/Bottom + Gradient Pipe
   if (style === 'geometric') {
+    const pVars = getColorVariants(primaryColor);
+
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
+          {/* Industrial Mesh Pattern */}
           <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
             <rect width="6" height="6" fill="#151515" />
             <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
           </pattern>
+
+          {/* Solid Dark Metal */}
           <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
             <rect width="10" height="10" fill="#1a1a1a" />
           </pattern>
+
+          {/* Primary Color Gradient (Snaking Effect) */}
+          <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="25%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: pVars.darker1, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+          </linearGradient>
+
+          {/* Neon Glow Filter */}
           <filter id="neonTrace">
             <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
           </filter>
+
+          {/* Inner Shadow for Armor Plates */}
           <filter id="armorShadow">
             <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8"/>
           </filter>
         </defs>
 
-        <path d="M -5,-5 H 325 V 485 H -5 Z" fill="none" stroke="none" />
-        <path d="M -5,-5 H 325 V 50 H -5 Z" fill="url(#gunmetal)" />
-        <path d="M -5,430 H 325 V 485 H -5 Z" fill="url(#gunmetal)" />
-        <path d="M -5,50 L 60,50 L 60,430 L -5,430 Z" fill="url(#gunmetal)" />
-        <path d="M 325,50 L 260,50 L 260,430 L 325,430 Z" fill="url(#gunmetal)" />
+        {/* 
+           LAYER 1: THE HULL (Cutout Method)
+           Thinned top/bottom bars to ~20px height
+        */}
+        <path 
+          d="
+            M -10,-10 H 330 V 490 H -10 Z 
+            M 30,20 
+            L 290,20 L 305,35 
+            L 305,120 L 270,150 L 270,330 L 305,360 
+            L 305,445 L 290,460 
+            L 30,460 L 15,445 
+            L 15,360 L 50,330 L 50,150 L 15,120 
+            L 15,35 Z
+          "
+          fill="url(#gunmetal)" 
+          fillRule="evenodd"
+          stroke="none"
+        />
 
-        <path d="M 40,30 L 280,30 L 300,50 L 300,120 L 270,150 L 270,330 L 300,360 L 300,430 L 280,450 L 40,450 L 20,430 L 20,360 L 50,330 L 50,150 L 20,120 L 20,50 Z" fill="none" stroke={primaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#neonTrace)"/>
+        {/* 
+           LAYER 2: THE NEON CHASSIS RAIL
+           Pushed outward to match the thinner frame
+        */}
+        <path 
+          d="
+            M 30,20 
+            L 290,20 L 305,35 
+            L 305,120 L 270,150 L 270,330 L 305,360 
+            L 305,445 L 290,460 
+            L 30,460 L 15,445 
+            L 15,360 L 50,330 L 50,150 L 15,120 
+            L 15,35 Z
+          "
+          fill="none"
+          stroke="url(#neonGrad)" 
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          filter="url(#neonTrace)"
+        />
 
+        {/* 
+           LAYER 3: SIDE ARMOR CLAMPS
+           (These stay bulky to anchor the sides)
+        */}
+        
+        {/* Left Clamp Group */}
         <g filter="url(#armorShadow)">
-            <path d="M -5,100 L 40,140 L 40,340 L -5,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1"/>
+            <path d="M -5,100 L 40,140 L 40,340 L -5,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
             <path d="M 0,160 L 25,180 L 25,300 L 0,320 Z" fill="#000" opacity="0.6" />
-            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8"><line x1="5" y1="190" x2="20" y2="190" /><line x1="5" y1="200" x2="20" y2="200" /><line x1="5" y1="210" x2="20" y2="210" /><line x1="5" y1="270" x2="20" y2="270" /><line x1="5" y1="280" x2="20" y2="280" /><line x1="5" y1="290" x2="20" y2="290" /></g>
+            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8">
+               <line x1="5" y1="190" x2="20" y2="190" />
+               <line x1="5" y1="200" x2="20" y2="200" />
+               <line x1="5" y1="210" x2="20" y2="210" />
+               <line x1="5" y1="270" x2="20" y2="270" />
+               <line x1="5" y1="280" x2="20" y2="280" />
+               <line x1="5" y1="290" x2="20" y2="290" />
+            </g>
         </g>
 
+        {/* Right Clamp Group */}
         <g filter="url(#armorShadow)">
-            <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1"/>
+            <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
             <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
-            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8"><line x1="315" y1="190" x2="300" y2="190" /><line x1="315" y1="200" x2="300" y2="200" /><line x1="315" y1="210" x2="300" y2="210" /><line x1="315" y1="270" x2="300" y2="270" /><line x1="315" y1="280" x2="300" y2="280" /><line x1="315" y1="290" x2="300" y2="290" /></g>
+            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8">
+               <line x1="315" y1="190" x2="300" y2="190" />
+               <line x1="315" y1="200" x2="300" y2="200" />
+               <line x1="315" y1="210" x2="300" y2="210" />
+               <line x1="315" y1="270" x2="300" y2="270" />
+               <line x1="315" y1="280" x2="300" y2="280" />
+               <line x1="315" y1="290" x2="300" y2="290" />
+            </g>
         </g>
 
-        <path d="M -5,-5 H 90 L 80,10 L 30,10 L 10,30 L 10,80 L -5,95 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M 325,-5 H 230 L 240,10 L 290,10 L 310,30 L 310,80 L 325,95 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M -5,485 H 90 L 80,470 L 30,470 L 10,450 L 10,400 L -5,385 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M 325,485 H 230 L 240,470 L 290,470 L 310,450 L 310,400 L 325,385 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        {/* 
+           LAYER 4: CORNER ARMOR PLATES (Thinned)
+           Reduced height to match the new 20px top/bottom bars
+        */}
+        {/* Top Left */}
+        <path d="M -5,-5 H 70 L 60,10 L 30,10 L 10,25 L 10,60 L -5,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        
+        {/* Top Right */}
+        <path d="M 325,-5 H 250 L 260,10 L 290,10 L 310,25 L 310,60 L 325,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        
+        {/* Bottom Left */}
+        <path d="M -5,485 H 70 L 60,470 L 30,470 L 10,455 L 10,420 L -5,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        
+        {/* Bottom Right */}
+        <path d="M 325,485 H 250 L 260,470 L 290,470 L 310,455 L 310,420 L 325,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
 
-        <path d="M 45,35 H 275 L 295,55 V 115 L 265,145 V 335 L 295,365 V 425 L 275,445 H 45 L 25,425 V 365 L 55,335 V 145 L 25,115 V 55 Z" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.3"/>
+        {/* 
+           LAYER 5: INNER HAIRLINES 
+           Thin white lines for detail
+        */}
+        <path 
+          d="
+            M 35,25 H 285 L 300,40 V 115 L 265,145 V 335 L 300,365 V 440 L 285,455 H 35 L 20,440 V 365 L 55,335 V 145 L 20,115 V 40 Z
+          "
+          fill="none"
+          stroke="#fff"
+          strokeWidth="0.5"
+          opacity="0.3"
+        />
+
       </svg>
     );
   }
-  
+  // 5. CLASSIC (Premium 90s Style)
+  if (style === 'classic') {
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
+        <defs>
+          {/* Classic Silver/White Cardboard Gradient */}
+          <linearGradient id="classicSilver" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#f5f5f5', stopOpacity: 1 }} />
+            <stop offset="20%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: '#e0e0e0', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#d4d4d4', stopOpacity: 1 }} />
+          </linearGradient>
+
+          {/* Hard Shadow for 3D depth */}
+          <filter id="cardShadow">
+            <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.5"/>
+          </filter>
+        </defs>
+        
+        {/* 
+            LAYER 1: SOLID OUTER FRAME 
+            Uses a mask-like path to create a solid 20px border around the edge
+        */}
+        <path 
+          d="
+            M -2,-2 H 322 V 482 H -2 Z 
+            M 20,20 V 460 H 300 V 20 Z
+          " 
+          fill="url(#classicSilver)" 
+          fillRule="evenodd"
+          filter="url(#cardShadow)"
+          stroke="#999"
+          strokeWidth="1"
+        />
+
+        {/* 
+            LAYER 2: TEAM COLOR PINSTRIPES
+            These sit just inside the white frame
+        */}
+        
+        {/* Primary Color (Outer Stripe) */}
+        <rect 
+          x="22" y="22" width="276" height="436" 
+          fill="none" 
+          stroke={primaryColor} 
+          strokeWidth="3" 
+        />
+        
+        {/* Secondary Color (Inner Stripe) */}
+        <rect 
+          x="27" y="27" width="266" height="426" 
+          fill="none" 
+          stroke={secondaryColor} 
+          strokeWidth="1.5" 
+        />
+
+        {/* 
+            LAYER 3: CORNER ACCENTS
+            Little metallic brackets in the corners
+        */}
+        {/* Top Left */}
+        <path d="M 5,30 L 5,5 L 30,5" fill="none" stroke="#888" strokeWidth="2" />
+        {/* Top Right */}
+        <path d="M 290,5 L 315,5 L 315,30" fill="none" stroke="#888" strokeWidth="2" />
+        {/* Bottom Left */}
+        <path d="M 5,450 L 5,475 L 30,475" fill="none" stroke="#888" strokeWidth="2" />
+        {/* Bottom Right */}
+        <path d="M 290,475 L 315,475 L 315,450" fill="none" stroke="#888" strokeWidth="2" />
+
+        {/* 
+            LAYER 4: INNER SHADOW
+            Subtle shadow inside the frame to make the photo look recessed
+        */}
+        <rect 
+          x="20" y="20" width="280" height="440" 
+          fill="none" 
+          stroke="black" 
+          strokeWidth="4" 
+          opacity="0.2" 
+          filter="blur(2px)"
+        />
+
+      </svg>
+    );
+  }
   return null;
 };
 
