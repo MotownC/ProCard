@@ -538,14 +538,15 @@ const OrderForm: React.FC = () => {
   const [dragTarget, setDragTarget] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-  // --- DRAG LOGIC ---
+ // --- DRAG LOGIC (Mouse & Touch) ---
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    // Shared move handler
+    const handleMove = (clientX: number, clientY: number) => {
       if (!dragTarget || !cardRef.current) return;
       
       const cardRect = cardRef.current.getBoundingClientRect();
-      const newX = e.clientX - cardRect.left - dragOffset.x;
-      const newY = e.clientY - cardRect.top - dragOffset.y;
+      const newX = clientX - cardRect.left - dragOffset.x;
+      const newY = clientY - cardRect.top - dragOffset.y;
 
       setPositions(prev => ({
         ...prev,
@@ -553,29 +554,55 @@ const OrderForm: React.FC = () => {
       }));
     };
 
-    const handleMouseUp = () => {
-      setDragTarget(null);
+    // Mouse Event Listeners
+    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const handleMouseUp = () => setDragTarget(null);
+
+    // Touch Event Listeners
+    const handleTouchMove = (e: TouchEvent) => {
+      // Prevent screen scrolling while dragging an item
+      if (e.cancelable) e.preventDefault(); 
+      handleMove(e.touches[0].clientX, e.touches[0].clientY);
     };
+    const handleTouchEnd = () => setDragTarget(null);
 
     if (dragTarget) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
+      // Add Touch Listeners
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleTouchEnd);
     }
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [dragTarget, dragOffset]);
 
-  // Generic handler for starting a drag
-  const startDrag = (e: React.MouseEvent, target: string) => {
-    e.preventDefault();
+  // Generic handler for starting a drag (Handles both MouseDown and TouchStart)
+  const startDrag = (e: React.MouseEvent | React.TouchEvent, target: string) => {
+    // Prevent default browser behavior (like image dragging or scrolling)
+    if (e.cancelable && e.type === 'touchstart') e.preventDefault();
     e.stopPropagation();
+
     const rect = e.currentTarget.getBoundingClientRect();
+    
+    // Get coordinates based on event type
+    let clientX, clientY;
+    if ('touches' in e) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = (e as React.MouseEvent).clientX;
+        clientY = (e as React.MouseEvent).clientY;
+    }
+
     setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x: clientX - rect.left,
+      y: clientY - rect.top
     });
     setDragTarget(target);
   };
@@ -2283,6 +2310,7 @@ const OrderForm: React.FC = () => {
                     className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
                     style={{ top: positions.groupHeader.y, left: positions.groupHeader.x }} 
                     onMouseDown={(e) => startDrag(e, 'groupHeader')}
+                    onTouchStart={(e) => startDrag(e, 'groupHeader')}
                   >
                     {backgroundStyle === 'splatter' ? (
                        // Splatter Name
@@ -2338,6 +2366,7 @@ const OrderForm: React.FC = () => {
                     className="absolute z-50 cursor-move select-none w-full flex flex-col items-center hover:scale-[1.02] transition-transform pointer-events-auto"
                     style={{ top: positions.groupFooter.y, left: positions.groupFooter.x }}
                     onMouseDown={(e) => startDrag(e, 'groupFooter')}
+                    onTouchStart={(e) => startDrag(e, 'groupFooter')}
                   >
                      {backgroundStyle === 'splatter' ? (
                         // SPLATTER FOOTER
@@ -2382,6 +2411,7 @@ const OrderForm: React.FC = () => {
                         className="absolute z-50 cursor-move select-none hover:scale-110 transition-transform pointer-events-auto"
                         style={{ top: positions.impactNumber.y, left: positions.impactNumber.x }}
                         onMouseDown={(e) => startDrag(e, 'impactNumber')}
+                        onTouchStart={(e) => startDrag(e, 'impactNumber')}
                     >
                         <span 
                         className="text-8xl font-['Teko'] font-bold text-transparent transform -rotate-6 block"
@@ -2403,6 +2433,7 @@ const OrderForm: React.FC = () => {
                         className="absolute z-50 cursor-move select-none pointer-events-auto"
                         style={{ top: positions.stdTeam.y, left: positions.stdTeam.x }} 
                         onMouseDown={(e) => startDrag(e, 'stdTeam')}
+                        onTouchStart={(e) => startDrag(e, 'stdTeam')}
                     >
                         <p 
                           className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md whitespace-nowrap"
@@ -2417,6 +2448,7 @@ const OrderForm: React.FC = () => {
                         className="absolute z-50 cursor-move select-none pointer-events-auto"
                         style={{ top: positions.stdName.y, left: positions.stdName.x }} 
                         onMouseDown={(e) => startDrag(e, 'stdName')}
+                        onTouchStart={(e) => startDrag(e, 'stdName')}
                     >
                          <div className={`border-b pb-2 mb-1 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
                             <div className="relative">
@@ -2453,6 +2485,7 @@ const OrderForm: React.FC = () => {
                         className="absolute z-50 cursor-move select-none pointer-events-auto"
                         style={{ top: positions.stdNumber.y, left: positions.stdNumber.x }} 
                         onMouseDown={(e) => startDrag(e, 'stdNumber')}
+                        onTouchStart={(e) => startDrag(e, 'stdNumber')}
                     >
                         <div 
                             className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
@@ -2466,6 +2499,7 @@ const OrderForm: React.FC = () => {
                         className="absolute z-50 cursor-move select-none pointer-events-auto"
                         style={{ top: positions.stdPos.y, left: positions.stdPos.x }}
                         onMouseDown={(e) => startDrag(e, 'stdPos')}
+                        onTouchStart={(e) => startDrag(e, 'stdPos')}
                     >
                         <div className="text-xs font-bold text-gray-300 uppercase tracking-wider">
                             {details.position || 'POS'}
@@ -2485,6 +2519,7 @@ const OrderForm: React.FC = () => {
                   }}
                   // USE NEW DRAG HANDLER
                   onMouseDown={(e) => startDrag(e, 'logo')}
+                  onTouchStart={(e) => startDrag(e, 'logo')}
                 >
                   <div 
                       className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden select-none"
