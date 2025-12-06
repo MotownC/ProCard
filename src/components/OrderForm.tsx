@@ -116,7 +116,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
- // 4. UPDATED CHROME-METAL (Squared/90° Top Corners)
+// 4. UPDATED CHROME-METAL (Perfect Regular Honeycomb)
   if (style === 'chrome-metal') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
@@ -144,9 +144,19 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
           </pattern>
 
-          {/* Honeycomb Pattern */}
-          <pattern id="hexOverlay" x="0" y="0" width="10" height="17.32" patternUnits="userSpaceOnUse" patternTransform="scale(1.6)">
-             <path d="M5 0L10 2.89V8.66L5 11.55L0 8.66V2.89L5 0Z" fill="none" stroke="#333" strokeWidth="1" />
+          {/* 
+             CORRECTED: PERFECT REGULAR HONEYCOMB 
+             Side Length: 12
+             Width: 20.78 (12 * sqrt(3))
+             Height: 36 (12 * 3)
+          */}
+          <pattern id="hexOverlay" x="0" y="0" width="20.78" height="36" patternUnits="userSpaceOnUse">
+             <path 
+                d="M10.39 0 V12 L20.78 18 M10.39 12 L0 18 M10.39 36 V24 L20.78 18 M10.39 24 L0 18" 
+                fill="none" 
+                stroke="#333" 
+                strokeWidth="1.5" 
+             />
           </pattern>
 
           {/* Filters */}
@@ -160,31 +170,24 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
 
           {/* Path Definitions */}
           
-          {/* Side Armor Plates (Unchanged) */}
+          {/* Side Armor Plates (Asymmetric) */}
           <path id="leftArmorPath" d="M -10,75 L 25,105 L 25,280 L 45,295 L 45,345 L 25,360 L 25,445 L -10,475 Z" />
           <path id="rightArmorPath" d="M 330,5 L 295,35 L 295,90 L 275,105 L 275,155 L 295,170 L 295,375 L 330,405 Z" />
           
-          {/* Base Shapes - UPDATED TO 90 DEGREE CORNERS */}
-          
-          {/* Top Left: Square Step Down */}
+          {/* BASE SHAPES (Squared Top) */}
           <path id="topLeftBase" d="M -5,-5 H 80 V 25 H 20 V 90 H -5 Z" />
-          
-          {/* Top Right: Square Step Down */}
           <path id="topRightBase" d="M 325,-5 H 240 V 25 H 300 V 90 H 325 Z" />
-          
-          {/* Top Center: Solid Rectangle */}
           <path id="topCenterBase" d="M 75,-5 H 245 V 20 H 75 Z" />
-          
-          {/* Bottom Shape (Existing) */}
           <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" />
           
-          {/* Side Fillers */}
+          {/* Side Fillers (Hidden Spines) */}
           <rect id="leftSideFill" x="-5" y="0" width="20" height="480" />
           <rect id="rightSideFill" x="305" y="0" width="20" height="480" />
         </defs>
 
         {/* LAYER 1: CHASSIS BASE */}
         <g>
+            {/* Dark Backgrounds */}
             <use href="#leftSideFill" fill="url(#darkTech)" />
             <use href="#rightSideFill" fill="url(#darkTech)" />
             <use href="#topLeftBase" fill="url(#darkTech)" />
@@ -192,6 +195,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <use href="#topCenterBase" fill="url(#darkTech)" />
             <use href="#bottomBase" fill="url(#darkTech)" />
             
+            {/* Honeycomb Overlays */}
             <use href="#leftSideFill" fill="url(#hexOverlay)" />
             <use href="#rightSideFill" fill="url(#hexOverlay)" />
             <use href="#topLeftBase" fill="url(#hexOverlay)" />
@@ -200,7 +204,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <use href="#bottomBase" fill="url(#hexOverlay)" />
         </g>
 
-        {/* LAYER 2: LEFT ARMOR PLATE */}
+        {/* LAYER 2: LEFT ARMOR PLATE (Low) */}
         <g filter="url(#plateShadow)">
             <use href="#leftArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#leftArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
@@ -212,7 +216,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             </g>
         </g>
 
-        {/* LAYER 3: RIGHT ARMOR PLATE */}
+        {/* LAYER 3: RIGHT ARMOR PLATE (High) */}
         <g filter="url(#plateShadow)">
             <use href="#rightArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#rightArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
@@ -482,6 +486,7 @@ const BORDER_STYLES = [
 ];
 
 const OrderForm: React.FC = () => {
+  // --- 1. BASIC FORM STATE ---
   const [details, setDetails] = useState<PlayerDetails>({
     name: '',
     team: '',
@@ -506,10 +511,76 @@ const OrderForm: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [enableBorder, setEnableBorder] = useState(false);
   const [borderStyle, setBorderStyle] = useState('tech-frame');
+  
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showLogo, setShowLogo] = useState(true);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+ // --- 2. MULTI-ITEM DRAG & DROP STATE ---
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Store positions for all draggable elements
+  const [positions, setPositions] = useState({
+    logo: { x: 250, y: 30 },
+    
+    // Grouped Layouts (Impact / Splatter)
+    groupHeader: { x: 0, y: 30 },     
+    groupFooter: { x: 0, y: 400 },    
+    impactNumber: { x: 250, y: 350 },
+
+    // Standard / Radar / Cyber Layout (Individual Items)
+    stdTeam: { x: 32, y: 360 },
+    stdName: { x: 32, y: 380 },
+    stdNumber: { x: 250, y: 350 },
+    stdPos: { x: 32, y: 445 }
+  });
+
+  const [dragTarget, setDragTarget] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  // --- DRAG LOGIC ---
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragTarget || !cardRef.current) return;
+      
+      const cardRect = cardRef.current.getBoundingClientRect();
+      const newX = e.clientX - cardRect.left - dragOffset.x;
+      const newY = e.clientY - cardRect.top - dragOffset.y;
+
+      setPositions(prev => ({
+        ...prev,
+        [dragTarget]: { x: newX, y: newY }
+      }));
+    };
+
+    const handleMouseUp = () => {
+      setDragTarget(null);
+    };
+
+    if (dragTarget) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragTarget, dragOffset]);
+
+  // Generic handler for starting a drag
+  const startDrag = (e: React.MouseEvent, target: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+    setDragTarget(target);
+  };
+
+  // --- HELPER FUNCTIONS ---
   // 1. Calculate Font Size Helper
   const getNameFontSize = (name: string, baseRem = 2.25) => {
     if (!name) return `${baseRem}rem`;
@@ -2132,10 +2203,16 @@ const OrderForm: React.FC = () => {
           )}
           
           {/* Card Container Wrapper */}
-          <div className={`
-             relative transition-all duration-500
-             ${isFullScreen ? 'scale-110 md:scale-125 lg:scale-[1.4]' : 'w-[320px] h-[480px] mx-auto perspective-1000 group'}
-          `}>
+            {/* ... */}
+            
+            <div 
+              ref={cardRef} // <--- ADD THIS REF HERE
+              className={`
+                relative w-[320px] h-[480px] bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl transition-transform duration-500 transform
+                ${!isFullScreen && 'group-hover:rotate-y-6 group-hover:rotate-x-6'}
+              `}
+              onClick={() => !isFullScreen && setIsFullScreen(true)}
+            >
             
             <div 
               className={`
@@ -2166,11 +2243,10 @@ const OrderForm: React.FC = () => {
                 <img 
                   src={imagePreview} 
                   alt="Preview" 
-                  // Z-INDEX UPDATE: Changed z-10 to z-30 so the player pops OVER the text banner
-                  className="absolute inset-0 w-full h-full object-cover z-30 mix-blend-normal" 
+                  // ADDED: pointer-events-none (Allows clicking text behind the image)
+                  className="absolute inset-0 w-full h-full object-cover z-30 mix-blend-normal pointer-events-none" 
                   style={{
                     filter: backgroundStyle === 'impact' 
-                      // Apply the SVG filter we added in Step 1
                       ? 'url(#sticker-effect)' 
                       : enableGlow 
                         ? `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
@@ -2198,19 +2274,21 @@ const OrderForm: React.FC = () => {
               
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
-{/* Text Content Logic */}
+{/* Text Content Logic (Draggable) */}
               {backgroundStyle === 'impact' || backgroundStyle === 'splatter' ? (
-                // --- COMIC IMPACT & SPLATTER LAYOUTS ---
+                // --- COMIC IMPACT & SPLATTER LAYOUTS (Grouped) ---
                 <>
-                  {/* TOP HEADER (Z-20: Sits BEHIND player head) */}
-                  <div className="absolute top-6 left-0 w-full z-20 pointer-events-none overflow-visible flex justify-center">
-                    
-                    {/* SPLATTER HEADER */}
+                  {/* GROUP 1: HEADER (Name) */}
+                  <div 
+                    className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                    style={{ top: positions.groupHeader.y, left: positions.groupHeader.x }} 
+                    onMouseDown={(e) => startDrag(e, 'groupHeader')}
+                  >
                     {backgroundStyle === 'splatter' ? (
-                       <div className="w-[92%] bg-[#1a1a1a] border-y-2 border-white/20 py-2 relative shadow-lg">
+                       // Splatter Name
+                       <div className="w-[92%] bg-[#1a1a1a] border-y-2 border-white/20 py-2 relative shadow-lg px-2">
                           <div className="absolute top-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
                           <div className="absolute bottom-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
-                          
                           <h1 
                             className="font-['Teko'] font-bold text-center uppercase tracking-widest leading-none relative z-10 whitespace-nowrap"
                             style={{ 
@@ -2223,11 +2301,10 @@ const OrderForm: React.FC = () => {
                           </h1>
                        </div>
                     ) : (
-                      // IMPACT HEADER
-                      <div className="relative transform -rotate-2 translate-x-[-10px] scale-110 w-full">
+                      // Impact Name
+                      <div className="relative transform -rotate-2 translate-x-[-10px] scale-110 w-full flex justify-center">
                         <div className="bg-[#1a1a1a] border-y-4 border-white py-2 px-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative z-20">
                           <div className="relative">
-                            {/* Layer 1: Outline */}
                             <h1 
                               className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap absolute top-0 left-0 w-full"
                               style={{
@@ -2240,7 +2317,6 @@ const OrderForm: React.FC = () => {
                             >
                               {details.name || 'PLAYER NAME'}
                             </h1>
-                            {/* Layer 2: Fill */}
                             <h1 
                               className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap relative"
                               style={{
@@ -2257,13 +2333,15 @@ const OrderForm: React.FC = () => {
                     )}
                   </div>
 
-                  {/* BOTTOM FOOTER (Z-40: Sits ON TOP of player legs) */}
-                  <div className="absolute bottom-8 left-0 w-full z-40 pointer-events-none overflow-visible flex flex-col items-center">
-                     
+                  {/* GROUP 2: FOOTER (Team/Pos) */}
+                  <div 
+                    className="absolute z-50 cursor-move select-none w-full flex flex-col items-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                    style={{ top: positions.groupFooter.y, left: positions.groupFooter.x }}
+                    onMouseDown={(e) => startDrag(e, 'groupFooter')}
+                  >
                      {backgroundStyle === 'splatter' ? (
-                        // SPLATTER FOOTER (Updated)
+                        // SPLATTER FOOTER
                         <div className="w-full text-center">
-                            {/* Position Bar + Number */}
                             <div className="bg-[#111] border-y border-white/30 py-1 mb-1 relative inline-block px-10 shadow-md">
                                 <div className="absolute left-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
                                 <div className="absolute right-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
@@ -2271,13 +2349,11 @@ const OrderForm: React.FC = () => {
                                     {details.position || 'POSITION'} <span className="text-gray-500 mx-2">|</span> #{details.number || '00'}
                                 </span>
                             </div>
-                            {/* Team Name - Cleaned up rendering */}
                             <div className="relative">
                                 <h2 
                                     className="text-6xl font-['Teko'] font-bold uppercase italic leading-none" 
                                     style={{
                                         color: colors.primary,
-                                        // Replaced WebkitTextStroke with text-shadow for cleaner edges
                                         textShadow: '2px 2px 0px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000' 
                                     }}
                                 >
@@ -2288,7 +2364,7 @@ const OrderForm: React.FC = () => {
                      ) : (
                         // IMPACT FOOTER
                         <div 
-                            className="inline-block px-8 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px] self-start"
+                            className="inline-block px-8 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px]"
                             style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}
                         >
                             <div className="flex gap-3 text-black font-['Teko'] font-bold text-2xl uppercase tracking-widest leading-none">
@@ -2300,11 +2376,15 @@ const OrderForm: React.FC = () => {
                      )}
                   </div>
 
-                  {/* JERSEY NUMBER (Only Impact) */}
+                  {/* GROUP 3: JERSEY NUMBER (Impact Only) */}
                   {backgroundStyle === 'impact' && (
-                    <div className="absolute bottom-6 right-4 transform -rotate-6 z-40 pointer-events-none">
+                    <div 
+                        className="absolute z-50 cursor-move select-none hover:scale-110 transition-transform pointer-events-auto"
+                        style={{ top: positions.impactNumber.y, left: positions.impactNumber.x }}
+                        onMouseDown={(e) => startDrag(e, 'impactNumber')}
+                    >
                         <span 
-                        className="text-8xl font-['Teko'] font-bold text-transparent"
+                        className="text-8xl font-['Teko'] font-bold text-transparent transform -rotate-6 block"
                         style={{ 
                             WebkitTextStroke: '3px white',
                             textShadow: `4px 4px 0 ${colors.secondary}`
@@ -2316,73 +2396,109 @@ const OrderForm: React.FC = () => {
                   )}
                 </>
               ) : (
-                // --- 2. STANDARD / RADAR LAYOUT (Bottom) ---
-                <div className="absolute bottom-8 left-8 right-8 z-50 pointer-events-none">
-                  <div className={`flex justify-between items-end border-b pb-2 mb-1 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
-                    <div className="flex-1 mr-2">
+                // --- 2. STANDARD / RADAR / TECH / CYBER (Fully Separated) ---
+                <>
+                    {/* ITEM 1: TEAM NAME */}
+                    <div 
+                        className="absolute z-50 cursor-move select-none pointer-events-auto"
+                        style={{ top: positions.stdTeam.y, left: positions.stdTeam.x }} 
+                        onMouseDown={(e) => startDrag(e, 'stdTeam')}
+                    >
                         <p 
-                          className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md"
+                          className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md whitespace-nowrap"
                           style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary }}
                         >
                           {details.team || 'TEAM NAME'}
                         </p>
-                        
-                        {/* Chrome Name Standard */}
-                        <div className="relative">
-                          <h1 
-                            className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
-                            style={{
-                              fontSize: getNameFontSize(details.name),
-                              color: colors.primary, 
-                              WebkitTextStroke: `4px ${colors.primary}`,
-                              zIndex: 10,
-                              filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))'
-                            }}
-                          >
-                            {details.name || 'PLAYER NAME'}
-                          </h1>
+                    </div>
 
-                          <h1 
-                            className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
-                            style={{
-                              fontSize: getNameFontSize(details.name),
-                              ...chromeTextStyle,
-                              zIndex: 20
-                            }}
-                          >
-                            {details.name || 'PLAYER NAME'}
-                          </h1>
+                    {/* ITEM 2: PLAYER NAME (With Underline) */}
+                    <div 
+                        className="absolute z-50 cursor-move select-none pointer-events-auto"
+                        style={{ top: positions.stdName.y, left: positions.stdName.x }} 
+                        onMouseDown={(e) => startDrag(e, 'stdName')}
+                    >
+                         <div className={`border-b pb-2 mb-1 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
+                            <div className="relative">
+                                {/* Chrome Layer 1 (Outline) */}
+                                <h1 
+                                    className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
+                                    style={{
+                                    fontSize: getNameFontSize(details.name),
+                                    color: colors.primary, 
+                                    WebkitTextStroke: `2px ${colors.primary}`,
+                                    zIndex: 10,
+                                    filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))'
+                                    }}
+                                >
+                                    {details.name || 'PLAYER NAME'}
+                                </h1>
+                                {/* Chrome Layer 2 (Fill) */}
+                                <h1 
+                                    className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
+                                    style={{
+                                    fontSize: getNameFontSize(details.name),
+                                    ...chromeTextStyle,
+                                    zIndex: 20
+                                    }}
+                                >
+                                    {details.name || 'PLAYER NAME'}
+                                </h1>
+                            </div>
                         </div>
                     </div>
-                    <div 
-                      className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
-                    >
-                        {details.number || '00'}
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between text-xs font-bold text-gray-300">
-                    <span>{details.position || 'POS'}</span>
-                  </div>
-                </div>
-              )}
 
-             {/* Top Badge - Only render if showLogo is true */}
+                    {/* ITEM 3: JERSEY NUMBER */}
+                    <div 
+                        className="absolute z-50 cursor-move select-none pointer-events-auto"
+                        style={{ top: positions.stdNumber.y, left: positions.stdNumber.x }} 
+                        onMouseDown={(e) => startDrag(e, 'stdNumber')}
+                    >
+                        <div 
+                            className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
+                        >
+                            {details.number || '00'}
+                        </div>
+                    </div>
+                    
+                    {/* ITEM 4: POSITION */}
+                    <div 
+                        className="absolute z-50 cursor-move select-none pointer-events-auto"
+                        style={{ top: positions.stdPos.y, left: positions.stdPos.x }}
+                        onMouseDown={(e) => startDrag(e, 'stdPos')}
+                    >
+                        <div className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                            {details.position || 'POS'}
+                        </div>
+                    </div>
+                </>
+              )}
+{/* Top Badge - Only render if showLogo is true */}
               {showLogo && (
-                <div className="absolute top-8 right-8 z-50 pointer-events-none">
+                <div 
+                  className="absolute z-50 cursor-move active:cursor-grabbing hover:scale-110 transition-transform"
+                  style={{ 
+                    // USE NEW POSITIONS STATE
+                    left: positions.logo.x, 
+                    top: positions.logo.y,
+                    touchAction: 'none' 
+                  }}
+                  // USE NEW DRAG HANDLER
+                  onMouseDown={(e) => startDrag(e, 'logo')}
+                >
                   <div 
-                      className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden"
+                      className="w-12 h-12 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg overflow-hidden select-none"
                       style={{ borderColor: colors.primary }}
                   >
                       {logoPreview ? (
                         <img 
                           src={logoPreview} 
                           alt="Team Logo" 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover pointer-events-none"
                         />
                       ) : (
                         <div 
-                            className="font-bold text-xs text-center leading-none"
+                            className="font-bold text-xs text-center leading-none pointer-events-none"
                             style={{ color: colors.primary }}
                         >
                           PRO<br/>CARD
@@ -2391,7 +2507,6 @@ const OrderForm: React.FC = () => {
                   </div>
                 </div>
               )}
-
               {/* Border Frame Overlay */}
               {enableBorder && (
                 <BorderFrame 
