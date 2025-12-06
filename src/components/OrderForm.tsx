@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X, Loader2 } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X, Loader2, RotateCcw } from 'lucide-react';
 import { removeBackground } from '@imgly/background-removal';
 
 // Player Details Interface
@@ -50,16 +50,16 @@ const getColorVariants = (hexColor: string) => {
   };
 };
 
-// Border Frame Component
+// --- BORDER FRAME COMPONENT ---
 interface BorderFrameProps {
   style: string;
   primaryColor: string;
   secondaryColor: string;
 }
 
-
 const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondaryColor }) => {
-  // 1. UPDATED TECH FRAME (Full Height + Overlap)
+  
+  // 1. TECH FRAME (Hourglass / V-Shape Glow)
   if (style === 'tech-frame') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
@@ -69,16 +69,13 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <path d="M0,8 L8,0 M-2,2 L2,-2 M6,10 L10,6" stroke="#222" strokeWidth="1.5" />
           </pattern>
           <filter id="lineGlow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
           <linearGradient id="silverBevel" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: '#777', stopOpacity: 1 }} />
+            <stop offset="0%" style={{ stopColor: '#888', stopOpacity: 1 }} />
             <stop offset="50%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#777', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#888', stopOpacity: 1 }} />
           </linearGradient>
           <radialGradient id="hexGrad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" style={{ stopColor: '#444', stopOpacity: 1 }} />
@@ -86,25 +83,15 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           </radialGradient>
         </defs>
         
-        {/* MAIN BODY - Extended slightly outside 0-480 to prevent gaps */}
-        <path 
-          d="M -2,-2 H 322 V 482 H -2 Z M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" 
-          fill="url(#techCarbon)" 
-          fillRule="evenodd"
-          stroke="none"
-        />
+        {/* Main Body */}
+        <path d="M 0,0 H 320 V 480 H 0 Z M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="url(#techCarbon)" fillRule="evenodd" stroke="none"/>
+        <path d="M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="none" stroke="url(#silverBevel)" strokeWidth="3"/>
 
-        {/* SILVER BEVEL */}
-        <path 
-          d="M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z"
-          fill="none" stroke="url(#silverBevel)" strokeWidth="3"
-        />
-
-        {/* GLOW BARS */}
+        {/* V-Shape Glow Bars */}
         <path d="M -2,130 L 35,240 L -2,350" fill="none" stroke={primaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
         <path d="M 322,130 L 285,240 L 322,350" fill="none" stroke={secondaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
 
-        {/* HEXAGONS */}
+        {/* Hexagons */}
         <g transform="translate(35, 240)">
           <polygon points="-9,-15 9,-15 17,0 9,15 -9,15 -17,0" fill="url(#hexGrad)" stroke={primaryColor} strokeWidth="2"/>
           <circle cx="0" cy="0" r="4" fill={primaryColor} filter="url(#lineGlow)" />
@@ -117,12 +104,11 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
-// 4. UPDATED CHROME-METAL (Perfect Regular Honeycomb)
+  // 2. CHROME METAL -> MECHA SPORT (Asymmetric)
   if (style === 'chrome-metal') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Armor Plate Gradient */}
           <linearGradient id="brushedWhite" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#e6e6e6', stopOpacity: 1 }} />
             <stop offset="20%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
@@ -132,35 +118,17 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <stop offset="80%" style={{ stopColor: '#dcdcdc', stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: '#b0b0b0', stopOpacity: 1 }} />
           </linearGradient>
-
-          {/* Micro-Grid for White Armor */}
           <pattern id="microGrid" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
             <rect width="4" height="4" fill="none" />
             <circle cx="2" cy="2" r="0.5" fill="#000" opacity="0.4" />
           </pattern>
-
-          {/* Dark Gunmetal Base */}
           <pattern id="darkTech" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
             <rect width="6" height="6" fill="#111" />
             <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
           </pattern>
-
-          {/* 
-             CORRECTED: PERFECT REGULAR HONEYCOMB 
-             Side Length: 12
-             Width: 20.78 (12 * sqrt(3))
-             Height: 36 (12 * 3)
-          */}
-          <pattern id="hexOverlay" x="0" y="0" width="20.78" height="36" patternUnits="userSpaceOnUse">
-             <path 
-                d="M10.39 0 V12 L20.78 18 M10.39 12 L0 18 M10.39 36 V24 L20.78 18 M10.39 24 L0 18" 
-                fill="none" 
-                stroke="#333" 
-                strokeWidth="1.5" 
-             />
+          <pattern id="hexOverlay" x="0" y="0" width="28" height="48" patternUnits="userSpaceOnUse" patternTransform="scale(1.2)">
+             <path d="M14 0 V16 M14 16 L28 24 M14 16 L0 24 M14 48 V32 M14 32 L28 24 M14 32 L0 24" fill="none" stroke="#333" strokeWidth="2" />
           </pattern>
-
-          {/* Filters */}
           <filter id="pipingGlow">
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
             <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -168,75 +136,44 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           <filter id="plateShadow">
              <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.5" />
           </filter>
-
-          {/* Path Definitions */}
-          
-          {/* Side Armor Plates (Asymmetric) */}
           <path id="leftArmorPath" d="M -10,75 L 25,105 L 25,280 L 45,295 L 45,345 L 25,360 L 25,445 L -10,475 Z" />
           <path id="rightArmorPath" d="M 330,5 L 295,35 L 295,90 L 275,105 L 275,155 L 295,170 L 295,375 L 330,405 Z" />
-          
-          {/* BASE SHAPES (Squared Top) */}
           <path id="topLeftBase" d="M -5,-5 H 80 V 25 H 20 V 90 H -5 Z" />
           <path id="topRightBase" d="M 325,-5 H 240 V 25 H 300 V 90 H 325 Z" />
           <path id="topCenterBase" d="M 75,-5 H 245 V 20 H 75 Z" />
-          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" />
-          
-          {/* Side Fillers (Hidden Spines) */}
+          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" /> 
           <rect id="leftSideFill" x="-5" y="0" width="20" height="480" />
           <rect id="rightSideFill" x="305" y="0" width="20" height="480" />
         </defs>
 
-        {/* LAYER 1: CHASSIS BASE */}
         <g>
-            {/* Dark Backgrounds */}
-            <use href="#leftSideFill" fill="url(#darkTech)" />
-            <use href="#rightSideFill" fill="url(#darkTech)" />
-            <use href="#topLeftBase" fill="url(#darkTech)" />
-            <use href="#topRightBase" fill="url(#darkTech)" />
-            <use href="#topCenterBase" fill="url(#darkTech)" />
-            <use href="#bottomBase" fill="url(#darkTech)" />
-            
-            {/* Honeycomb Overlays */}
-            <use href="#leftSideFill" fill="url(#hexOverlay)" />
-            <use href="#rightSideFill" fill="url(#hexOverlay)" />
-            <use href="#topLeftBase" fill="url(#hexOverlay)" />
-            <use href="#topRightBase" fill="url(#hexOverlay)" />
-            <use href="#topCenterBase" fill="url(#hexOverlay)" />
-            <use href="#bottomBase" fill="url(#hexOverlay)" />
+            <use href="#leftSideFill" fill="url(#darkTech)" /><use href="#rightSideFill" fill="url(#darkTech)" />
+            <use href="#topLeftBase" fill="url(#darkTech)" /><use href="#topRightBase" fill="url(#darkTech)" />
+            <use href="#topCenterBase" fill="url(#darkTech)" /><use href="#bottomBase" fill="url(#darkTech)" />
+            <use href="#leftSideFill" fill="url(#hexOverlay)" /><use href="#rightSideFill" fill="url(#hexOverlay)" />
+            <use href="#topLeftBase" fill="url(#hexOverlay)" /><use href="#topRightBase" fill="url(#hexOverlay)" />
+            <use href="#topCenterBase" fill="url(#hexOverlay)" /><use href="#bottomBase" fill="url(#hexOverlay)" />
         </g>
 
-        {/* LAYER 2: LEFT ARMOR PLATE (Low) */}
         <g filter="url(#plateShadow)">
             <use href="#leftArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#leftArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
             <path d="M 15,115 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
-            <g fill="#222">
-                <rect x="5" y="135" width="10" height="4" />
-                <rect x="5" y="145" width="10" height="4" />
-                <rect x="5" y="155" width="10" height="4" />
-            </g>
+            <g fill="#222"><rect x="5" y="135" width="10" height="4" /><rect x="5" y="145" width="10" height="4" /><rect x="5" y="155" width="10" height="4" /></g>
         </g>
 
-        {/* LAYER 3: RIGHT ARMOR PLATE (High) */}
         <g filter="url(#plateShadow)">
             <use href="#rightArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#rightArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
             <path d="M 305,45 L 305,85 L 285,100 L 285,160 L 305,175 L 305,360" fill="none" stroke={secondaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
-            <g fill="#222">
-                <rect x="305" y="330" width="10" height="4" />
-                <rect x="305" y="340" width="10" height="4" />
-                <rect x="305" y="350" width="10" height="4" />
-            </g>
+            <g fill="#222"><rect x="305" y="330" width="10" height="4" /><rect x="305" y="340" width="10" height="4" /><rect x="305" y="350" width="10" height="4" /></g>
         </g>
 
-        {/* LAYER 4: ACCENTS */}
         <rect x="70" y="16" width="180" height="2" fill={primaryColor} filter="url(#pipingGlow)" />
         <rect x="40" y="468" width="240" height="4" fill="#111" stroke="#333" />
         <rect x="120" y="470" width="80" height="2" fill={secondaryColor} filter="url(#pipingGlow)" />
-
         <line x1="50" y1="295" x2="50" y2="345" stroke={primaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
         <line x1="270" y1="105" x2="270" y2="155" stroke={secondaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
-
       </svg>
     );
   }
@@ -303,157 +240,53 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
-  // 4. TITANIUM (REVERTED + ENHANCED CLAMPS)
+  // 4. TITANIUM (REPLACES GEOMETRIC)
   if (style === 'geometric') {
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          <pattern id="titaniumMesh" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-            <rect width="4" height="4" fill="#151515" />
-            <path d="M0,4 L4,0" stroke="#252525" strokeWidth="1" />
+          <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="6" height="6" fill="#151515" />
+            <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
           </pattern>
-          <pattern id="gunmetal" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <rect width="6" height="6" fill="#1a1a1a" />
-            <rect width="3" height="6" fill="#262626" />
+          <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <rect width="10" height="10" fill="#1a1a1a" />
           </pattern>
-          
-          {/* Silver Frame Gradient */}
-          <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
-            <stop offset="30%" style={{ stopColor: '#999', stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
-            <stop offset="70%" style={{ stopColor: '#999', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#fff', stopOpacity: 1 }} />
-          </linearGradient>
-
-          {/* NEW: Gloss Sheen for Clamps */}
-          <linearGradient id="glossSheen" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: 'rgba(255,255,255,0)' }} />
-            <stop offset="40%" style={{ stopColor: 'rgba(255,255,255,0.1)' }} />
-            <stop offset="50%" style={{ stopColor: 'rgba(255,255,255,0.4)' }} />
-            <stop offset="60%" style={{ stopColor: 'rgba(255,255,255,0.1)' }} />
-            <stop offset="100%" style={{ stopColor: 'rgba(255,255,255,0)' }} />
-          </linearGradient>
-
-          <filter id="dropShadow">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000" floodOpacity="0.8"/>
-          </filter>
-          
-          <filter id="ventGlow">
-            <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+          <filter id="neonTrace">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
             <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
+          <filter id="armorShadow">
+            <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8"/>
+          </filter>
         </defs>
 
-        {/* LAYER 0: BASE CHASSIS */}
-        <path 
-          d="
-            M -2,-2 H 322 V 482 H -2 Z 
-            M 20,20 
-            L 100,20 L 115,35 L 205,35 L 220,20 
-            L 300,20 
-            L 300,100 L 270,130 L 270,350 L 300,380 
-            L 300,460 
-            L 220,460 L 205,445 L 115,445 L 100,460 
-            L 20,460 
-            L 20,380 L 50,350 L 50,130 L 20,100 
-            Z
-          " 
-          fill="url(#gunmetal)" 
-          fillRule="evenodd" 
-          stroke="#000" 
-          strokeWidth="1"
-        />
+        <path d="M -5,-5 H 325 V 485 H -5 Z" fill="none" stroke="none" />
+        <path d="M -5,-5 H 325 V 50 H -5 Z" fill="url(#gunmetal)" />
+        <path d="M -5,430 H 325 V 485 H -5 Z" fill="url(#gunmetal)" />
+        <path d="M -5,50 L 60,50 L 60,430 L -5,430 Z" fill="url(#gunmetal)" />
+        <path d="M 325,50 L 260,50 L 260,430 L 325,430 Z" fill="url(#gunmetal)" />
 
-        {/* LAYER 1: COLOR CORE */}
-        <path d="M 15,15 L 100,15 L 115,30 L 205,30 L 220,15 L 305,15 L 305,100 L 275,130 L 275,350 L 305,380 L 305,465 L 220,465 L 205,450 L 115,450 L 100,465 L 15,465 L 15,380 L 45,350 L 45,130 L 15,100 Z" fill="none" stroke={primaryColor} strokeWidth="8" strokeLinejoin="round" filter="url(#dropShadow)"/>
-        
-        {/* LAYER 2: SILVER SKELETON */}
-        <path d="M 10,10 L 105,10 L 120,25 L 200,25 L 215,10 L 310,10 L 310,105 L 280,135 L 280,345 L 310,375 L 310,470 L 215,470 L 200,455 L 120,455 L 105,470 L 10,470 L 10,375 L 40,345 L 40,135 L 10,105 Z" fill="none" stroke="url(#silverGrad)" strokeWidth="3" strokeLinecap="square"/>
+        <path d="M 40,30 L 280,30 L 300,50 L 300,120 L 270,150 L 270,330 L 300,360 L 300,430 L 280,450 L 40,450 L 20,430 L 20,360 L 50,330 L 50,150 L 20,120 L 20,50 Z" fill="none" stroke={primaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#neonTrace)"/>
 
-        {/* LAYER 3: CORNER PLATES */}
-        <path d="M 5,-2 L 80,-2 L 90,15 L 15,15 L 15,90 L 5,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-        <path d="M 315,-2 L 240,-2 L 230,15 L 305,15 L 305,90 L 315,80 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-        <path d="M 5,482 L 80,482 L 90,465 L 15,465 L 15,390 L 5,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-        <path d="M 315,482 L 240,482 L 230,465 L 305,465 L 305,390 L 315,400 Z" fill="url(#titaniumMesh)" stroke="#555" strokeWidth="1" />
-
-        {/* LAYER 4: SIDE CLAMPS (Enhanced with Vents & Gloss) */}
-        
-        {/* Left Clamp Group */}
-        <g>
-            {/* Base Shape */}
-            <polygon points="0,120 40,160 40,320 0,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-            
-            {/* Glowing Vents */}
-            <g fill={secondaryColor} filter="url(#ventGlow)">
-                <rect x="5" y="200" width="10" height="4" transform="skewY(-10)" />
-                <rect x="5" y="210" width="10" height="4" transform="skewY(-10)" />
-                <rect x="5" y="220" width="10" height="4" transform="skewY(-10)" />
-                
-                <rect x="5" y="260" width="10" height="4" transform="skewY(10)" />
-                <rect x="5" y="270" width="10" height="4" transform="skewY(10)" />
-                <rect x="5" y="280" width="10" height="4" transform="skewY(10)" />
-            </g>
-
-            {/* Gloss Overlay */}
-            <polygon points="0,120 40,160 40,320 0,360" fill="url(#glossSheen)" style={{ mixBlendMode: 'overlay' }} pointerEvents="none" />
+        <g filter="url(#armorShadow)">
+            <path d="M -5,100 L 40,140 L 40,340 L -5,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1"/>
+            <path d="M 0,160 L 25,180 L 25,300 L 0,320 Z" fill="#000" opacity="0.6" />
+            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8"><line x1="5" y1="190" x2="20" y2="190" /><line x1="5" y1="200" x2="20" y2="200" /><line x1="5" y1="210" x2="20" y2="210" /><line x1="5" y1="270" x2="20" y2="270" /><line x1="5" y1="280" x2="20" y2="280" /><line x1="5" y1="290" x2="20" y2="290" /></g>
         </g>
 
-        {/* Right Clamp Group */}
-        <g>
-            {/* Base Shape */}
-            <polygon points="320,120 280,160 280,320 320,360" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-            
-            {/* Glowing Vents */}
-            <g fill={secondaryColor} filter="url(#ventGlow)">
-                <rect x="305" y="200" width="10" height="4" transform="skewY(10)" />
-                <rect x="305" y="210" width="10" height="4" transform="skewY(10)" />
-                <rect x="305" y="220" width="10" height="4" transform="skewY(10)" />
-                
-                <rect x="305" y="260" width="10" height="4" transform="skewY(-10)" />
-                <rect x="305" y="270" width="10" height="4" transform="skewY(-10)" />
-                <rect x="305" y="280" width="10" height="4" transform="skewY(-10)" />
-            </g>
-
-            {/* Gloss Overlay */}
-            <polygon points="320,120 280,160 280,320 320,360" fill="url(#glossSheen)" style={{ mixBlendMode: 'overlay' }} pointerEvents="none" />
+        <g filter="url(#armorShadow)">
+            <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1"/>
+            <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
+            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8"><line x1="315" y1="190" x2="300" y2="190" /><line x1="315" y1="200" x2="300" y2="200" /><line x1="315" y1="210" x2="300" y2="210" /><line x1="315" y1="270" x2="300" y2="270" /><line x1="315" y1="280" x2="300" y2="280" /><line x1="315" y1="290" x2="300" y2="290" /></g>
         </g>
 
-        {/* LAYER 5: ACCENTS */}
-        <line x1="35" y1="165" x2="35" y2="315" stroke={secondaryColor} strokeWidth="2" />
-        <line x1="285" y1="165" x2="285" y2="315" stroke={secondaryColor} strokeWidth="2" />
-        
-        <path d="M 20,20 L 100,20 L 115,35 L 205,35 L 220,20 L 300,20 L 300,100 L 270,130 L 270,350 L 300,380 L 300,460 L 220,460 L 205,445 L 115,445 L 100,460 L 20,460 L 20,380 L 50,350 L 50,130 L 20,100 Z" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.5"/>
-      </svg>
-    );
-  }
-  
-  if (style === 'classic') {
-    return (
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
-        <defs>
-          <linearGradient id="classicBevel" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#ddd', stopOpacity: 0.8 }} />
-            <stop offset="50%" style={{ stopColor: '#888', stopOpacity: 0.6 }} />
-            <stop offset="100%" style={{ stopColor: '#444', stopOpacity: 0.8 }} />
-          </linearGradient>
-        </defs>
-        
-        <rect x="8" y="8" width="304" height="464" fill="none" stroke="url(#classicBevel)" strokeWidth="10"/>
-        <rect x="15" y="15" width="290" height="450" fill="none" stroke={primaryColor} strokeWidth="2" opacity="0.6"/>
-        <rect x="18" y="18" width="284" height="444" fill="none" stroke={secondaryColor} strokeWidth="1" opacity="0.4"/>
-        
-        <line x1="25" y1="50" x2="25" y2="25" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="25" y1="25" x2="50" y2="25" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
-        
-        <line x1="295" y1="50" x2="295" y2="25" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="295" y1="25" x2="270" y2="25" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
-        
-        <line x1="25" y1="430" x2="25" y2="455" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="25" y1="455" x2="50" y2="455" stroke={secondaryColor} strokeWidth="3" opacity="0.8"/>
-        
-        <line x1="295" y1="430" x2="295" y2="455" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
-        <line x1="295" y1="455" x2="270" y2="455" stroke={primaryColor} strokeWidth="3" opacity="0.8"/>
+        <path d="M -5,-5 H 90 L 80,10 L 30,10 L 10,30 L 10,80 L -5,95 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M 325,-5 H 230 L 240,10 L 290,10 L 310,30 L 310,80 L 325,95 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M -5,485 H 90 L 80,470 L 30,470 L 10,450 L 10,400 L -5,385 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M 325,485 H 230 L 240,470 L 290,470 L 310,450 L 310,400 L 325,385 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+
+        <path d="M 45,35 H 275 L 295,55 V 115 L 265,145 V 335 L 295,365 V 425 L 275,445 H 45 L 25,425 V 365 L 55,335 V 145 L 25,115 V 55 Z" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.3"/>
       </svg>
     );
   }
@@ -519,6 +352,8 @@ const OrderForm: React.FC = () => {
   const [showLogo, setShowLogo] = useState(true);
   const [logoCropCircle, setLogoCropCircle] = useState(true);
   const [logoScale, setLogoScale] = useState(1);
+  const [teamTextOpts, setTeamTextOpts] = useState({ stroke: false, shadow: true });
+  const [posTextOpts, setPosTextOpts] = useState({ stroke: false, shadow: false });
   const logoInputRef = useRef<HTMLInputElement>(null);
 
  // --- 2. MULTI-ITEM DRAG & DROP STATE ---
@@ -527,17 +362,23 @@ const OrderForm: React.FC = () => {
   // Store positions for all draggable elements
   const [positions, setPositions] = useState({
     logo: { x: 250, y: 30 },
+    image: { x: 0, y: 0 },
     
-    // Grouped Layouts (Impact / Splatter)
+    // Impact Layout
     groupHeader: { x: 0, y: 30 },     
     groupFooter: { x: 0, y: 400 },    
     impactNumber: { x: 250, y: 350 },
+
+    // Splatter Layout (Separated)
+    splatterName: { x: 0, y: 30 },
+    splatterPosNum: { x: 0, y: 375 }, // Position/Number bar
+    splatterTeam: { x: 0, y: 415 },   // Team Name
 
     // Standard / Radar / Cyber Layout (Individual Items)
     stdTeam: { x: 32, y: 360 },
     stdName: { x: 32, y: 380 },
     stdNumber: { x: 250, y: 350 },
-    stdPos: { x: 32, y: 445 }
+    stdPos: { x: 32, y: 425 }
   });
 
   const [dragTarget, setDragTarget] = useState<string | null>(null);
@@ -616,11 +457,21 @@ const OrderForm: React.FC = () => {
   // 1. Calculate Font Size Helper
   const getNameFontSize = (name: string, baseRem = 2.25) => {
     if (!name) return `${baseRem}rem`;
-    if (name.length <= 10) return `${baseRem}rem`;
-    const scaleFactor = 10 / name.length;
+    if (name.length <= 8) return `${baseRem}rem`;
+    const scaleFactor = 8 / name.length;
     return `${Math.max(1, baseRem * scaleFactor)}rem`;
   };
-
+// Helper: Auto-size the Impact Ribbon text (Tuned for tighter fit)
+  const getRibbonFontSize = (team: string, pos: string) => {
+    const totalLength = (team?.length || 0) + (pos?.length || 0);
+    const baseRem = 1.4; // Reduced from 1.5 for better fit
+    
+    // Start shrinking sooner (at 14 chars) to prevent overflow
+    if (totalLength <= 14) return `${baseRem}rem`;
+    
+    // Scale down linearly
+    return `${Math.max(0.6, baseRem * (14 / totalLength))}rem`;
+  };
   // 2. Define Chrome Gradient Style
   const chromeTextStyle = {
     background: 'linear-gradient(180deg, #FFFFFF 20%, #E0E0E0 45%, #888888 50%, #D0D0D0 55%, #F0F0F0 90%)',
@@ -628,7 +479,25 @@ const OrderForm: React.FC = () => {
     WebkitTextFillColor: 'transparent',
     filter: 'drop-shadow(0 2px 0px rgba(0,0,0,0.1))' // Subtle inner depth
   };
-
+  // Reset all draggable positions and scales to default
+  const handleResetLayout = () => {
+    setPositions({
+      logo: { x: 250, y: 30 },
+      image: { x: 0, y: 0 },
+      groupHeader: { x: 0, y: 30 },     
+      groupFooter: { x: 0, y: 400 },    
+      impactNumber: { x: 250, y: 350 },
+      splatterName: { x: 0, y: 30 },
+      splatterPosNum: { x: 0, y: 375 },
+      splatterTeam: { x: 0, y: 415 },
+      stdTeam: { x: 32, y: 360 },
+      stdName: { x: 32, y: 380 },
+      stdNumber: { x: 250, y: 350 },
+      stdPos: { x: 32, y: 425 }
+    });
+    setImageScale(1);
+    setLogoScale(1);
+  };
   // Close full screen on Escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -750,7 +619,7 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 320, 480);
 
-      // B. MASSIVE BACKGROUND PLATES (Updated for Darker/More Solid Look)
+      // B. MASSIVE BACKGROUND PLATES
       for (let i = 0; i < 30; i++) {
         ctx.beginPath();
         const x = rng(-50, 370);
@@ -1257,114 +1126,148 @@ const OrderForm: React.FC = () => {
           ctx.fill();
       }
     }
-   else if (backgroundStyle === 'splatter') {
-      const cx = 160;
-      const cy = 220;
-
-      // 1. STADIUM ATMOSPHERE
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, 480);
-      bgGrad.addColorStop(0, '#050505');
-      bgGrad.addColorStop(0.6, '#1a1a1a'); 
-      bgGrad.addColorStop(1, '#050505');
-      ctx.fillStyle = bgGrad;
+    else if (backgroundStyle === 'splatter') {
+      // ... existing splatter logic ...
+      const gradient = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
+      gradient.addColorStop(0, '#2a2a2a');
+      gradient.addColorStop(1, '#050505'); 
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 320, 480);
 
-      // A. Crowd
-      for(let i=0; i<3000; i++) {
-          const x = rng(0, 320);
-          const y = rng(0, 300); 
-          const s = rng(0.5, 1.5);
-          const alpha = rng(0.05, 0.2);
-          ctx.fillStyle = `rgba(200, 200, 200, ${alpha})`;
-          ctx.beginPath();
-          ctx.arc(x, y, s, 0, Math.PI*2);
-          ctx.fill();
+      for(let i=0; i<8000; i++) {
+          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.2)';
+          ctx.fillRect(Math.random() * 320, Math.random() * 480, 1.5, 1.5);
       }
 
-      // B. Lights
-      ctx.globalCompositeOperation = 'screen';
-      for(let i=0; i<6; i++) {
-          const x = i * (320/5) + rng(-20, 20);
-          const y = rng(20, 80);
-          const r = rng(30, 60);
-          const lightGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
-          lightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-          lightGrad.addColorStop(1, 'transparent');
-          ctx.fillStyle = lightGrad;
-          ctx.beginPath();
-          ctx.arc(x, y, r, 0, Math.PI*2);
-          ctx.fill();
-      }
-      ctx.globalCompositeOperation = 'source-over';
-
-      // 2. ORGANIC EXPLOSION
-      for(let i=0; i<25; i++) {
-          const angle = rng(0, Math.PI * 2);
-          const dist = rng(50, 250);
-          const size = rng(10, 40);
+      const drawPaintball = (cx: number, cy: number, radius: number, palette: ReturnType<typeof getColorVariants>) => {
+          const color = pickVariant(palette, 1);
+          ctx.fillStyle = color;
           
-          // REMOVED UNUSED X/Y CALCULATIONS HERE
+          ctx.beginPath();
+          for(let i=0; i<Math.PI*2; i+=0.1) {
+              const r = radius * (0.7 + Math.random() * 0.6); 
+              ctx.lineTo(cx + Math.cos(i)*r, cy + Math.sin(i)*r);
+          }
+          ctx.fill();
+
+          const rays = 15 + Math.random() * 20;
+          for(let i=0; i<rays; i++) {
+              const angle = Math.random() * Math.PI * 2;
+              const len = radius * (3 + Math.random() * 6);
+              
+              ctx.fillStyle = pickVariant(palette, rng(0.7, 1));
+              ctx.beginPath();
+              ctx.moveTo(cx + Math.cos(angle)*radius*0.5, cy + Math.sin(angle)*radius*0.5);
+              const endx = cx + Math.cos(angle) * len;
+              const endy = cy + Math.sin(angle) * len;
+              
+              ctx.lineTo(endx, endy);
+              ctx.lineTo(cx + Math.cos(angle + 0.15)*radius*0.5, cy + Math.sin(angle + 0.15)*radius*0.5);
+              ctx.fill();
+          }
+
+          const droplets = 40 + Math.random() * 50;
+          for(let i=0; i<droplets; i++) {
+              const dist = radius * (1.5 + Math.random() * 6);
+              const angle = Math.random() * Math.PI * 2;
+              const size = Math.random() * (radius * 0.25);
+              
+              ctx.fillStyle = pickVariant(palette, rng(0.6, 1));
+              ctx.beginPath();
+              ctx.arc(cx + Math.cos(angle)*dist, cy + Math.sin(angle)*dist, size, 0, Math.PI*2);
+              ctx.fill();
+          }
+      };
+
+      const drawPowerStroke = (x1: number, y1: number, x2: number, y2: number, palette: ReturnType<typeof getColorVariants>, thickness: number) => {
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const angle = Math.atan2(dy, dx);
           
           ctx.save();
-          ctx.translate(cx, cy);
+          ctx.translate(x1, y1);
           ctx.rotate(angle);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(dist/2, size, dist, 0); 
-          ctx.quadraticCurveTo(dist/2, -size, 0, 0); 
-          ctx.fillStyle = i % 2 === 0 ? pickVariant(primaryPalette, 0.8) : pickVariant(secondaryPalette, 0.8);
-          ctx.shadowBlur = 20;
-          ctx.shadowColor = ctx.fillStyle;
-          ctx.fill();
-          ctx.restore();
-      }
-      ctx.shadowBlur = 0;
+          
+          const bristles = thickness * 3;
+          for(let i=0; i<bristles; i++) {
+              const offset = (Math.random() - 0.5) * thickness;
+              const lengthFactor = 0.5 + Math.random() * 0.7; 
+              const currentLen = dist * lengthFactor;
+              
+              ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+              ctx.lineWidth = 0.5 + Math.random() * 2.5;
+              ctx.strokeStyle = pickVariant(palette, 1);
 
-      // Sharp Shards
-      for(let i=0; i<30; i++) {
-          const angle = rng(0, Math.PI * 2);
-          const len = rng(80, 300);
-          const w = rng(2, 8);
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(angle);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(len, -w);
-          ctx.lineTo(len * 0.9, 0);
-          ctx.lineTo(len, w);
-          ctx.fillStyle = i % 3 === 0 ? '#ffffff' : (i % 2 === 0 ? colors.primary : colors.secondary);
-          ctx.fill();
+              ctx.beginPath();
+              ctx.moveTo(0, offset);
+              ctx.bezierCurveTo(
+                  currentLen * 0.3, offset + rng(-15, 15),
+                  currentLen * 0.7, offset + rng(-30, 30),
+                  currentLen, offset + rng(-10, 10)
+              );
+              ctx.stroke();
+          }
           ctx.restore();
-      }
+      };
 
-      // 3. INNER FRAME LINES
-      const pad = 20;
-      ctx.strokeStyle = colors.primary;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(pad, pad + 40, 320 - (pad*2), 480 - (pad*2) - 110);
+      drawPowerStroke(-80, 80, 380, 450, secondaryPalette, 140);
+      drawPowerStroke(380, -80, -80, 520, primaryPalette, 160);
+
+      for(let i=0; i<7; i++) {
+          const x = rng(40, 280);
+          const y = rng(80, 400);
+          const palette = Math.random() > 0.4 ? primaryPalette : secondaryPalette;
+          drawPaintball(x, y, rng(10, 30), palette);
+      }
       
-      // Accents
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(pad - 2, 100, 4, 40);
-      ctx.fillRect(320 - pad - 2, 100, 4, 40);
-
-      // 4. FOREGROUND PARTICLES
-      fgCtx.globalCompositeOperation = 'screen';
-      for(let i=0; i<150; i++) {
-          const x = rng(0, 320);
-          const y = rng(0, 480);
-          const s = rng(1, 3);
-          const d = Math.sqrt(Math.pow(x-160,2) + Math.pow(y-180,2));
-          if(d < 80) continue;
-          fgCtx.fillStyle = Math.random() > 0.5 ? pickVariant(primaryPalette, 1) : '#ffffff';
-          fgCtx.beginPath();
-          fgCtx.arc(x, y, s, 0, Math.PI*2);
-          fgCtx.fill();
+      for(let i=0; i<3; i++) {
+          const x = rng(20, 300);
+          const y = rng(20, 460);
+          const size = rng(4, 12);
+          
+          if(Math.random() > 0.6) {
+              const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+              ctx.fillStyle = pickVariant(palette, 0.3);
+              ctx.shadowBlur = 8;
+              ctx.shadowColor = pickVariant(palette, 0.6);
+          } else {
+              ctx.fillStyle = '#ffffff';
+              ctx.shadowBlur = 6;
+              ctx.shadowColor = '#ffffff';
+          }
+          
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI*2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
       }
-      fgCtx.globalCompositeOperation = 'source-over';
-    }
 
+      drawPowerStroke(-40, 320, 360, 240, primaryPalette, 50);
+      
+      for(let i=0; i<15; i++) {
+          const x = rng(0, 320);
+          const y = rng(0, 400);
+          const w = rng(1.5, 4);
+          const h = rng(60, 180);
+          
+          const palette = Math.random() > 0.5 ? primaryPalette : secondaryPalette;
+          ctx.fillStyle = pickVariant(palette, rng(0.7, 1));
+          ctx.globalAlpha = 0.9;
+          ctx.beginPath();
+          ctx.rect(x, y, w, h);
+          ctx.arc(x + w/2, y + h, w, 0, Math.PI*2); 
+          ctx.fill();
+          ctx.globalAlpha = 1;
+      }
+      
+      for(let i=0; i<5; i++) {
+          const x = rng(20, 300);
+          const y = rng(20, 460);
+          const palette = i % 2 === 0 ? primaryPalette : secondaryPalette;
+          drawPaintball(x, y, rng(5, 15), palette);
+      }
+    }
     else if (backgroundStyle === 'velocity') {
       // 1. Dynamic Gradient Background (Diagonal)
       // Creates a sense of movement right from the base
@@ -1652,7 +1555,6 @@ const OrderForm: React.FC = () => {
       ctx.fillStyle = flare;
       ctx.fillRect(0, 0, 320, 480);
     }
-    
     else if (backgroundStyle === 'impact') {
       // 1. Comic Background Base (Darker Halftone)
       ctx.fillStyle = '#e0e0e0'; // Slightly darker base
@@ -1976,12 +1878,12 @@ const OrderForm: React.FC = () => {
               )}
             </div>
 
-{/* Team Logo Upload */}
+            {/* Team Logo Upload */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-300">Team Logo (Optional)</label>
               
               <div className="flex items-center gap-4">
-                {/* Logo Preview Circle (Always circular in form for tidiness) */}
+                {/* Logo Preview Circle (Left Side Form Only - Keep circular here for tidiness) */}
                 <div 
                   className="w-16 h-16 rounded-full border-2 flex items-center justify-center bg-slate-900/80 backdrop-blur shadow-lg flex-shrink-0 overflow-hidden"
                   style={{ borderColor: colors.primary }}
@@ -2083,6 +1985,7 @@ const OrderForm: React.FC = () => {
                 )}
               </div>
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Player Name</label>
@@ -2107,6 +2010,7 @@ const OrderForm: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
+              {/* TEAM NAME INPUT */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Team Name</label>
                 <input 
@@ -2116,7 +2020,30 @@ const OrderForm: React.FC = () => {
                   className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
                   placeholder="e.g. Tigers"
                 />
+                {/* Team Text Options */}
+                <div className="flex gap-3">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input 
+                      type="checkbox"
+                      checked={teamTextOpts.stroke}
+                      onChange={(e) => setTeamTextOpts({...teamTextOpts, stroke: e.target.checked})}
+                      className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
+                    />
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">Add Stroke</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input 
+                      type="checkbox"
+                      checked={teamTextOpts.shadow}
+                      onChange={(e) => setTeamTextOpts({...teamTextOpts, shadow: e.target.checked})}
+                      className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
+                    />
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">Shadow</span>
+                  </label>
+                </div>
               </div>
+
+              {/* POSITION INPUT */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Position</label>
                 <input 
@@ -2126,6 +2053,27 @@ const OrderForm: React.FC = () => {
                   className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
                   placeholder="e.g. Point Guard"
                 />
+                {/* Position Text Options */}
+                <div className="flex gap-3">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input 
+                      type="checkbox"
+                      checked={posTextOpts.stroke}
+                      onChange={(e) => setPosTextOpts({...posTextOpts, stroke: e.target.checked})}
+                      className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
+                    />
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">Add Stroke</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input 
+                      type="checkbox"
+                      checked={posTextOpts.shadow}
+                      onChange={(e) => setPosTextOpts({...posTextOpts, shadow: e.target.checked})}
+                      className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
+                    />
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">Shadow</span>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -2303,8 +2251,20 @@ const OrderForm: React.FC = () => {
         >
           {/* Header/Label - Only show when NOT full screen */}
           {!isFullScreen && (
-            <div className="text-center mb-6">
-               <span className="bg-slate-800 text-gray-400 px-3 py-1 rounded-full text-xs font-semibold tracking-wider border border-slate-700">LIVE PREVIEW</span>
+            <div className="flex items-center justify-center gap-3 mb-6">
+               <span className="bg-slate-800 text-gray-400 px-3 py-1 rounded-full text-xs font-semibold tracking-wider border border-slate-700">
+                 LIVE PREVIEW
+               </span>
+               
+               <button
+                 type="button"
+                 onClick={handleResetLayout}
+                 className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs text-gray-500 hover:text-white hover:bg-slate-700 hover:border-slate-500 transition-all"
+                 title="Reset all positions"
+               >
+                 <RotateCcw className="w-3 h-3" />
+                 <span>Reset</span>
+               </button>
             </div>
           )}
 
@@ -2319,18 +2279,13 @@ const OrderForm: React.FC = () => {
           )}
           
           {/* Card Container Wrapper */}
-            {/* ... */}
+          <div className={`
+             relative transition-all duration-500
+             ${isFullScreen ? 'scale-110 md:scale-125 lg:scale-[1.4]' : 'w-[320px] h-[480px] mx-auto perspective-1000 group'}
+          `}>
             
             <div 
-              ref={cardRef} // <--- ADD THIS REF HERE
-              className={`
-                relative w-[320px] h-[480px] bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl transition-transform duration-500 transform
-                ${!isFullScreen && 'group-hover:rotate-y-6 group-hover:rotate-x-6'}
-              `}
-              onClick={() => !isFullScreen && setIsFullScreen(true)}
-            >
-            
-            <div 
+              ref={cardRef} // <--- REF FOR DRAG BOUNDS
               className={`
                 relative w-[320px] h-[480px] bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl transition-transform duration-500 transform
                 ${!isFullScreen && 'group-hover:rotate-y-6 group-hover:rotate-x-6'}
@@ -2354,25 +2309,36 @@ const OrderForm: React.FC = () => {
                 className="absolute inset-0 w-full h-full z-40 pointer-events-none"
               />
               
-              {/* User Uploaded Image */}
+              {/* User Uploaded Image (Draggable) */}
               {imagePreview ? (
-                <img 
-                  src={imagePreview} 
-                  alt="Preview" 
-                  className="absolute inset-0 w-full h-full object-cover z-30 mix-blend-normal pointer-events-none" 
+                <div
+                  className="absolute w-full h-full z-30 cursor-move"
                   style={{
-                    // NEW: Apply the Scale Transform
+                    // 1. Apply Drag Position
+                    left: positions.image.x,
+                    top: positions.image.y,
+                    // 2. Apply Zoom Scale (moved here from img)
                     transform: `scale(${imageScale})`,
-                    transformOrigin: 'center center', // Zooms from the middle
-                    
-                    // Existing Filter Logic
-                    filter: backgroundStyle === 'impact' 
-                      ? 'url(#sticker-effect)' 
-                      : enableGlow 
-                        ? `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
-                        : undefined
+                    transformOrigin: 'center center',
                   }}
-                />
+                  onMouseDown={(e) => startDrag(e, 'image')}
+                  onTouchStart={(e) => startDrag(e, 'image')}
+                >
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    // pointer-events-none ensures the image itself doesn't hijack the drag event
+                    className="w-full h-full object-cover pointer-events-none select-none" 
+                    style={{
+                      // Apply Filters (Sticker effect / Glow)
+                      filter: backgroundStyle === 'impact' 
+                        ? 'url(#sticker-effect)' 
+                        : enableGlow 
+                          ? `drop-shadow(0 0 ${20 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}) drop-shadow(0 0 ${40 * (glowOpacity / 100)}px ${glowColor === 'primary' ? colors.primary : colors.secondary}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')})`
+                          : undefined
+                    }}
+                  />
+                </div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <p className="text-white/20 text-4xl font-black font-['Teko'] uppercase -rotate-12 select-none">
@@ -2394,133 +2360,178 @@ const OrderForm: React.FC = () => {
               
               <div className="absolute inset-0 z-40 card-shine opacity-30 pointer-events-none"></div>
 
-{/* Text Content Logic (Draggable) */}
+              {/* Text Content Logic (Draggable) */}
               {backgroundStyle === 'impact' || backgroundStyle === 'splatter' ? (
-                // --- COMIC IMPACT & SPLATTER LAYOUTS (Grouped) ---
+                // --- COMIC IMPACT & SPLATTER LAYOUTS ---
                 <>
-                  {/* GROUP 1: HEADER (Name) */}
-                  <div 
-                    className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
-                    style={{ top: positions.groupHeader.y, left: positions.groupHeader.x }} 
-                    onMouseDown={(e) => startDrag(e, 'groupHeader')}
-                    onTouchStart={(e) => startDrag(e, 'groupHeader')}
-                  >
-                    {backgroundStyle === 'splatter' ? (
-                       // Splatter Name
-                       <div className="w-[92%] bg-[#1a1a1a] border-y-2 border-white/20 py-2 relative shadow-lg px-2">
-                          <div className="absolute top-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
-                          <div className="absolute bottom-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
-                          <h1 
-                            className="font-['Teko'] font-bold text-center uppercase tracking-widest leading-none relative z-10 whitespace-nowrap"
-                            style={{ 
-                                fontSize: getNameFontSize(details.name, 2.8),
-                                color: colors.primary,
-                                textShadow: '0 2px 10px rgba(0,0,0,0.8)'
-                            }} 
-                          >
-                            {details.name || 'PLAYER NAME'}
-                          </h1>
-                       </div>
-                    ) : (
-                      // Impact Name
-                      <div className="relative transform -rotate-2 translate-x-[-10px] scale-110 w-full flex justify-center">
-                        <div className="bg-[#1a1a1a] border-y-4 border-white py-2 px-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative z-20">
-                          <div className="relative">
-                            <h1 
-                              className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap absolute top-0 left-0 w-full"
-                              style={{
-                                fontSize: getNameFontSize(details.name, 3.5),
-                                color: colors.primary,           
-                                WebkitTextStroke: `5px ${colors.primary}`, 
-                                zIndex: 10,
-                                filter: 'drop-shadow(3px 3px 0px rgba(0,0,0,0.5))'
-                              }} 
-                            >
-                              {details.name || 'PLAYER NAME'}
-                            </h1>
-                            <h1 
-                              className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap relative"
-                              style={{
-                                fontSize: getNameFontSize(details.name, 3.5),
-                                ...chromeTextStyle,
-                                zIndex: 20
-                              }} 
-                            >
-                              {details.name || 'PLAYER NAME'}
-                            </h1>
+                  {/* --- IMPACT STYLE (Grouped Header/Footer) --- */}
+                  {backgroundStyle === 'impact' && (
+                    <>
+                      {/* GROUP 1: IMPACT HEADER (Name) */}
+                      <div 
+                        className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                        style={{ top: positions.groupHeader.y, left: positions.groupHeader.x }} 
+                        onMouseDown={(e) => startDrag(e, 'groupHeader')}
+                        onTouchStart={(e) => startDrag(e, 'groupHeader')}
+                      >
+                        <div className="relative transform -rotate-2 translate-x-[-10px] scale-110 w-full flex justify-center">
+                          <div className="bg-[#1a1a1a] border-y-4 border-white pt-3 pb-2 px-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative z-20 w-[88%] mx-auto flex items-center justify-center">
+                            <div className="relative w-full text-center">
+                              {/* Layer 1: Outline */}
+                              <h1 
+                                className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap absolute top-0 left-0 w-full flex items-center justify-center"
+                                style={{
+                                  fontSize: getNameFontSize(details.name, 3.1), // Scaled font size
+                                  color: colors.primary,           
+                                  WebkitTextStroke: `5px ${colors.primary}`, 
+                                  zIndex: 10,
+                                  filter: 'drop-shadow(3px 3px 0px rgba(0,0,0,0.5))',
+                                  paddingRight: '0.2em'
+                                }} 
+                              >
+                                {details.name || 'PLAYER NAME'}
+                              </h1>
+                              {/* Layer 2: Chrome Fill */}
+                              <h1 
+                                className="font-['Teko'] font-bold uppercase leading-[0.85] italic tracking-tighter whitespace-nowrap relative flex items-center justify-center"
+                                style={{
+                                  fontSize: getNameFontSize(details.name, 3.1), // Scaled font size
+                                  ...chromeTextStyle,
+                                  zIndex: 20,
+                                  paddingRight: '0.2em'
+                                }} 
+                              >
+                                {details.name || 'PLAYER NAME'}
+                              </h1>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    )}
-                  </div>
 
-                  {/* GROUP 2: FOOTER (Team/Pos) */}
-                  <div 
-                    className="absolute z-50 cursor-move select-none w-full flex flex-col items-center hover:scale-[1.02] transition-transform pointer-events-auto"
-                    style={{ top: positions.groupFooter.y, left: positions.groupFooter.x }}
-                    onMouseDown={(e) => startDrag(e, 'groupFooter')}
-                    onTouchStart={(e) => startDrag(e, 'groupFooter')}
-                  >
-                     {backgroundStyle === 'splatter' ? (
-                        // SPLATTER FOOTER
-                        <div className="w-full text-center">
-                            <div className="bg-[#111] border-y border-white/30 py-1 mb-1 relative inline-block px-10 shadow-md">
-                                <div className="absolute left-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
-                                <div className="absolute right-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
-                                <span className="text-white font-['Teko'] text-xl tracking-[0.15em] uppercase font-bold relative z-10">
-                                    {details.position || 'POSITION'} <span className="text-gray-500 mx-2">|</span> #{details.number || '00'}
+                     {/* GROUP 2: IMPACT FOOTER (Team/Pos) */}
+                      <div 
+                        className="absolute z-50 cursor-move select-none w-full flex flex-col items-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                        style={{ top: positions.groupFooter.y, left: positions.groupFooter.x }}
+                        onMouseDown={(e) => startDrag(e, 'groupFooter')}
+                        onTouchStart={(e) => startDrag(e, 'groupFooter')}
+                      >
+                          <div 
+                              // UPDATED: Reduced padding from px-8 to px-5
+                              className="inline-block px-5 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px]"
+                              style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}
+                          >
+                              <div 
+                                className="flex gap-3 text-black font-['Teko'] font-bold uppercase tracking-widest leading-none items-center justify-center whitespace-nowrap"
+                                style={{ fontSize: getRibbonFontSize(details.team, details.position) }}
+                              >
+                                <span style={{
+                                  WebkitTextStroke: teamTextOpts.stroke ? `1px ${colors.secondary}` : '0px',
+                                  textShadow: teamTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none',
+                                  color: teamTextOpts.stroke ? 'transparent' : 'black'
+                                }}>
+                                  {details.team || 'TEAM'}
                                 </span>
-                            </div>
-                            <div className="relative">
-                                <h2 
-                                    className="text-6xl font-['Teko'] font-bold uppercase italic leading-none" 
-                                    style={{
-                                        color: colors.primary,
-                                        textShadow: '2px 2px 0px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000' 
-                                    }}
-                                >
-                                    {details.team || 'TEAM'}
-                                </h2>
-                            </div>
-                        </div>
-                     ) : (
-                        // IMPACT FOOTER
-                        <div 
-                            className="inline-block px-8 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px]"
-                            style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}
-                        >
-                            <div className="flex gap-3 text-black font-['Teko'] font-bold text-2xl uppercase tracking-widest leading-none">
-                            <span>{details.team || 'TEAM'}</span>
-                            <span className="opacity-50">•</span>
-                            <span>{details.position || 'POS'}</span>
-                            </div>
-                        </div>
-                     )}
-                  </div>
+                                
+                                <span className="opacity-50">•</span>
+                                
+                                <span style={{
+                                  WebkitTextStroke: posTextOpts.stroke ? `1px ${colors.secondary}` : '0px',
+                                  textShadow: posTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none',
+                                  color: posTextOpts.stroke ? 'transparent' : 'black'
+                                }}>
+                                  {details.position || 'POS'}
+                                </span>
+                              </div>
+                          </div>
+                      </div>
 
-                  {/* GROUP 3: JERSEY NUMBER (Impact Only) */}
-                  {backgroundStyle === 'impact' && (
-                    <div 
-                        className="absolute z-50 cursor-move select-none hover:scale-110 transition-transform pointer-events-auto"
-                        style={{ top: positions.impactNumber.y, left: positions.impactNumber.x }}
-                        onMouseDown={(e) => startDrag(e, 'impactNumber')}
-                        onTouchStart={(e) => startDrag(e, 'impactNumber')}
-                    >
-                        <span 
-                        className="text-8xl font-['Teko'] font-bold text-transparent transform -rotate-6 block"
-                        style={{ 
-                            WebkitTextStroke: '3px white',
-                            textShadow: `4px 4px 0 ${colors.secondary}`
-                        }}
-                        >
-                            {details.number || '00'}
-                        </span>
-                    </div>
+                      {/* GROUP 3: IMPACT NUMBER */}
+                      <div 
+                          className="absolute z-50 cursor-move select-none hover:scale-110 transition-transform pointer-events-auto"
+                          style={{ top: positions.impactNumber.y, left: positions.impactNumber.x }}
+                          onMouseDown={(e) => startDrag(e, 'impactNumber')}
+                          onTouchStart={(e) => startDrag(e, 'impactNumber')}
+                      >
+                          <span 
+                          className="text-8xl font-['Teko'] font-bold text-transparent transform -rotate-6 block"
+                          style={{ 
+                              WebkitTextStroke: '3px white',
+                              textShadow: `4px 4px 0 ${colors.secondary}`
+                          }}
+                          >
+                              {details.number || '00'}
+                          </span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* --- SPLATTER STYLE (Separated) --- */}
+                  {backgroundStyle === 'splatter' && (
+                    <>
+                      {/* SPLATTER 1: HEADER (Name) */}
+                      <div 
+                        className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                        style={{ top: positions.splatterName.y, left: positions.splatterName.x }} 
+                        onMouseDown={(e) => startDrag(e, 'splatterName')}
+                        onTouchStart={(e) => startDrag(e, 'splatterName')}
+                      >
+                        <div className="w-[92%] bg-[#1a1a1a] border-y-2 border-white/20 pt-2 pb-1 relative shadow-lg px-2 flex items-center justify-center">
+                            <div className="absolute top-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
+                            <div className="absolute bottom-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
+                            <h1 
+                              className="font-['Teko'] font-bold text-center uppercase tracking-widest leading-none relative z-10 whitespace-nowrap"
+                              style={{ 
+                                  fontSize: getNameFontSize(details.name, 2.8),
+                                  color: colors.primary,
+                                  textShadow: '0 2px 10px rgba(0,0,0,0.8)',
+                                  paddingRight: '0.1em'
+                              }} 
+                            >
+                              {details.name || 'PLAYER NAME'}
+                            </h1>
+                        </div>
+                      </div>
+
+                      {/* SPLATTER 2: POSITION / NUMBER BAR */}
+                      <div 
+                        className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                        style={{ top: positions.splatterPosNum.y, left: positions.splatterPosNum.x }}
+                        onMouseDown={(e) => startDrag(e, 'splatterPosNum')}
+                        onTouchStart={(e) => startDrag(e, 'splatterPosNum')}
+                      >
+                          <div className="bg-[#111] border-y border-white/30 h-8 relative inline-flex items-center pt-1 px-10 shadow-md">
+                              <div className="absolute left-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
+                              <div className="absolute right-0 top-0 h-full w-1" style={{background: colors.secondary}}></div>
+                              <span className="text-white font-['Teko'] text-xl tracking-[0.15em] uppercase font-bold relative z-10">
+                                  {details.position || 'POSITION'} <span className="text-gray-500 mx-2">|</span> #{details.number || '00'}
+                              </span>
+                          </div>
+                      </div>
+
+                      {/* SPLATTER 3: TEAM NAME */}
+                      <div 
+                        className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                        style={{ top: positions.splatterTeam.y, left: positions.splatterTeam.x }}
+                        onMouseDown={(e) => startDrag(e, 'splatterTeam')}
+                        onTouchStart={(e) => startDrag(e, 'splatterTeam')}
+                      >
+                          <h2 
+                              className="text-6xl font-['Teko'] font-bold uppercase italic leading-none" 
+                              style={{
+                                  color: colors.primary,
+                                  textShadow: '2px 2px 0px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000' 
+                              }}
+                          >
+                              {details.team || 'TEAM'}
+                          </h2>
+                      </div>
+                    </>
                   )}
                 </>
               ) : (
-                // --- 2. STANDARD / RADAR / TECH / CYBER (Fully Separated) ---
+                // --- B. STANDARD / RADAR / TECH / CYBER (Fully Separated) ---
                 <>
+                    {/* ... (Keep your existing standard layout code here) ... */}
                     {/* ITEM 1: TEAM NAME */}
                     <div 
                         className="absolute z-50 cursor-move select-none pointer-events-auto"
@@ -2530,7 +2541,13 @@ const OrderForm: React.FC = () => {
                     >
                         <p 
                           className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md whitespace-nowrap"
-                          style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary }}
+                          style={{ 
+                            color: backgroundStyle === 'radar' ? '#000000' : colors.primary,
+                            WebkitTextStroke: teamTextOpts.stroke ? `1px ${colors.secondary}` : '0px',
+                            filter: teamTextOpts.shadow 
+                              ? 'drop-shadow(2px 2px 2px rgba(0,0,0,0.8))' 
+                              : (backgroundStyle !== 'radar' ? 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' : 'none')
+                          }}
                         >
                           {details.team || 'TEAM NAME'}
                         </p>
@@ -2549,11 +2566,12 @@ const OrderForm: React.FC = () => {
                                 <h1 
                                     className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
                                     style={{
-                                    fontSize: getNameFontSize(details.name),
+                                    fontSize: getNameFontSize(details.name, 3.5),
                                     color: colors.primary, 
                                     WebkitTextStroke: `2px ${colors.primary}`,
                                     zIndex: 10,
-                                    filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))'
+                                    filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))',
+                                    paddingRight: '0.2em'
                                     }}
                                 >
                                     {details.name || 'PLAYER NAME'}
@@ -2562,9 +2580,10 @@ const OrderForm: React.FC = () => {
                                 <h1 
                                     className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
                                     style={{
-                                    fontSize: getNameFontSize(details.name),
+                                    fontSize: getNameFontSize(details.name, 3.5),
                                     ...chromeTextStyle,
-                                    zIndex: 20
+                                    zIndex: 20,
+                                    paddingRight: '0.2em'
                                     }}
                                 >
                                     {details.name || 'PLAYER NAME'}
@@ -2594,13 +2613,20 @@ const OrderForm: React.FC = () => {
                         onMouseDown={(e) => startDrag(e, 'stdPos')}
                         onTouchStart={(e) => startDrag(e, 'stdPos')}
                     >
-                        <div className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        <div 
+                          className="text-xs font-bold text-gray-300 uppercase tracking-wider"
+                          style={{
+                            WebkitTextStroke: posTextOpts.stroke ? `1px ${colors.secondary}` : '0px',
+                            textShadow: posTextOpts.shadow ? '2px 2px 4px rgba(0,0,0,0.9)' : 'none'
+                          }}
+                        >
                             {details.position || 'POS'}
                         </div>
                     </div>
                 </>
               )}
-{/* DRAGGABLE TEAM LOGO */}
+
+             {/* DRAGGABLE TEAM LOGO */}
               {showLogo && (
                 <div 
                   className="absolute z-50 cursor-move active:cursor-grabbing hover:brightness-110 transition-all pointer-events-auto"
@@ -2658,6 +2684,7 @@ const OrderForm: React.FC = () => {
                   )}
                 </div>
               )}
+
               {/* Border Frame Overlay */}
               {enableBorder && (
                 <BorderFrame 
