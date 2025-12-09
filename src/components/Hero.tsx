@@ -57,27 +57,35 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
         </div>
         
         <div className="lg:w-1/2 mt-12 lg:mt-0 flex justify-center perspective-1000">
-          <div className="relative w-72 h-96 rounded-xl shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-500 group">
+          {/* 
+              UPDATED DIMENSIONS: 
+              w-80 (20rem) x h-[28rem] creates an exact 2.5 x 3.5 aspect ratio.
+          */}
+          <div className="relative w-80 h-[28rem] rounded-xl shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-500 group">
              {/* Dynamic Gradient Background */}
              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} rounded-xl opacity-50`}></div>
-             <div className="absolute inset-0 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+             <div className="absolute inset-0 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex items-center justify-center">
                 
-                {/* Image */}
+                {/* 
+                    UPDATED IMAGE: 
+                    Changed 'object-cover' to 'object-contain' so the full card is always visible.
+                    Added 'bg-black' to ensure any spacing looks intentional.
+                */}
                 <img 
                   src={card.imageUrl || `https://picsum.photos/400/600?random=${card.id}`} 
                   alt="Card Sample" 
-                  className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-contain bg-black opacity-90 group-hover:scale-105 transition-transform duration-700"
                 />
                 
                 {/* Overlays (Only show if not an upload, to keep consistency with Gallery) */}
                 {card.imageType !== 'upload' && (
                     <>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                        <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="text-3xl font-['Teko'] font-bold text-white uppercase italic leading-none">{card.player}</h3>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none"></div>
+                        <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
+                        <h3 className="text-3xl font-['Teko'] font-bold text-white uppercase italic leading-none drop-shadow-md">{card.player}</h3>
                         <div className="flex justify-between items-end mt-1">
-                            <p className="text-cyan-400 font-bold uppercase tracking-wider">{card.team}</p>
-                            <span className="text-xs text-gray-400 border border-gray-600 px-1 rounded">RC</span>
+                            <p className="text-cyan-400 font-bold uppercase tracking-wider drop-shadow-md">{card.team}</p>
+                            <span className="text-xs text-gray-400 border border-gray-600 px-1 rounded bg-black/50">RC</span>
                         </div>
                         </div>
                     </>

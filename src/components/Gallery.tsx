@@ -13,7 +13,7 @@ interface GalleryProps {
 
 const COLOR_OPTIONS = [
   { name: 'Red', value: 'from-red-600 to-orange-600', dot: 'bg-red-500' },
-  { name: 'Orange', value: 'from-orange-500 to-red-500', dot: 'bg-orange-500' }, // Added Orange
+  { name: 'Orange', value: 'from-orange-500 to-red-500', dot: 'bg-orange-500' },
   { name: 'Gold', value: 'from-yellow-400 to-amber-600', dot: 'bg-yellow-400' },
   { name: 'Green', value: 'from-green-500 to-emerald-600', dot: 'bg-green-500' },
   { name: 'Cyan', value: 'from-cyan-500 to-blue-500', dot: 'bg-cyan-500' },
@@ -40,7 +40,6 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
         setUploadProgress(`Uploading ${i + 1}/${files.length}...`);
         
         try {
-          // Upload to Cloudinary
           const imageUrl = await uploadToCloudinary(file);
           
           newCards.push({
@@ -50,7 +49,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
             imageType: "upload",
             rarity: CardRarity.ONE_OF_ONE,
             gradient: "from-cyan-500 to-blue-500",
-            imageUrl: imageUrl // URL from Cloudinary
+            imageUrl: imageUrl
           });
         } catch (e) {
           console.error("Error uploading file", e);
@@ -85,7 +84,6 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
           <p className="text-gray-400">Showcase of our best custom designs. Click a card to expand.</p>
         </div>
         
-        {/* Only Admin sees the main Upload button */}
         {isAdmin && (
           <div className="flex gap-4">
             <input
@@ -121,7 +119,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center">
           {cards.map((card) => (
             <GalleryCard 
               key={card.id} 
@@ -158,7 +156,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                 <div className="absolute inset-0 [backface-visibility:hidden]">
                     <div className={`absolute -inset-2 bg-gradient-to-r ${selectedCard.gradient} rounded-3xl blur-2xl opacity-50`}></div>
                     <div className="relative w-full h-full bg-slate-800 rounded-2xl overflow-hidden border-2 border-slate-600 shadow-2xl flex flex-col">
-                        <div className="h-full relative overflow-hidden bg-slate-900 group">
+                        <div className="h-full relative overflow-hidden bg-slate-900 group flex items-center justify-center">
                             
                             {selectedCard.backImageUrl && (
                                 <button 
@@ -170,10 +168,11 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                                 </button>
                             )}
 
+                            {/* UPDATED: object-fill stretches image to fit exactly */}
                             <img 
                             src={selectedCard.imageUrl || `https://picsum.photos/800/1200?random=${selectedCard.id + 10}`} 
                             alt={selectedCard.player} 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-fill"
                             />
                             
                             <div className="absolute inset-0 card-shine opacity-30 pointer-events-none"></div>
@@ -209,13 +208,14 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                             <RefreshCw className="w-6 h-6" />
                         </button>
                         
-                        <div className="h-full w-full bg-slate-900 relative">
+                        <div className="h-full w-full bg-slate-900 relative flex items-center justify-center">
                              {selectedCard.backImageUrl ? (
                                 <div className="w-full h-full relative">
+                                    {/* UPDATED: object-fill stretches back image */}
                                     <img 
                                         src={selectedCard.backImageUrl} 
                                         alt="Card Back" 
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-fill"
                                     />
                                     <div className="absolute inset-0 card-shine opacity-10 pointer-events-none"></div>
                                 </div>
@@ -273,7 +273,7 @@ const GalleryCard: React.FC<{
 
   return (
     <div 
-      className="group relative h-[450px] cursor-pointer perspective-1000"
+      className="group relative w-full max-w-[320px] aspect-[2.5/3.5] mx-auto cursor-pointer perspective-1000"
       onClick={onExpand}
     >
       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
@@ -292,7 +292,7 @@ const GalleryCard: React.FC<{
                  </button>
               )}
               
-              {/* ADMIN CONTROLS: Upload Back & Delete */}
+              {/* ADMIN CONTROLS */}
               {isAdmin && isUpload && !hasBack && (
                   <>
                     <input 
@@ -336,11 +336,12 @@ const GalleryCard: React.FC<{
               <Maximize2 className="w-4 h-4 text-white" />
            </div>
 
-           <div className="h-full relative overflow-hidden bg-slate-900">
+           <div className="h-full relative overflow-hidden bg-slate-900 flex items-center justify-center">
+              {/* UPDATED: Gallery Front Image (Stretched) */}
               <img 
                 src={card.imageUrl || `https://picsum.photos/300/500?random=${card.id + 10}`} 
                 alt={card.player} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-fill"
               />
               
               <div className="absolute inset-0 card-shine opacity-0 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none"></div>
@@ -400,10 +401,11 @@ const GalleryCard: React.FC<{
 
                {card.backImageUrl ? (
                    <div className="w-full h-full relative">
+                       {/* UPDATED: Gallery Back Image (Stretched) */}
                        <img 
                          src={card.backImageUrl} 
                          alt="Card Back" 
-                         className="w-full h-full object-cover"
+                         className="w-full h-full object-fill"
                        />
                        <div className="absolute inset-0 card-shine opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
                    </div>
