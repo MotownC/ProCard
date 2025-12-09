@@ -109,6 +109,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
+          {/* Armor Plate Gradient */}
           <linearGradient id="brushedWhite" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#e6e6e6', stopOpacity: 1 }} />
             <stop offset="20%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
@@ -118,17 +119,52 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <stop offset="80%" style={{ stopColor: '#dcdcdc', stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: '#b0b0b0', stopOpacity: 1 }} />
           </linearGradient>
+
+          {/* Micro-Grid for White Armor */}
           <pattern id="microGrid" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
             <rect width="4" height="4" fill="none" />
             <circle cx="2" cy="2" r="0.5" fill="#000" opacity="0.4" />
           </pattern>
-          <pattern id="darkTech" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="6" fill="#111" />
-            <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
-          </pattern>
-          <pattern id="hexOverlay" x="0" y="0" width="28" height="48" patternUnits="userSpaceOnUse" patternTransform="scale(1.2)">
-             <path d="M14 0 V16 M14 16 L28 24 M14 16 L0 24 M14 48 V32 M14 32 L28 24 M14 32 L0 24" fill="none" stroke="#333" strokeWidth="2" />
-          </pattern>
+
+          {/* 
+             NEW: 3D Tile Gradient 
+             Gives each individual hexagon a "pillowed" look
+          */}
+          <radialGradient id="tileGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="40%" stopColor="#2a2a2a" />
+            <stop offset="100%" stopColor="#111" />
+          </radialGradient>
+
+          {/* 
+             NEW: Solid Honeycomb Pattern 
+             Draws filled hexagons with thick black strokes to create the "gaps"
+          */}
+          <pattern id="hex3D" x="0" y="0" width="28" height="48" patternUnits="userSpaceOnUse" patternTransform="scale(0.6)">
+   <rect width="28" height="48" fill="#000" />
+   
+   {/* Scale hexagons down slightly to create gaps */}
+   <path d="M14 0 L28 8 L28 24 L14 32 L0 24 L0 8 Z" 
+         fill="url(#tileGrad)" 
+         stroke="none" 
+         transform="translate(14, 16) scale(0.95) translate(-14, -16)" />
+   
+   <path d="M14 0 L28 8 L28 24 L14 32 L0 24 L0 8 Z" 
+         fill="url(#tileGrad)" 
+         stroke="none" 
+         transform="translate(14, 24) translate(14, 16) scale(0.95) translate(-14, -16)" />
+   
+   <path d="M14 0 L28 8 L28 24 L14 32 L0 24 L0 8 Z" 
+         fill="url(#tileGrad)" 
+         stroke="none" 
+         transform="translate(14, -24) translate(14, 16) scale(0.95) translate(-14, -16)" />
+   
+   <path d="M14 0 L28 8 L28 24 L14 32 L0 24 L0 8 Z" 
+         fill="url(#tileGrad)" 
+         stroke="none" 
+         transform="translate(-14, 24) translate(14, 16) scale(0.95) translate(-14, -16)" />
+</pattern>
+
+          {/* Filters */}
           <filter id="pipingGlow">
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
             <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -136,44 +172,64 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           <filter id="plateShadow">
              <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.5" />
           </filter>
+
+          {/* Path Definitions */}
           <path id="leftArmorPath" d="M -10,75 L 25,105 L 25,280 L 45,295 L 45,345 L 25,360 L 25,445 L -10,475 Z" />
           <path id="rightArmorPath" d="M 330,5 L 295,35 L 295,90 L 275,105 L 275,155 L 295,170 L 295,375 L 330,405 Z" />
+          
+          {/* Base Shapes */}
           <path id="topLeftBase" d="M -5,-5 H 80 V 25 H 20 V 90 H -5 Z" />
           <path id="topRightBase" d="M 325,-5 H 240 V 25 H 300 V 90 H 325 Z" />
           <path id="topCenterBase" d="M 75,-5 H 245 V 20 H 75 Z" />
-          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" /> 
+          <path id="bottomBase" d="M -5,485 H 325 V 465 L 290,455 H 30 L -5,465 Z" />
+          
+          {/* Side Fillers */}
           <rect id="leftSideFill" x="-5" y="0" width="20" height="480" />
           <rect id="rightSideFill" x="305" y="0" width="20" height="480" />
         </defs>
 
+        {/* LAYER 1: CHASSIS BASE (Now using hex3D) */}
         <g>
-            <use href="#leftSideFill" fill="url(#darkTech)" /><use href="#rightSideFill" fill="url(#darkTech)" />
-            <use href="#topLeftBase" fill="url(#darkTech)" /><use href="#topRightBase" fill="url(#darkTech)" />
-            <use href="#topCenterBase" fill="url(#darkTech)" /><use href="#bottomBase" fill="url(#darkTech)" />
-            <use href="#leftSideFill" fill="url(#hexOverlay)" /><use href="#rightSideFill" fill="url(#hexOverlay)" />
-            <use href="#topLeftBase" fill="url(#hexOverlay)" /><use href="#topRightBase" fill="url(#hexOverlay)" />
-            <use href="#topCenterBase" fill="url(#hexOverlay)" /><use href="#bottomBase" fill="url(#hexOverlay)" />
+            <use href="#leftSideFill" fill="url(#hex3D)" />
+            <use href="#rightSideFill" fill="url(#hex3D)" />
+            <use href="#topLeftBase" fill="url(#hex3D)" />
+            <use href="#topRightBase" fill="url(#hex3D)" />
+            <use href="#topCenterBase" fill="url(#hex3D)" />
+            <use href="#bottomBase" fill="url(#hex3D)" />
         </g>
 
+        {/* LAYER 2: LEFT ARMOR PLATE */}
         <g filter="url(#plateShadow)">
             <use href="#leftArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#leftArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
             <path d="M 15,115 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
-            <g fill="#222"><rect x="5" y="135" width="10" height="4" /><rect x="5" y="145" width="10" height="4" /><rect x="5" y="155" width="10" height="4" /></g>
+            <g fill="#222">
+                <rect x="5" y="135" width="10" height="4" />
+                <rect x="5" y="145" width="10" height="4" />
+                <rect x="5" y="155" width="10" height="4" />
+            </g>
         </g>
 
+        {/* LAYER 3: RIGHT ARMOR PLATE */}
         <g filter="url(#plateShadow)">
             <use href="#rightArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#rightArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
             <path d="M 305,45 L 305,85 L 285,100 L 285,160 L 305,175 L 305,360" fill="none" stroke={secondaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
-            <g fill="#222"><rect x="305" y="330" width="10" height="4" /><rect x="305" y="340" width="10" height="4" /><rect x="305" y="350" width="10" height="4" /></g>
+            <g fill="#222">
+                <rect x="305" y="330" width="10" height="4" />
+                <rect x="305" y="340" width="10" height="4" />
+                <rect x="305" y="350" width="10" height="4" />
+            </g>
         </g>
 
+        {/* LAYER 4: ACCENTS */}
         <rect x="70" y="16" width="180" height="2" fill={primaryColor} filter="url(#pipingGlow)" />
         <rect x="40" y="468" width="240" height="4" fill="#111" stroke="#333" />
         <rect x="120" y="470" width="80" height="2" fill={secondaryColor} filter="url(#pipingGlow)" />
+
         <line x1="50" y1="295" x2="50" y2="345" stroke={primaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
         <line x1="270" y1="105" x2="270" y2="155" stroke={secondaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
+
       </svg>
     );
   }
@@ -287,25 +343,22 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
     );
   }
   
-// 4. TITANIUM (REPLACES GEOMETRIC) - Thinner Top/Bottom + Gradient Pipe
+// 4. TITANIUM (REPLACES GEOMETRIC) - Angled Vents + Fixed Transparency
   if (style === 'geometric') {
     const pVars = getColorVariants(primaryColor);
 
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60 }} viewBox="0 0 320 480">
         <defs>
-          {/* Industrial Mesh Pattern */}
           <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
             <rect width="6" height="6" fill="#151515" />
             <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
           </pattern>
 
-          {/* Solid Dark Metal */}
           <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
             <rect width="10" height="10" fill="#1a1a1a" />
           </pattern>
 
-          {/* Primary Color Gradient (Snaking Effect) */}
           <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
             <stop offset="25%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
@@ -314,7 +367,6 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <stop offset="100%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
           </linearGradient>
 
-          {/* Neon Glow Filter */}
           <filter id="neonTrace">
             <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
             <feMerge>
@@ -323,36 +375,36 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             </feMerge>
           </filter>
 
-          {/* Inner Shadow for Armor Plates */}
           <filter id="armorShadow">
             <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8"/>
           </filter>
+
+          {/* THE MASK: Guarantees center is transparent */}
+          <mask id="titaniumMask">
+            <rect x="-10" y="-10" width="340" height="500" fill="white" />
+            <path 
+              d="
+                M 30,20 
+                L 290,20 L 305,35 
+                L 305,120 L 270,150 L 270,330 L 305,360 
+                L 305,445 L 290,460 
+                L 30,460 L 15,445 
+                L 15,360 L 50,330 L 50,150 L 15,120 
+                L 15,35 Z
+              " 
+              fill="black" 
+            />
+          </mask>
         </defs>
 
-        {/* 
-           LAYER 1: THE HULL (Cutout Method)
-           Thinned top/bottom bars to ~20px height
-        */}
-        <path 
-          d="
-            M -10,-10 H 330 V 490 H -10 Z 
-            M 30,20 
-            L 290,20 L 305,35 
-            L 305,120 L 270,150 L 270,330 L 305,360 
-            L 305,445 L 290,460 
-            L 30,460 L 15,445 
-            L 15,360 L 50,330 L 50,150 L 15,120 
-            L 15,35 Z
-          "
+        {/* LAYER 1: THE HULL (Masked) */}
+        <rect 
+          x="-5" y="-5" width="330" height="490" 
           fill="url(#gunmetal)" 
-          fillRule="evenodd"
-          stroke="none"
+          mask="url(#titaniumMask)" 
         />
 
-        {/* 
-           LAYER 2: THE NEON CHASSIS RAIL
-           Pushed outward to match the thinner frame
-        */}
+        {/* LAYER 2: THE NEON CHASSIS RAIL */}
         <path 
           d="
             M 30,20 
@@ -371,22 +423,28 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           filter="url(#neonTrace)"
         />
 
-        {/* 
-           LAYER 3: SIDE ARMOR CLAMPS
-           (These stay bulky to anchor the sides)
-        */}
+        {/* LAYER 3: SIDE ARMOR CLAMPS */}
         
         {/* Left Clamp Group */}
         <g filter="url(#armorShadow)">
             <path d="M -5,100 L 40,140 L 40,340 L -5,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
             <path d="M 0,160 L 25,180 L 25,300 L 0,320 Z" fill="#000" opacity="0.6" />
-            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8">
-               <line x1="5" y1="190" x2="20" y2="190" />
-               <line x1="5" y1="200" x2="20" y2="200" />
-               <line x1="5" y1="210" x2="20" y2="210" />
-               <line x1="5" y1="270" x2="20" y2="270" />
-               <line x1="5" y1="280" x2="20" y2="280" />
-               <line x1="5" y1="290" x2="20" y2="290" />
+            
+            {/* ANGLED VENTS (Secondary Color + Extra Glow) */}
+            <g stroke={secondaryColor} strokeWidth="2.5" opacity="1" strokeLinecap="round" filter="url(#neonTrace)">
+               {/* Top 3: Upper-Left to Lower-Right */}
+               <line x1="8" y1="165" x2="28" y2="175" />
+               <line x1="8" y1="175" x2="28" y2="185" />
+               <line x1="8" y1="185" x2="28" y2="195" />
+               
+               {/* Bottom 3: Lower-Left to Upper-Right */}
+               <line x1="8" y1="315" x2="28" y2="305" />
+               <line x1="8" y1="305" x2="28" y2="295" />
+               <line x1="8" y1="295" x2="28" y2="285" />
+
+              {/* Connecting vertical line */}
+               <line x1="28" y1="285" x2="28" y2="195" />
+
             </g>
         </g>
 
@@ -394,36 +452,31 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <g filter="url(#armorShadow)">
             <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
             <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
-            <g stroke={secondaryColor} strokeWidth="2" opacity="0.8">
-               <line x1="315" y1="190" x2="300" y2="190" />
-               <line x1="315" y1="200" x2="300" y2="200" />
-               <line x1="315" y1="210" x2="300" y2="210" />
-               <line x1="315" y1="270" x2="300" y2="270" />
-               <line x1="315" y1="280" x2="300" y2="280" />
-               <line x1="315" y1="290" x2="300" y2="290" />
+            
+            {/* ANGLED VENTS (Mirrored) */}
+            <g stroke={secondaryColor} strokeWidth="2.5" opacity="1" strokeLinecap="round" filter="url(#neonTrace)">
+               {/* Top 3: Upper-Right to Lower-Left */}
+               <line x1="312" y1="165" x2="292" y2="175" />
+               <line x1="312" y1="175" x2="292" y2="185" />
+               <line x1="312" y1="185" x2="292" y2="195" />
+               
+               {/* Bottom 3: Lower-Right to Upper-Left */}
+               <line x1="312" y1="315" x2="292" y2="305" />
+               <line x1="312" y1="305" x2="292" y2="295" />
+               <line x1="312" y1="295" x2="292" y2="285" />
+
+              {/* Connecting vertical line */}
+               <line x1="292" y1="285" x2="292" y2="195" />
             </g>
         </g>
 
-        {/* 
-           LAYER 4: CORNER ARMOR PLATES (Thinned)
-           Reduced height to match the new 20px top/bottom bars
-        */}
-        {/* Top Left */}
+        {/* LAYER 4: CORNER ARMOR PLATES */}
         <path d="M -5,-5 H 70 L 60,10 L 30,10 L 10,25 L 10,60 L -5,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        
-        {/* Top Right */}
         <path d="M 325,-5 H 250 L 260,10 L 290,10 L 310,25 L 310,60 L 325,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        
-        {/* Bottom Left */}
         <path d="M -5,485 H 70 L 60,470 L 30,470 L 10,455 L 10,420 L -5,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        
-        {/* Bottom Right */}
         <path d="M 325,485 H 250 L 260,470 L 290,470 L 310,455 L 310,420 L 325,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
 
-        {/* 
-           LAYER 5: INNER HAIRLINES 
-           Thin white lines for detail
-        */}
+        {/* LAYER 5: INNER HAIRLINES */}
         <path 
           d="
             M 35,25 H 285 L 300,40 V 115 L 265,145 V 335 L 300,365 V 440 L 285,455 H 35 L 20,440 V 365 L 55,335 V 145 L 20,115 V 40 Z
@@ -433,7 +486,6 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           strokeWidth="0.5"
           opacity="0.3"
         />
-
       </svg>
     );
   }
@@ -607,7 +659,7 @@ const OrderForm: React.FC = () => {
 
     // Standard / Radar / Cyber Layout (Individual Items)
     stdTeam: { x: 32, y: 360 },
-    stdName: { x: 32, y: 380 },
+    stdName: { x: 8, y: 380 },
     stdNumber: { x: 250, y: 350 },
     stdPos: { x: 32, y: 425 }
   });
@@ -722,7 +774,7 @@ const OrderForm: React.FC = () => {
       splatterPosNum: { x: 0, y: 375 },
       splatterTeam: { x: 0, y: 415 },
       stdTeam: { x: 32, y: 360 },
-      stdName: { x: 32, y: 380 },
+      stdName: { x: 8, y: 380 },
       stdNumber: { x: 250, y: 350 },
       stdPos: { x: 32, y: 425 }
     });
