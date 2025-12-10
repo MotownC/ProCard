@@ -391,11 +391,12 @@ const GalleryCard: React.FC<{
         {/* --- BACK FACE --- */}
         <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl overflow-hidden border border-slate-700 shadow-xl bg-slate-800">
             <div className="relative w-full h-full">
-               {/* Buttons - NOT flipped */}
+               {/* Expand icon - coded RIGHT so it appears LEFT when mirrored */}
                <div className="absolute top-3 right-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
                   <Maximize2 className="w-4 h-4 text-white" />
                </div>
                
+               {/* Flip icon - coded LEFT so it appears RIGHT when mirrored */}
                <div className="absolute top-2 left-2 z-30" onClick={(e) => e.stopPropagation()}>
                  <button
                      onClick={handleFlip}
@@ -406,28 +407,25 @@ const GalleryCard: React.FC<{
                  </button>
                </div>
 
-               {/* Content - flipped to display correctly */}
-               <div className="w-full h-full [transform:scaleX(-1)]">
-                 {card.backImageUrl ? (
-                     <div className="w-full h-full relative">
-                         {/* UPDATED: Gallery Back Image (Stretched) */}
-                         <img 
-                           src={card.backImageUrl} 
-                           alt="Card Back" 
-                           className="w-full h-full object-fill"
-                         />
-                         <div className="absolute inset-0 card-shine opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
-                     </div>
-                 ) : (
-                     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-gray-500 p-6 text-center">
-                         <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mb-4">
-                             <div className="font-['Teko'] text-3xl text-slate-500 font-bold">PC</div>
-                         </div>
-                         <p className="font-['Teko'] text-2xl uppercase">Official Legend</p>
-                         <p className="text-sm">ProCard Authenticated</p>
-                     </div>
-                 )}
-               </div>
+               {card.backImageUrl ? (
+                   <div className="w-full h-full relative">
+                       {/* UPDATED: Gallery Back Image (Stretched) */}
+                       <img 
+                         src={card.backImageUrl} 
+                         alt="Card Back" 
+                         className="w-full h-full object-fill"
+                       />
+                       <div className="absolute inset-0 card-shine opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
+                   </div>
+               ) : (
+                   <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-gray-500 p-6 text-center">
+                       <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                           <div className="font-['Teko'] text-3xl text-slate-500 font-bold">PC</div>
+                       </div>
+                       <p className="font-['Teko'] text-2xl uppercase">Official Legend</p>
+                       <p className="text-sm">ProCard Authenticated</p>
+                   </div>
+               )}
             </div>
         </div>
       </div>
