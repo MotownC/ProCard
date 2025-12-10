@@ -373,7 +373,6 @@ const BORDER_STYLES = [
   { id: 'classic', name: 'Classic' },
 ];
 
-// --- MAIN COMPONENT ---
 const OrderForm: React.FC = () => {
   // 1. BASIC FORM STATE
   const [details, setDetails] = useState<PlayerDetails>({
@@ -408,6 +407,7 @@ const OrderForm: React.FC = () => {
   const [logoScale, setLogoScale] = useState(1);
   const [teamTextOpts, setTeamTextOpts] = useState({ stroke: false, shadow: true });
   const [posTextOpts, setPosTextOpts] = useState({ stroke: false, shadow: false });
+  const [showPowerRating, setShowPowerRating] = useState(true);
   
   // NEW: Split State for Back Card
   const [createBackMode, setCreateBackMode] = useState(false); // Checkbox state
@@ -440,16 +440,16 @@ const OrderForm: React.FC = () => {
   });
 
   const [backPositions, setBackPositions] = useState({
-    backImage: { x: 24, y: 27 },
-    bio: { x: 30, y: 340 },
-    stats: { x: 55, y: 170 },
-    rating: { x: 205, y: 35 }
+    backImage: { x: 0, y: 0 },
+    bio: { x: 20, y: 330 },
+    stats: { x: 20, y: 170 },
+    rating: { x: 200, y: 50 }
   });
 
   const [dragTarget, setDragTarget] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-  // --- DRAG LOGIC ---
+  // --- DRAG LOGIC (Standard Math for Both Sides) ---
   useEffect(() => {
     const handleMove = (clientX: number, clientY: number) => {
       if (!dragTarget || !cardRef.current) return;
@@ -459,7 +459,7 @@ const OrderForm: React.FC = () => {
       const mouseRelX = clientX - cardRect.left;
       const mouseRelY = clientY - cardRect.top;
 
-      // Calculate new position using Standard Math
+      // Standard Math (no inversion needed because the container + backface double-rotate cancels out)
       const newX = mouseRelX - dragOffset.x;
       const newY = mouseRelY - dragOffset.y;
       
@@ -502,7 +502,6 @@ const OrderForm: React.FC = () => {
     const cardRect = cardRef.current?.getBoundingClientRect();
     if (!cardRect) return;
 
-    // Get Mouse Coordinates
     let clientX: number, clientY: number;
     if ('touches' in e) {
         clientX = e.touches[0].clientX;
@@ -512,7 +511,6 @@ const OrderForm: React.FC = () => {
         clientY = (e as React.MouseEvent).clientY;
     }
 
-    // Get current item position
     const isBackItem = ['backImage', 'bio', 'stats', 'rating'].includes(target);
     const currentItemX = isBackItem 
       ? backPositions[target as keyof typeof backPositions].x 
@@ -522,8 +520,6 @@ const OrderForm: React.FC = () => {
       ? backPositions[target as keyof typeof backPositions].y 
       : positions[target as keyof typeof positions].y;
 
-    // Calculate Offset
-    // We use STANDARD logic for both because 180(container) + 180(backface) = 360(normal)
     const mouseRelX = clientX - cardRect.left;
     const mouseRelY = clientY - cardRect.top;
 
@@ -550,11 +546,12 @@ const OrderForm: React.FC = () => {
       stdPos: { x: 32, y: 425 }
     });
     setBackPositions({
-      backImage: { x: 24, y: 27 },
-      bio: { x: 30, y: 340 },
-      stats: { x: 30, y: 170 },
-      rating: { x: 205, y: 35 }
+      backImage: { x: 0, y: 0 },
+      bio: { x: 20, y: 330 },
+      stats: { x: 20, y: 170 },
+      rating: { x: 200, y: 50 }
     });
+    setShowPowerRating(true);
     setImageScale(1);
     setBackImageScale(1);
     setLogoScale(1);
@@ -598,7 +595,7 @@ const OrderForm: React.FC = () => {
       reader.readAsDataURL(e.target.files[0]);
     }
   };
-
+  
   const handleClearLogo = () => {
     setLogoPreview(null);
     if (logoInputRef.current) logoInputRef.current.value = '';
@@ -1333,7 +1330,6 @@ const OrderForm: React.FC = () => {
       case 'classic':
         const midColor1 = getColorVariants(colors.primary).darker1;
         const midColor2 = getColorVariants(colors.secondary).lighter1;
-        
         return { 
           background: `linear-gradient(135deg, 
             ${colors.primary} 0%, 
@@ -1848,16 +1844,30 @@ const OrderForm: React.FC = () => {
                 </div>
 
                 {/* 3. Power Rating */}
-                <div>
-                    <div className="flex justify-between items-center mb-2">
-                        <label className="text-sm font-medium text-gray-300 flex items-center gap-2"><Trophy className="w-4 h-4 text-yellow-500"/> Power Rating</label>
-                        <span className="text-xl font-bold text-yellow-500">{backDetails.powerRating}</span>
+                <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <input 
+                                type="checkbox" 
+                                checked={showPowerRating} 
+                                onChange={(e) => setShowPowerRating(e.target.checked)} 
+                                className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-cyan-500 focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                            />
+                            <span className="text-sm font-medium text-gray-300 flex items-center gap-2 group-hover:text-white transition-colors">
+                                <Trophy className={`w-4 h-4 ${showPowerRating ? 'text-yellow-500' : 'text-gray-500'}`}/> 
+                                Show Power Rating
+                            </span>
+                        </label>
+                        {showPowerRating && <span className="text-xl font-bold text-yellow-500">{backDetails.powerRating}</span>}
                     </div>
-                    <input 
-                        type="range" min="0" max="99" value={backDetails.powerRating} 
-                        onChange={(e) => setBackDetails({...backDetails, powerRating: parseInt(e.target.value)})}
-                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-yellow-500"
-                    />
+                    
+                    {showPowerRating && (
+                        <input 
+                            type="range" min="0" max="99" value={backDetails.powerRating} 
+                            onChange={(e) => setBackDetails({...backDetails, powerRating: parseInt(e.target.value)})}
+                            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-yellow-500 animate-in fade-in zoom-in duration-300"
+                        />
+                    )}
                 </div>
 
                 {/* 4. Bio */}
@@ -1964,7 +1974,17 @@ const OrderForm: React.FC = () => {
              relative transition-all duration-500 w-[320px] h-[480px] perspective-1000
              ${isFullScreen ? 'scale-110 md:scale-125 lg:scale-[1.4]' : 'mx-auto'}
           `}>
-            
+            {!isFullScreen && (
+                <div 
+                    className="absolute top-3 left-3 z-[60] p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm cursor-pointer hover:bg-black/60"
+                    onClick={(e) => {
+                        e.stopPropagation(); 
+                        setIsFullScreen(true);
+                    }}
+                >
+                    <Maximize2 className="w-4 h-4 text-white" />
+                </div>
+            )}
             {/* THE FLIPPING CARD CONTAINER */}
             <div 
               ref={cardRef} 
@@ -1977,7 +1997,6 @@ const OrderForm: React.FC = () => {
             >
               
               {/* --- FRONT FACE --- */}
-              {/* CHANGE: Added conditional pointer-events to disable interaction when flipped */}
               <div className={`absolute inset-0 backface-hidden bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl ${showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}>
                   {/* CSS BACKGROUND */}
                   <div className="absolute inset-0 transition-all duration-500" style={getCssBackground()}></div>
@@ -2205,20 +2224,12 @@ const OrderForm: React.FC = () => {
 
                   {/* Border Frame Overlay */}
                   {enableBorder && <BorderFrame style={borderStyle} primaryColor={colors.primary} secondaryColor={colors.secondary} />}
-                  
-                  {/* Expand Icon */}
-                  {!isFullScreen && (
-                      <div className="absolute top-3 left-3 z-50 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
-                        <Maximize2 className="w-4 h-4 text-white" />
-                      </div>
-                  )}
               </div>
 
               {/* --- BACK FACE --- */}
-              {/* CHANGE: Added conditional pointer-events to enable interaction when flipped */}
               <div 
-              className={`absolute inset-0 backface-hidden bg-slate-900 rounded-xl overflow-hidden border-4 border-slate-600 shadow-xl ${!showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}
-              style={{ transform: 'rotateY(180deg)' }}
+                  className={`absolute inset-0 backface-hidden bg-slate-900 rounded-xl overflow-hidden border-4 border-slate-600 shadow-xl ${!showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}
+                  style={{ transform: 'rotateY(180deg)' }}
               >
                     {/* Reuse Background but Darkened */}
                     <div className="absolute inset-0" style={getCssBackground()}></div>
@@ -2242,7 +2253,7 @@ const OrderForm: React.FC = () => {
                     )}
 
                     <div 
-                      className="absolute z-30 cursor-move w-[200px] pointer-events-auto"
+                      className="absolute z-30 cursor-move w-[260px] pointer-events-auto"
                       style={{ left: backPositions.stats.x, top: backPositions.stats.y }}
                       onMouseDown={(e) => startDrag(e, 'stats')}
                       onTouchStart={(e) => startDrag(e, 'stats')}
@@ -2264,14 +2275,14 @@ const OrderForm: React.FC = () => {
                               <span>
                                   <span className="text-gray-500 mr-2">YEAR:</span> 
                                   <span className="text-white text-lg uppercase">{backDetails.year || '--'}</span>
-                              </span>                
+                              </span>
                               <span style={{ color: colors.secondary }}>{details.position}</span>
                           </div>
                       </div>
                     </div>
 
                     <div 
-                      className="absolute z-30 cursor-move w-[250px] px-2 pointer-events-auto"
+                      className="absolute z-30 cursor-move w-[260px] px-2 pointer-events-auto"
                       style={{ left: backPositions.bio.x, top: backPositions.bio.y }}
                       onMouseDown={(e) => startDrag(e, 'bio')}
                       onTouchStart={(e) => startDrag(e, 'bio')}
@@ -2281,24 +2292,26 @@ const OrderForm: React.FC = () => {
                       </p>
                     </div>
 
-                    <div 
-                      className="absolute z-30 cursor-move pointer-events-auto"
-                      style={{ left: backPositions.rating.x, top: backPositions.rating.y }}
-                      onMouseDown={(e) => startDrag(e, 'rating')}
-                      onTouchStart={(e) => startDrag(e, 'rating')}
-                    >
-                      <div className="relative w-20 h-20 flex items-center justify-center">
-                          {/* SVG Hexagon */}
-                          <svg viewBox="0 0 100 100" className="absolute w-full h-full drop-shadow-lg">
-                              <path d="M50 0 L93.3 25 L93.3 75 L50 100 L6.7 75 L6.7 25 Z" fill="#1a1a1a" stroke={colors.primary} strokeWidth="3" />
-                              <path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" fill="none" stroke={colors.secondary} strokeWidth="1" opacity="0.5" />
-                          </svg>
-                          <div className="relative z-10 text-center mt-[-5px]">
-                              <span className="block text-[10px] text-gray-400 uppercase tracking-widest leading-none">OVR</span>
-                              <span className="block text-4xl font-black text-white font-['Teko'] leading-none">{backDetails.powerRating}</span>
+                    {showPowerRating && (
+                        <div 
+                          className="absolute z-30 cursor-move pointer-events-auto"
+                          style={{ left: backPositions.rating.x, top: backPositions.rating.y }}
+                          onMouseDown={(e) => startDrag(e, 'rating')}
+                          onTouchStart={(e) => startDrag(e, 'rating')}
+                        >
+                          <div className="relative w-20 h-20 flex items-center justify-center">
+                              {/* SVG Hexagon */}
+                              <svg viewBox="0 0 100 100" className="absolute w-full h-full drop-shadow-lg">
+                                  <path d="M50 0 L93.3 25 L93.3 75 L50 100 L6.7 75 L6.7 25 Z" fill="#1a1a1a" stroke={colors.primary} strokeWidth="3" />
+                                  <path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" fill="none" stroke={colors.secondary} strokeWidth="1" opacity="0.5" />
+                              </svg>
+                              <div className="relative z-10 text-center mt-[-5px]">
+                                  <span className="block text-[10px] text-gray-400 uppercase tracking-widest leading-none">OVR</span>
+                                  <span className="block text-4xl font-black text-white font-['Teko'] leading-none">{backDetails.powerRating}</span>
+                              </div>
                           </div>
-                      </div>
-                    </div>
+                        </div>
+                    )}
                     
                     {logoPreview && (
                       <div className="absolute bottom-6 right-6 w-16 h-16 opacity-20 pointer-events-none grayscale">
@@ -2307,7 +2320,6 @@ const OrderForm: React.FC = () => {
                     )}
 
                     {enableBorder && <BorderFrame style={borderStyle} primaryColor={colors.primary} secondaryColor={colors.secondary} flipped={true} />}
-                    <div className="absolute inset-0 z-50 pointer-events-none mix-blend-overlay opacity-30 bg-gradient-to-tr from-transparent to-white"></div>
               </div>
 
             </div>
@@ -2333,7 +2345,7 @@ const OrderForm: React.FC = () => {
     </div>
     
     {/* Global Styles for 3D Transforms */}
-     <style>{`
+    <style>{`
       .perspective-1000 { perspective: 1000px; }
       .transform-style-3d { 
           transform-style: preserve-3d; 
@@ -2344,6 +2356,7 @@ const OrderForm: React.FC = () => {
           -webkit-backface-visibility: hidden; /* iOS Safari Fix */
           -webkit-transform: translate3d(0,0,0); /* iOS Hardware Accel Fix */
       }
+      .rotate-y-180 { transform: rotateY(180deg); }
     `}</style>
     </>
   );
