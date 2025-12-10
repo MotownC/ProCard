@@ -160,7 +160,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                             
                             {selectedCard.backImageUrl && (
                                 <button 
-                                    onClick={() => setIsModalFlipped(true)}
+                                    onClick={(e) => { e.stopPropagation(); setIsModalFlipped(true); }}
                                     className="absolute top-4 right-4 z-50 p-3 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full hover:bg-cyan-600 transition-colors shadow-lg"
                                     title="Flip Card"
                                 >
@@ -201,7 +201,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                     <div className={`absolute -inset-2 bg-gradient-to-r ${selectedCard.gradient} rounded-3xl blur-2xl opacity-50`}></div>
                     <div className="relative w-full h-full bg-slate-800 rounded-2xl overflow-hidden border-2 border-slate-600 shadow-2xl flex flex-col">
                         <button 
-                            onClick={() => setIsModalFlipped(false)}
+                            onClick={(e) => { e.stopPropagation(); setIsModalFlipped(false); }}
                             className="absolute top-4 right-4 z-50 p-3 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full hover:bg-cyan-600 transition-colors shadow-lg"
                             title="Flip to Front"
                         >
