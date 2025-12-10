@@ -391,7 +391,11 @@ const GalleryCard: React.FC<{
         {/* --- BACK FACE --- */}
         <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl overflow-hidden border border-slate-700 shadow-xl bg-slate-800">
             <div className="relative w-full h-full">
-               <div className="absolute top-2 left-2 z-30" onClick={(e) => e.stopPropagation()}>
+               <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
+                  <Maximize2 className="w-4 h-4 text-white" />
+               </div>
+               
+               <div className="absolute top-2 right-2 z-30" onClick={(e) => e.stopPropagation()}>
                  <button
                      onClick={handleFlip}
                      className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -399,10 +403,6 @@ const GalleryCard: React.FC<{
                    >
                      <RefreshCw className="w-4 h-4" />
                  </button>
-               </div>
-               
-               <div className="absolute top-3 right-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
-                  <Maximize2 className="w-4 h-4 text-white" />
                </div>
 
                {card.backImageUrl ? (
