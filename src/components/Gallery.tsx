@@ -390,14 +390,14 @@ const GalleryCard: React.FC<{
 
         {/* --- BACK FACE --- */}
         <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl overflow-hidden border border-slate-700 shadow-xl bg-slate-800">
-            <div className="relative w-full h-full">
-               {/* Expand icon - SAME position as front: upper left */}
-               <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
+            <div className="relative w-full h-full [transform:scaleX(-1)]">
+               {/* Expand icon - scaled back so it appears in correct position */}
+               <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none [transform:scaleX(-1)]">
                   <Maximize2 className="w-4 h-4 text-white" />
                </div>
                
-               {/* Flip icon - SAME position as front: upper right */}
-               <div className="absolute top-2 right-2 z-30" onClick={(e) => e.stopPropagation()}>
+               {/* Flip icon - scaled back so it appears in correct position */}
+               <div className="absolute top-2 right-2 z-30 [transform:scaleX(-1)]" onClick={(e) => e.stopPropagation()}>
                  <button
                      onClick={handleFlip}
                      className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
