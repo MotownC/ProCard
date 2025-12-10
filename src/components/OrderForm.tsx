@@ -1974,17 +1974,36 @@ const OrderForm: React.FC = () => {
              relative transition-all duration-500 w-[320px] h-[480px] perspective-1000
              ${isFullScreen ? 'scale-110 md:scale-125 lg:scale-[1.4]' : 'mx-auto'}
           `}>
-            {!isFullScreen && (
-                <div 
-                    className="absolute top-3 left-3 z-[60] p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm cursor-pointer hover:bg-black/60"
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        setIsFullScreen(true);
-                    }}
-                >
-                    <Maximize2 className="w-4 h-4 text-white" />
-                </div>
-            )}
+            
+            {/* --- STATIC OVERLAY ICONS (These stay fixed and do not rotate) --- */}
+            <div className="absolute inset-0 z-[60] pointer-events-none">
+                
+                {/* 1. Expand Icon (Top Left) */}
+                {!isFullScreen && (
+                    <div 
+                        className="absolute top-3 left-3 p-1.5 bg-black/40 rounded-full cursor-pointer hover:bg-black/60 pointer-events-auto backdrop-blur-sm transition-opacity"
+                        onClick={(e) => {
+                            e.stopPropagation(); 
+                            setIsFullScreen(true);
+                        }}
+                    >
+                        <Maximize2 className="w-4 h-4 text-white" />
+                    </div>
+                )}
+
+                {/* 2. Flip Icon (Top Right) - Visible if Back Card is enabled */}
+                {createBackMode && (
+                    <div 
+                        className="absolute top-3 right-3 p-1.5 bg-black/40 rounded-full cursor-pointer hover:bg-black/60 pointer-events-auto backdrop-blur-sm transition-opacity"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowBack(!showBack);
+                        }}
+                    >
+                        <RotateCcw className="w-4 h-4 text-white" />
+                    </div>
+                )}
+            </div>
             {/* THE FLIPPING CARD CONTAINER */}
             <div 
               ref={cardRef} 
