@@ -1978,7 +1978,7 @@ const OrderForm: React.FC = () => {
               
               {/* --- FRONT FACE --- */}
               {/* CHANGE: Added conditional pointer-events to disable interaction when flipped */}
-              <div className={`absolute inset-0 backface-hidden bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl ${showBack ? 'pointer-events-none' : 'pointer-events-auto'}`}>
+              <div className={`absolute inset-0 backface-hidden bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl ${showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}>
                   {/* CSS BACKGROUND */}
                   <div className="absolute inset-0 transition-all duration-500" style={getCssBackground()}></div>
 
@@ -2217,8 +2217,8 @@ const OrderForm: React.FC = () => {
               {/* --- BACK FACE --- */}
               {/* CHANGE: Added conditional pointer-events to enable interaction when flipped */}
               <div 
-                  className={`absolute inset-0 backface-hidden bg-slate-900 rounded-xl overflow-hidden border-4 border-slate-600 shadow-xl ${!showBack ? 'pointer-events-none' : 'pointer-events-auto'}`}
-                  style={{ transform: 'rotateY(180deg)' }}
+              className={`absolute inset-0 backface-hidden bg-slate-900 rounded-xl overflow-hidden border-4 border-slate-600 shadow-xl ${!showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}
+              style={{ transform: 'rotateY(180deg)' }}
               >
                     {/* Reuse Background but Darkened */}
                     <div className="absolute inset-0" style={getCssBackground()}></div>
@@ -2333,11 +2333,17 @@ const OrderForm: React.FC = () => {
     </div>
     
     {/* Global Styles for 3D Transforms */}
-    <style>{`
+     <style>{`
       .perspective-1000 { perspective: 1000px; }
-      .transform-style-3d { transform-style: preserve-3d; }
-      .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-      .rotate-y-180 { transform: rotateY(180deg); }
+      .transform-style-3d { 
+          transform-style: preserve-3d; 
+          -webkit-transform-style: preserve-3d; /* iOS Safari Fix */
+      }
+      .backface-hidden { 
+          backface-visibility: hidden; 
+          -webkit-backface-visibility: hidden; /* iOS Safari Fix */
+          -webkit-transform: translate3d(0,0,0); /* iOS Hardware Accel Fix */
+      }
     `}</style>
     </>
   );
