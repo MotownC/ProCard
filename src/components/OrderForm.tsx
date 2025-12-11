@@ -17,7 +17,13 @@ export interface BackDetails {
   weight: string;
   hometown: string;
   year: string;
+  stat5: string;
   powerRating: number;
+  heightLabel: string;
+  weightLabel: string;
+  hometownLabel: string;
+  yearLabel: string;
+  stat5Label: string;
 }
 
 // --- HELPER FUNCTIONS ---
@@ -381,7 +387,8 @@ const OrderForm: React.FC = () => {
   
   // NEW: Back of Card Details
   const [backDetails, setBackDetails] = useState<BackDetails>({
-    bio: '', height: '', weight: '', hometown: '', year: '', powerRating: 88
+    bio: '', height: '', weight: '', hometown: '', year: '', stat5: '', powerRating: 88,
+    heightLabel: 'HT', weightLabel: 'WT', hometownLabel: 'FROM', yearLabel: 'YEAR', stat5Label: 'AGE'
   });
   
   const [colors, setColors] = useState({ primary: '#22d3ee', secondary: '#a855f7' });
@@ -1848,20 +1855,24 @@ const OrderForm: React.FC = () => {
                     <h3 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2"><Scale className="w-4 h-4"/> Player Stats</h3>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="relative">
-                            <span className="absolute left-3 top-2 text-xs text-gray-500">HT</span>
-                            <input type="text" value={backDetails.height} onChange={(e) => setBackDetails({...backDetails, height: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-8 text-sm text-white" placeholder="6'2" />
+                            <input type="text" value={backDetails.heightLabel} onChange={(e) => setBackDetails({...backDetails, heightLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="HT" />
+                            <input type="text" value={backDetails.height} onChange={(e) => setBackDetails({...backDetails, height: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., 6'2" />
                         </div>
                         <div className="relative">
-                            <span className="absolute left-3 top-2 text-xs text-gray-500">WT</span>
-                            <input type="text" value={backDetails.weight} onChange={(e) => setBackDetails({...backDetails, weight: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-8 text-sm text-white" placeholder="210 lbs" />
+                            <input type="text" value={backDetails.weightLabel} onChange={(e) => setBackDetails({...backDetails, weightLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="WT" />
+                            <input type="text" value={backDetails.weight} onChange={(e) => setBackDetails({...backDetails, weight: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., 210 lbs" />
                         </div>
                         <div className="relative">
-                            <span className="absolute left-3 top-2 text-xs text-gray-500"><MapPin className="w-3 h-3"/></span>
-                            <input type="text" value={backDetails.hometown} onChange={(e) => setBackDetails({...backDetails, hometown: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-8 text-sm text-white" placeholder="Hometown" />
+                            <input type="text" value={backDetails.hometownLabel} onChange={(e) => setBackDetails({...backDetails, hometownLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="FROM" />
+                            <input type="text" value={backDetails.hometown} onChange={(e) => setBackDetails({...backDetails, hometown: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., Hometown" />
                         </div>
                         <div className="relative">
-                            <span className="absolute left-3 top-2 text-xs text-gray-500"><Calendar className="w-3 h-3"/></span>
-                            <input type="text" value={backDetails.year} onChange={(e) => setBackDetails({...backDetails, year: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-8 text-sm text-white" placeholder="Senior" />
+                            <input type="text" value={backDetails.yearLabel} onChange={(e) => setBackDetails({...backDetails, yearLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="YEAR" />
+                            <input type="text" value={backDetails.year} onChange={(e) => setBackDetails({...backDetails, year: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., Senior" />
+                        </div>
+                        <div className="relative">
+                            <input type="text" value={backDetails.stat5Label} onChange={(e) => setBackDetails({...backDetails, stat5Label: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="AGE" />
+                            <input type="text" value={backDetails.stat5} onChange={(e) => setBackDetails({...backDetails, stat5: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., 12" />
                         </div>
                     </div>
                 </div>
@@ -2319,23 +2330,24 @@ const OrderForm: React.FC = () => {
                     >
                       <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm font-['Teko'] tracking-wide">
                           <div className="border-b border-gray-700 pb-1">
-                              <span className="text-gray-500 mr-2">HT:</span> 
+                              <span className="text-gray-500 mr-2">{backDetails.heightLabel}:</span> 
                               <span className="text-white text-lg">{backDetails.height || '--'}</span>
                           </div>
                           <div className="border-b border-gray-700 pb-1">
-                              <span className="text-gray-500 mr-2">WT:</span> 
+                              <span className="text-gray-500 mr-2">{backDetails.weightLabel}:</span> 
                               <span className="text-white text-lg">{backDetails.weight || '--'}</span>
                           </div>
                           <div className="border-b border-gray-700 pb-1 col-span-2">
-                              <span className="text-gray-500 mr-2">FROM:</span> 
-                              <span className="text-white text-lg uppercase">{backDetails.hometown || 'UNKNOWN'}</span>
+                              <span className="text-gray-500 mr-2">{backDetails.hometownLabel}:</span> 
+                              <span className="text-white text-lg uppercase">{backDetails.hometown || '--'}</span>
                           </div>
-                          <div className="border-b border-gray-700 pb-1 col-span-2 flex justify-between">
-                              <span>
-                                  <span className="text-gray-500 mr-2">YEAR:</span> 
-                                  <span className="text-white text-lg uppercase">{backDetails.year || '--'}</span>
-                              </span>
-                              <span style={{ color: colors.secondary }}>{details.position}</span>
+                          <div className="border-b border-gray-700 pb-1">
+                              <span className="text-gray-500 mr-2">{backDetails.yearLabel}:</span> 
+                              <span className="text-white text-lg uppercase">{backDetails.year || '--'}</span>
+                          </div>
+                          <div className="border-b border-gray-700 pb-1">
+                              <span className="text-gray-500 mr-2">{backDetails.stat5Label}:</span> 
+                              <span className="text-white text-lg uppercase">{backDetails.stat5 || '--'}</span>
                           </div>
                       </div>
                     </div>
