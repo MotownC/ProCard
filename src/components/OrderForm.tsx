@@ -425,17 +425,17 @@ const OrderForm: React.FC = () => {
 
   // 2. POSITIONS
   const [positions, setPositions] = useState({
-    logo: { x: 250, y: 30 },
+    logo: { x: 230, y: 35 },
     image: { x: 0, y: 0 },
     groupHeader: { x: 0, y: 30 },     
     groupFooter: { x: 0, y: 400 },    
     impactNumber: { x: 250, y: 350 },
     splatterName: { x: 0, y: 30 },
     splatterPosNum: { x: 0, y: 375 },
-    splatterTeam: { x: 0, y: 415 },
+    splatterTeam: { x: 0, y: 400 },
     stdTeam: { x: 32, y: 360 },
-    stdName: { x: 8, y: 380 },
-    stdNumber: { x: 250, y: 350 },
+    stdName: { x: 29, y: 380 },
+    stdNumber: { x: 230, y: 345 },
     stdPos: { x: 32, y: 425 }
   });
 
@@ -532,17 +532,17 @@ const OrderForm: React.FC = () => {
 
   const handleResetLayout = () => {
     setPositions({
-      logo: { x: 250, y: 30 },
+      logo: { x: 230, y: 35 },
       image: { x: 0, y: 0 },
       groupHeader: { x: 0, y: 30 },     
       groupFooter: { x: 0, y: 400 },    
       impactNumber: { x: 250, y: 350 },
       splatterName: { x: 0, y: 30 },
       splatterPosNum: { x: 0, y: 375 },
-      splatterTeam: { x: 0, y: 415 },
+      splatterTeam: { x: 0, y: 400 },
       stdTeam: { x: 32, y: 360 },
-      stdName: { x: 8, y: 380 },
-      stdNumber: { x: 250, y: 350 },
+      stdName: { x: 29, y: 380 },
+      stdNumber: { x: 230, y: 345 },
       stdPos: { x: 32, y: 425 }
     });
     setBackPositions({
@@ -810,7 +810,7 @@ const OrderForm: React.FC = () => {
             }
         }
         else if (backgroundStyle === 'radar' && isForeground) {
-            const nameY = 355; 
+            const nameY = 360; 
             const nameHeight = 70;
             ctx.beginPath();
             ctx.moveTo(20, nameY); 
@@ -2126,7 +2126,7 @@ const OrderForm: React.FC = () => {
                             <div className="w-[92%] bg-[#1a1a1a] border-y-2 border-white/20 pt-2 pb-1 relative shadow-lg px-2 flex items-center justify-center">
                                 <div className="absolute top-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
                                 <div className="absolute bottom-0 left-0 w-full h-[2px]" style={{background: colors.primary}}></div>
-                                <h1 className="font-['Teko'] font-bold text-center uppercase tracking-widest leading-none relative z-10 whitespace-nowrap" style={{ fontSize: getNameFontSize(details.name, 2.8), color: colors.primary, textShadow: '0 2px 10px rgba(0,0,0,0.8)', paddingRight: '0.1em' }}>
+                                <h1 className="font-['Teko'] font-bold text-center uppercase tracking-widest leading-none relative z-10 whitespace-nowrap" style={{ fontSize: getNameFontSize(details.name, 2.3), color: colors.primary, textShadow: '0 2px 10px rgba(0,0,0,0.8)', paddingRight: '0.1em' }}>
                                   {details.name || 'PLAYER NAME'}
                                 </h1>
                             </div>
@@ -2172,24 +2172,30 @@ const OrderForm: React.FC = () => {
                             </p>
                         </div>
 
-                        <div className="absolute z-50 cursor-move select-none pointer-events-auto"
-                            style={{ top: positions.stdName.y, left: positions.stdName.x }} 
-                            onMouseDown={(e) => startDrag(e, 'stdName')}
-                            onTouchStart={(e) => startDrag(e, 'stdName')}
-                        >
-                             <div className={`border-b pb-2 mb-1 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
-                                <div className="relative">
-                                    <h1 className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
-                                        style={{ fontSize: getNameFontSize(details.name, 3.5), color: colors.primary, WebkitTextStroke: `2px ${colors.primary}`, zIndex: 10, filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))', paddingRight: '0.2em' }}>
-                                        {details.name || 'PLAYER NAME'}
-                                    </h1>
-                                    <h1 className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
-                                        style={{ fontSize: getNameFontSize(details.name, 3.5), ...chromeTextStyle, zIndex: 20, paddingRight: '0.2em' }}>
-                                        {details.name || 'PLAYER NAME'}
-                                    </h1>
-                                </div>
-                            </div>
-                        </div>
+                        <div 
+    // 1. Set your fixed width here
+    className="absolute z-50 cursor-move select-none pointer-events-auto w-[260px]"
+    style={{ top: positions.stdName.y, left: positions.stdName.x }} 
+    onMouseDown={(e) => startDrag(e, 'stdName')}
+    onTouchStart={(e) => startDrag(e, 'stdName')}
+>
+     {/* 2. Add 'flex justify-center' to center the text within the 260px box */}
+     <div className={`border-b pb-2 mb-1 flex justify-center ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
+        
+        {/* 3. Change this from 'relative' to 'relative inline-block' 
+               This makes the container stretch to fit the text exactly, fixing the gradient cutoff. */}
+        <div className="relative inline-block">
+            <h1 className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
+                style={{ fontSize: getNameFontSize(details.name, 3.1), color: colors.primary, WebkitTextStroke: `2px ${colors.primary}`, zIndex: 10, filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))', paddingRight: '0.2em' }}>
+                {details.name || 'PLAYER NAME'}
+            </h1>
+            <h1 className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
+                style={{ fontSize: getNameFontSize(details.name, 3.1), ...chromeTextStyle, zIndex: 20, paddingRight: '0.2em' }}>
+                {details.name || 'PLAYER NAME'}
+            </h1>
+        </div>
+    </div>
+</div>
 
                         <div className="absolute z-50 cursor-move select-none pointer-events-auto"
                             style={{ top: positions.stdNumber.y, left: positions.stdNumber.x }} 
