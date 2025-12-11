@@ -71,6 +71,11 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
     setIsModalFlipped(false);
   };
 
+  const openModalFlipped = (card: ShowcaseCard) => {
+    setSelectedCard(card);
+    setIsModalFlipped(true);
+  };
+
   const closeModal = () => {
     setSelectedCard(null);
     setIsModalFlipped(false);
@@ -126,6 +131,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
               card={card} 
               onRemove={() => onRemoveCard(card.id)}
               onExpand={() => openModal(card)}
+              onExpandFlipped={() => openModalFlipped(card)}
               onUpdate={onUpdateCard}
               isAdmin={isAdmin}
             />
@@ -168,6 +174,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                                 </button>
                             )}
 
+                            {/* UPDATED: object-fill stretches image to fit exactly */}
                             <img 
                             src={selectedCard.imageUrl || `https://picsum.photos/800/1200?random=${selectedCard.id + 10}`} 
                             alt={selectedCard.player} 
@@ -212,6 +219,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                         <div className="h-full w-full bg-slate-900 relative flex items-center justify-center">
                              {selectedCard.backImageUrl ? (
                                 <div className="w-full h-full relative">
+                                    {/* UPDATED: object-fill stretches back image */}
                                     <img 
                                         src={selectedCard.backImageUrl} 
                                         alt="Card Back" 
@@ -238,9 +246,10 @@ const GalleryCard: React.FC<{
   card: ShowcaseCard;
   onRemove: () => void;
   onExpand: () => void;
+  onExpandFlipped: () => void;
   onUpdate: (card: ShowcaseCard) => void;
   isAdmin: boolean;
-}> = ({ card, onRemove, onExpand, onUpdate, isAdmin }) => {
+}> = ({ card, onRemove, onExpand, onExpandFlipped, onUpdate, isAdmin }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const backInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -274,69 +283,74 @@ const GalleryCard: React.FC<{
   return (
     <div 
       className="group relative w-full max-w-[320px] aspect-[2.5/3.5] mx-auto cursor-pointer perspective-1000"
-      onClick={onExpand}
+      onClick={isFlipped ? onExpandFlipped : onExpand}
     >
       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
         
         {/* --- FRONT FACE --- */}
         <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] rounded-xl overflow-hidden border border-slate-700 shadow-xl bg-slate-800">
            
-           <div className="absolute top-2 right-2 z-30 flex gap-2" onClick={(e) => e.stopPropagation()}>
-              {hasBack && (
-                 <button
-                   onClick={handleFlip}
-                   className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                   title="Flip to Back"
-                 >
-                   <RefreshCw className="w-4 h-4" />
-                 </button>
-              )}
-              
-              {/* ADMIN CONTROLS */}
-              {isAdmin && isUpload && !hasBack && (
-                  <>
-                    <input 
-                       type="file" 
-                       ref={backInputRef} 
-                       className="hidden" 
-                       accept="image/*"
-                       onChange={handleBackUpload}
-                       onClick={(e) => e.stopPropagation()} 
-                    />
-                    <button
-                      onClick={(e) => {
-                         e.preventDefault();
-                         e.stopPropagation();
-                         backInputRef.current?.click();
-                      }}
-                      className="p-2 bg-slate-900/80 text-yellow-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Add Back Photo"
-                    >
-                      {isUploading ? <RefreshCw className="w-4 h-4 animate-spin"/> : <ImagePlus className="w-4 h-4" />}
-                    </button>
-                  </>
-              )}
-              
-              {isAdmin && (
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onRemove();
-                  }}
-                  className="p-2 bg-slate-900/80 text-gray-400 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Remove Card"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-           </div>
+           {!isFlipped && (
+             <div className="absolute top-2 right-2 z-30 flex gap-2" onClick={(e) => e.stopPropagation()}>
+                {hasBack && (
+                   <button
+                     onClick={handleFlip}
+                     className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     title="Flip to Back"
+                   >
+                     <RefreshCw className="w-4 h-4" />
+                   </button>
+                )}
+                
+                {/* ADMIN CONTROLS */}
+                {isAdmin && isUpload && !hasBack && (
+                    <>
+                      <input 
+                         type="file" 
+                         ref={backInputRef} 
+                         className="hidden" 
+                         accept="image/*"
+                         onChange={handleBackUpload}
+                         onClick={(e) => e.stopPropagation()} 
+                      />
+                      <button
+                        onClick={(e) => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           backInputRef.current?.click();
+                        }}
+                        className="p-2 bg-slate-900/80 text-yellow-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Add Back Photo"
+                      >
+                        {isUploading ? <RefreshCw className="w-4 h-4 animate-spin"/> : <ImagePlus className="w-4 h-4" />}
+                      </button>
+                    </>
+                )}
+                
+                {isAdmin && (
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onRemove();
+                    }}
+                    className="p-2 bg-slate-900/80 text-gray-400 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Remove Card"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+             </div>
+           )}
 
-           <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
-              <Maximize2 className="w-4 h-4 text-white" />
-           </div>
+           {!isFlipped && (
+             <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
+                <Maximize2 className="w-4 h-4 text-white" />
+             </div>
+           )}
 
            <div className="h-full relative overflow-hidden bg-slate-900 flex items-center justify-center">
+              {/* UPDATED: Gallery Front Image (Stretched) */}
               <img 
                 src={card.imageUrl || `https://picsum.photos/300/500?random=${card.id + 10}`} 
                 alt={card.player} 
@@ -388,17 +402,30 @@ const GalleryCard: React.FC<{
         {/* --- BACK FACE --- */}
         <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl overflow-hidden border border-slate-700 shadow-xl bg-slate-800">
             <div className="relative w-full h-full">
-               
-               {/* Expand Icon - Top Left */}
-               <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
-                  <Maximize2 className="w-4 h-4 text-white" />
+               {/* Desktop version - same as front */}
+               <div className="hidden md:block">
+                 <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
+                    <Maximize2 className="w-4 h-4 text-white" />
+                 </div>
+                 
+                 <button
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFlip(e); }}
+                     className="absolute top-2 right-2 z-30 p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     title="Flip to Front"
+                   >
+                     <RefreshCw className="w-4 h-4" />
+                 </button>
                </div>
                
-               {/* Flip Icon - Top Right */}
-               <div className="absolute top-2 right-2 z-30" onClick={(e) => e.stopPropagation()}>
+               {/* Mobile/iOS version - same as front */}
+               <div className="md:hidden">
+                 <div className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm pointer-events-none">
+                    <Maximize2 className="w-4 h-4 text-white" />
+                 </div>
+                 
                  <button
-                     onClick={handleFlip}
-                     className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFlip(e); }}
+                     className="absolute top-2 right-2 z-30 p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Front"
                    >
                      <RefreshCw className="w-4 h-4" />
