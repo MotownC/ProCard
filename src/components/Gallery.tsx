@@ -86,7 +86,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
       <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
         <div className="text-left">
           <h2 className="text-4xl font-bold text-white font-['Teko'] mb-2">HALL OF FAME</h2>
-          <p className="text-gray-400">Showcase of our best custom designs. Click a card to expand.</p>
+          <p className="text-gray-400">Showcase of our premium custom designs. Click a card to expand.</p>
         </div>
         
         {isAdmin && (

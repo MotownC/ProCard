@@ -58,23 +58,23 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
         
         <div className="lg:w-1/2 mt-12 lg:mt-0 flex justify-center perspective-1000">
           {/* 
-              UPDATED DIMENSIONS: 
-              w-80 (20rem) x h-[28rem] creates an exact 2.5 x 3.5 aspect ratio.
+              CARD DIMENSIONS: 
+              aspect-[2.5/3.5] creates exact trading card proportions (2.5" x 3.5")
+              w-80 provides appropriate size on desktop
           */}
-          <div className="relative w-80 h-[28rem] rounded-xl shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-500 group">
+          <div className="relative w-80 aspect-[2.5/3.5] rounded-xl shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-500 group">
              {/* Dynamic Gradient Background */}
              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} rounded-xl opacity-50`}></div>
              <div className="absolute inset-0 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex items-center justify-center">
                 
                 {/* 
-                    UPDATED IMAGE: 
-                    Changed 'object-cover' to 'object-contain' so the full card is always visible.
-                    Added 'bg-black' to ensure any spacing looks intentional.
+                    IMAGE: 
+                    Changed to 'object-cover' so the image fills the entire card area without black bars.
                 */}
                 <img 
                   src={card.imageUrl || `https://picsum.photos/400/600?random=${card.id}`} 
                   alt="Card Sample" 
-                  className="w-full h-full object-contain bg-black opacity-90 group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-cover bg-black opacity-90 group-hover:scale-105 transition-transform duration-700"
                 />
                 
                 {/* Overlays (Only show if not an upload, to keep consistency with Gallery) */}

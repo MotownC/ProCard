@@ -401,8 +401,12 @@ const OrderForm: React.FC = () => {
   
   // Toggles & Scales
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isBackImageProcessing, setIsBackImageProcessing] = useState(false);
   const [imageScale, setImageScale] = useState(1);
   const [backImageScale, setBackImageScale] = useState(1);
+  const [backImageCropMode, setBackImageCropMode] = useState(false);
+  const [backImageCropData, setBackImageCropData] = useState({ offsetX: 0, offsetY: 0, scale: 1 });
+  const [tempCropImage, setTempCropImage] = useState<string | null>(null);
   const [enableGlow, setEnableGlow] = useState(false); 
   const [glowOpacity, setGlowOpacity] = useState(100);
   const [glowColor, setGlowColor] = useState<'primary' | 'secondary'>('primary');
@@ -567,9 +571,13 @@ const OrderForm: React.FC = () => {
   };
 
   const processImage = async (file: File, isBack = false) => {
-    setIsProcessing(true);
-    if (!isBack) setImagePreview(null);
-    else setBackImagePreview(null);
+    if (isBack) {
+      setIsBackImageProcessing(true);
+      setBackImagePreview(null);
+    } else {
+      setIsProcessing(true);
+      setImagePreview(null);
+    }
 
     try {
       const blob = await removeBackground(file);
@@ -585,7 +593,12 @@ const OrderForm: React.FC = () => {
       };
       reader.readAsDataURL(file);
     } finally {
-      setIsProcessing(false);
+      if (isBack) {
+        setIsBackImageProcessing(false);
+        setBackImageCropMode(false);
+      } else {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -594,7 +607,15 @@ const OrderForm: React.FC = () => {
   };
   
   const handleBackImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) processImage(e.target.files[0], true);
+    if (e.target.files && e.target.files[0]) {
+      // Instead of processing immediately, store for crop editor
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTempCropImage(reader.result as string);
+        setBackImageCropMode(true);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1372,6 +1393,119 @@ const OrderForm: React.FC = () => {
 
   return (
       <>
+      {/* CROP EDITOR MODAL */}
+      {(backImageCropMode || isBackImageProcessing) && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95">
+            <h3 className="text-xl font-bold text-white font-['Teko']">{isBackImageProcessing ? 'PROCESSING' : 'POSITION HEADSHOT'}</h3>
+            
+            {isBackImageProcessing ? (
+              // Processing state
+              <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                <Loader2 className="w-12 h-12 text-cyan-500 animate-spin" />
+                <span className="text-cyan-400 font-bold">Processing Headshot...</span>
+                <span className="text-xs text-gray-500">Removing background with AI...</span>
+              </div>
+            ) : (
+              <>
+                {/* Circular Preview with Draggable Image */}
+                {tempCropImage && (
+                <div className="relative w-40 h-40 mx-auto">
+                  <div 
+                    className="absolute inset-0 rounded-full border-4 border-cyan-500 overflow-hidden bg-black shadow-lg"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <img 
+                      src={tempCropImage}
+                      alt="Crop preview"
+                      className="w-full h-full cursor-move select-none"
+                      style={{
+                        transform: `translate(${backImageCropData.offsetX}px, ${backImageCropData.offsetY}px) scale(${backImageCropData.scale})`,
+                        transformOrigin: 'center',
+                        transition: 'none',
+                        userSelect: 'none'
+                      }}
+                      onMouseDown={(e) => {
+                        const startX = e.clientX - backImageCropData.offsetX;
+                        const startY = e.clientY - backImageCropData.offsetY;
+                        
+                        const handleMouseMove = (moveEvent: MouseEvent) => {
+                          const newOffsetX = moveEvent.clientX - startX;
+                          const newOffsetY = moveEvent.clientY - startY;
+                          setBackImageCropData({
+                            ...backImageCropData,
+                            offsetX: Math.max(-80, Math.min(80, newOffsetX)),
+                            offsetY: Math.max(-80, Math.min(80, newOffsetY))
+                          });
+                        };
+                        
+                        const handleMouseUp = () => {
+                          document.removeEventListener('mousemove', handleMouseMove);
+                          document.removeEventListener('mouseup', handleMouseUp);
+                        };
+                        
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                      }}
+                    />
+                  </div>
+                </div>
+                )}
+
+                {/* Zoom Slider */}
+                {tempCropImage && (
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-400 uppercase tracking-wide">Zoom</label>
+                  <input 
+                    type="range" 
+                    min="0.5" 
+                    max="2.0" 
+                    step="0.05" 
+                    value={backImageCropData.scale}
+                    onChange={(e) => setBackImageCropData({
+                      ...backImageCropData,
+                      scale: parseFloat(e.target.value)
+                    })}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  />
+                  <div className="text-xs text-gray-500 text-right">{Math.round(backImageCropData.scale * 100)}%</div>
+                </div>
+                )}
+
+                {/* Controls */}
+                {tempCropImage && (
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBackImageCropMode(false);
+                      setTempCropImage(null);
+                      setBackImageCropData({ offsetX: 0, offsetY: 0, scale: 1 });
+                    }}
+                    className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Apply background removal to the temp image
+                      setIsBackImageProcessing(true);
+                      // Process the image through background removal
+                      processImage(backFileInputRef.current?.files?.[0] || new File([], ''), true);
+                    }}
+                    className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded transition-colors text-sm font-medium"
+                  >
+                    Done
+                  </button>
+                </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <svg width="0" height="0" className="absolute">
         <filter id="sticker-effect" x="-20%" y="-20%" width="140%" height="140%">
           <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="thick" />
@@ -1837,16 +1971,30 @@ const OrderForm: React.FC = () => {
                         <div className="w-16 h-16 bg-slate-800 rounded-full overflow-hidden flex items-center justify-center border border-slate-600">
                             {backImagePreview ? <img src={backImagePreview} className="w-full h-full object-cover" /> : <User className="text-gray-500"/>}
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 space-y-1">
                             <button type="button" onClick={() => backFileInputRef.current?.click()} className="text-sm bg-cyan-600 hover:bg-cyan-500 text-white px-3 py-1 rounded transition-colors">
-                                Upload Headshot
+                                {backImagePreview ? 'Change' : 'Upload'} Headshot
                             </button>
                             <input type="file" ref={backFileInputRef} onChange={handleBackImageChange} className="hidden" accept="image/*" />
-                            <p className="text-[10px] text-gray-500 mt-1">This appears on the back.</p>
+                            {backImagePreview && (
+                              <button type="button" onClick={() => { setBackImagePreview(null); setBackImageCropData({ offsetX: 0, offsetY: 0, scale: 1 }); }} className="text-xs bg-red-600/50 hover:bg-red-600 text-white px-2 py-0.5 rounded transition-colors ml-2">
+                                Clear
+                              </button>
+                            )}
+                            <p className="text-[10px] text-gray-500">This appears on the back.</p>
                         </div>
                     </div>
                     {backImagePreview && (
-                         <input type="range" min="0.5" max="2.0" step="0.05" value={backImageScale} onChange={(e) => setBackImageScale(parseFloat(e.target.value))} className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500" />
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase tracking-wide block mb-1">Headshot Size</label>
+                                <input type="range" min="0.5" max="2.0" step="0.05" value={backImageScale} onChange={(e) => setBackImageScale(parseFloat(e.target.value))} className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500" />
+                                <div className="text-xs text-gray-500 text-right">{Math.round(backImageScale * 100)}%</div>
+                            </div>
+                            <button type="button" onClick={() => { setTempCropImage(backImagePreview); setBackImageCropMode(true); }} className="text-xs w-full bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded transition-colors">
+                                Edit Position & Zoom
+                            </button>
+                        </div>
                     )}
                 </div>
 
@@ -1856,23 +2004,23 @@ const OrderForm: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                         <div className="relative">
                             <input type="text" value={backDetails.heightLabel} onChange={(e) => setBackDetails({...backDetails, heightLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="HT" />
-                            <input type="text" value={backDetails.height} onChange={(e) => setBackDetails({...backDetails, height: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., 6'2" />
+                            <input type="text" value={backDetails.height} onChange={(e) => setBackDetails({...backDetails, height: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g. 6'2" />
                         </div>
                         <div className="relative">
                             <input type="text" value={backDetails.weightLabel} onChange={(e) => setBackDetails({...backDetails, weightLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="WT" />
-                            <input type="text" value={backDetails.weight} onChange={(e) => setBackDetails({...backDetails, weight: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., 210 lbs" />
+                            <input type="text" value={backDetails.weight} onChange={(e) => setBackDetails({...backDetails, weight: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g. 210 lbs" />
                         </div>
                         <div className="relative">
                             <input type="text" value={backDetails.hometownLabel} onChange={(e) => setBackDetails({...backDetails, hometownLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="FROM" />
-                            <input type="text" value={backDetails.hometown} onChange={(e) => setBackDetails({...backDetails, hometown: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., Hometown" />
+                            <input type="text" value={backDetails.hometown} onChange={(e) => setBackDetails({...backDetails, hometown: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g. Hometown" />
                         </div>
                         <div className="relative">
                             <input type="text" value={backDetails.yearLabel} onChange={(e) => setBackDetails({...backDetails, yearLabel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="YEAR" />
-                            <input type="text" value={backDetails.year} onChange={(e) => setBackDetails({...backDetails, year: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., Senior" />
+                            <input type="text" value={backDetails.year} onChange={(e) => setBackDetails({...backDetails, year: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g. Senior" />
                         </div>
                         <div className="relative">
                             <input type="text" value={backDetails.stat5Label} onChange={(e) => setBackDetails({...backDetails, stat5Label: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-gray-400 mb-1" placeholder="AGE" />
-                            <input type="text" value={backDetails.stat5} onChange={(e) => setBackDetails({...backDetails, stat5: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g., 12" />
+                            <input type="text" value={backDetails.stat5} onChange={(e) => setBackDetails({...backDetails, stat5: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-white" placeholder="e.g. 17" />
                         </div>
                     </div>
                 </div>
@@ -2317,7 +2465,14 @@ const OrderForm: React.FC = () => {
                           onTouchStart={(e) => startDrag(e, 'backImage')}
                         >
                             <div className="w-32 h-32 rounded-full border-4 overflow-hidden shadow-lg" style={{ borderColor: colors.primary }}>
-                              <img src={backImagePreview} className="w-full h-full object-cover pointer-events-none select-none" />
+                              <img 
+                                src={backImagePreview} 
+                                className="w-full h-full object-cover pointer-events-none select-none" 
+                                style={{
+                                  transform: `translate(${backImageCropData.offsetX}px, ${backImageCropData.offsetY}px) scale(${backImageCropData.scale})`,
+                                  transformOrigin: 'center'
+                                }}
+                              />
                             </div>
                         </div>
                     )}

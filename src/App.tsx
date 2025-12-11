@@ -7,6 +7,11 @@ import Roadmap from './components/Roadmap';
 import { CardRarity, ShowcaseCard } from './types';
 import { subscribeToCards, saveCardToFirebase, deleteCardFromFirebase } from './utils/firebase';
 
+const getRandomCard = (cards: ShowcaseCard[]): ShowcaseCard | undefined => {
+  if (cards.length === 0) return undefined;
+  return cards[Math.floor(Math.random() * cards.length)];
+};
+
 const DEFAULT_CARDS: ShowcaseCard[] = [
   { 
     id: 0, 
@@ -83,7 +88,7 @@ const App: React.FC = () => {
       case 'home':
         return (
           <>
-            <Hero setPage={setCurrentPage} featuredCard={cards[0]} />
+            <Hero setPage={setCurrentPage} featuredCard={getRandomCard(cards)} />
             <Gallery 
               cards={cards} 
               onAddCards={handleAddCards} 
