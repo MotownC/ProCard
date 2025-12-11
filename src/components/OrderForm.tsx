@@ -441,8 +441,8 @@ const OrderForm: React.FC = () => {
 
   const [backPositions, setBackPositions] = useState({
     backImage: { x: 0, y: 0 },
-    bio: { x: 20, y: 330 },
-    stats: { x: 20, y: 170 },
+    bio: { x: 30, y: 330 },
+    stats: { x: 60, y: 170 },
     rating: { x: 200, y: 50 }
   });
 
@@ -547,8 +547,8 @@ const OrderForm: React.FC = () => {
     });
     setBackPositions({
       backImage: { x: 0, y: 0 },
-      bio: { x: 20, y: 330 },
-      stats: { x: 20, y: 170 },
+      bio: { x: 30, y: 330 },
+      stats: { x: 60, y: 170 },
       rating: { x: 200, y: 50 }
     });
     setShowPowerRating(true);
@@ -2272,7 +2272,7 @@ const OrderForm: React.FC = () => {
                     )}
 
                     <div 
-                      className="absolute z-30 cursor-move w-[260px] pointer-events-auto"
+                      className="absolute z-30 cursor-move w-[200px] pointer-events-auto"
                       style={{ left: backPositions.stats.x, top: backPositions.stats.y }}
                       onMouseDown={(e) => startDrag(e, 'stats')}
                       onTouchStart={(e) => startDrag(e, 'stats')}
@@ -2301,7 +2301,7 @@ const OrderForm: React.FC = () => {
                     </div>
 
                     <div 
-                      className="absolute z-30 cursor-move w-[260px] px-2 pointer-events-auto"
+                      className="absolute z-30 cursor-move w-[250px] px-2 pointer-events-auto"
                       style={{ left: backPositions.bio.x, top: backPositions.bio.y }}
                       onMouseDown={(e) => startDrag(e, 'bio')}
                       onTouchStart={(e) => startDrag(e, 'bio')}
