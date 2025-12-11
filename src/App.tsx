@@ -146,7 +146,6 @@ const App: React.FC = () => {
       <footer className="bg-slate-900 border-t border-slate-800 py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
           <p>&copy; 2025 ProCard Legends. Transform your game.</p>
-          <p className="mt-2">Powered by Gemini AI, Firebase & Cloudinary</p>
         </div>
       </footer>
     </div>

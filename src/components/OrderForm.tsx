@@ -405,8 +405,10 @@ const OrderForm: React.FC = () => {
   const [showLogo, setShowLogo] = useState(true);
   const [logoCropCircle, setLogoCropCircle] = useState(true);
   const [logoScale, setLogoScale] = useState(1);
-  const [teamTextOpts, setTeamTextOpts] = useState({ stroke: false, shadow: true });
+  const [teamTextOpts, setTeamTextOpts] = useState({ italic: false, shadow: true });
   const [posTextOpts, setPosTextOpts] = useState({ stroke: false, shadow: false });
+  const [numberStrokeOpts, setNumberStrokeOpts] = useState({ stroke: false });
+  const [numberGradient, setNumberGradient] = useState(false);
   const [showPowerRating, setShowPowerRating] = useState(true);
   
   // NEW: Split State for Back Card
@@ -1149,7 +1151,7 @@ const OrderForm: React.FC = () => {
                  ctx.strokeStyle = hGrad; ctx.stroke();
              }
              for(let i=0; i<35; i++) {
-                 const w = rng(15, 50); const h = rng(200, 500); const x = rng(-20, 340);
+                 const w = rng(15, 50); const x = rng(-20, 340);
                  if(Math.abs(x - 160) < 50) continue; 
                  const topY = rng(-50, 100); const bottomY = horizonY + rng(20, 100);
                  const blockGrad = ctx.createLinearGradient(x, topY, x, bottomY);
@@ -1583,6 +1585,27 @@ const OrderForm: React.FC = () => {
                     className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
                     placeholder="e.g. 23"
                     />
+                    {/* Number Stroke and Gradient Options */}
+                    <div className="flex gap-3">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input 
+                        type="checkbox"
+                        checked={numberStrokeOpts.stroke}
+                        onChange={(e) => setNumberStrokeOpts({...numberStrokeOpts, stroke: e.target.checked})}
+                        className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">Add Stroke</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input 
+                        type="checkbox"
+                        checked={numberGradient}
+                        onChange={(e) => setNumberGradient(e.target.checked)}
+                        className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">Gradient Text</span>
+                    </label>
+                    </div>
                 </div>
                 </div>
 
@@ -1602,11 +1625,11 @@ const OrderForm: React.FC = () => {
                     <label className="flex items-center gap-1.5 cursor-pointer">
                         <input 
                         type="checkbox"
-                        checked={teamTextOpts.stroke}
-                        onChange={(e) => setTeamTextOpts({...teamTextOpts, stroke: e.target.checked})}
+                        checked={teamTextOpts.italic}
+                        onChange={(e) => setTeamTextOpts({...teamTextOpts, italic: e.target.checked})}
                         className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-cyan-500 cursor-pointer"
                         />
-                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">Add Stroke</span>
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">Italics</span>
                     </label>
                     <label className="flex items-center gap-1.5 cursor-pointer">
                         <input 
@@ -2099,7 +2122,7 @@ const OrderForm: React.FC = () => {
                           >
                               <div className="inline-block px-5 py-2 border-y-4 border-r-4 border-black relative z-10 transform -rotate-2 translate-x-[-5px]" style={{ backgroundColor: colors.primary, boxShadow: '6px 6px 0px rgba(0,0,0,1)' }}>
                                   <div className="flex gap-3 text-black font-['Teko'] font-bold uppercase tracking-widest leading-none items-center justify-center whitespace-nowrap" style={{ fontSize: getRibbonFontSize(details.team, details.position) }}>
-                                    <span style={{ WebkitTextStroke: teamTextOpts.stroke ? `1px ${colors.secondary}` : '0px', textShadow: teamTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none', color: teamTextOpts.stroke ? 'transparent' : 'black' }}>{details.team || 'TEAM'}</span>
+                                    <span className={teamTextOpts.italic ? 'italic' : ''} style={{ textShadow: teamTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none', color: 'black' }}>{details.team || 'TEAM'}</span>
                                     <span className="opacity-50">•</span>
                                     <span style={{ WebkitTextStroke: posTextOpts.stroke ? `1px ${colors.secondary}` : '0px', textShadow: posTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none', color: posTextOpts.stroke ? 'transparent' : 'black' }}>{details.position || 'POS'}</span>
                                   </div>
@@ -2166,8 +2189,8 @@ const OrderForm: React.FC = () => {
                             onMouseDown={(e) => startDrag(e, 'stdTeam')}
                             onTouchStart={(e) => startDrag(e, 'stdTeam')}
                         >
-                            <p className="font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md whitespace-nowrap"
-                              style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary, WebkitTextStroke: teamTextOpts.stroke ? `1px ${colors.secondary}` : '0px', filter: teamTextOpts.shadow ? 'drop-shadow(2px 2px 2px rgba(0,0,0,0.8))' : (backgroundStyle !== 'radar' ? 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' : 'none') }}>
+                            <p className={`font-bold tracking-widest text-sm font-['Teko'] uppercase drop-shadow-md whitespace-nowrap ${teamTextOpts.italic ? 'italic' : ''}`}
+                              style={{ color: backgroundStyle === 'radar' ? '#000000' : colors.primary, filter: teamTextOpts.shadow ? 'drop-shadow(2px 2px 2px rgba(0,0,0,0.8))' : (backgroundStyle !== 'radar' ? 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' : 'none') }}>
                               {details.team || 'TEAM NAME'}
                             </p>
                         </div>
@@ -2202,7 +2225,18 @@ const OrderForm: React.FC = () => {
                             onMouseDown={(e) => startDrag(e, 'stdNumber')}
                             onTouchStart={(e) => startDrag(e, 'stdNumber')}
                         >
-                            <div className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}>
+                            <div 
+                              className={`text-5xl font-['Teko'] font-bold outline-text drop-shadow-lg ${backgroundStyle === 'radar' ? 'text-black opacity-100' : 'text-white opacity-40'}`}
+                              style={{
+                                ...(numberGradient ? {
+                                  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                                  WebkitBackgroundClip: 'text',
+                                  WebkitTextFillColor: 'transparent',
+                                  backgroundClip: 'text'
+                                } : {}),
+                                ...(numberStrokeOpts.stroke ? { WebkitTextStroke: `2px ${colors.primary}` } : {})
+                              }}
+                            >
                                 {details.number || '00'}
                             </div>
                         </div>
