@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import OrderForm from './components/OrderForm';
+import Checkout from './components/Checkout';
 import Roadmap from './components/Roadmap';
 import { CardRarity, ShowcaseCard } from './types';
 import { subscribeToCards, saveCardToFirebase, deleteCardFromFirebase } from './utils/firebase';
@@ -29,6 +30,7 @@ const DEFAULT_CARDS: ShowcaseCard[] = [
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState('home');
+  const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [cards, setCards] = useState<ShowcaseCard[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -127,7 +129,25 @@ const App: React.FC = () => {
           </div>
         );
       case 'create':
-        return <OrderForm />;
+case 'checkout':
+  return (
+    <>
+      <div style={{ display: currentPage === 'create' ? 'block' : 'none' }}>
+        <OrderForm
+          setPage={setCurrentPage}
+          setPendingOrder={setPendingOrder}
+        />
+      </div>
+
+      <div style={{ display: currentPage === 'checkout' ? 'block' : 'none' }}>
+        <Checkout
+          pendingOrder={pendingOrder}
+          setPage={setCurrentPage}
+        />
+      </div>
+    </>
+  );
+
       case 'roadmap':
         return <Roadmap />;
       default:

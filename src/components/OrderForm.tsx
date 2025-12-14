@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X, Loader2, RotateCcw, ArrowLeftRight, User, Trophy, Scale, MapPin, Calendar } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle, Layers, Maximize2, X, Loader2, RotateCcw, ArrowLeftRight, User, Trophy, Scale } from 'lucide-react';
 import { removeBackground } from '@imgly/background-removal';
+import { toPng } from 'html-to-image';
 
 // --- INTERFACES ---
 export interface PlayerDetails {
@@ -239,63 +240,189 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
   }
 
   if (style === 'geometric') {
-    const pVars = getColorVariants(primaryColor);
-    return (
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60, ...transformStyle }} viewBox="0 0 320 480">
-        <defs>
-          <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="6" fill="#151515" />
-            <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
-          </pattern>
-          <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect width="10" height="10" fill="#1a1a1a" />
-          </pattern>
-          <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
-            <stop offset="25%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: pVars.darker1, stopOpacity: 1 }} />
-            <stop offset="75%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
-          </linearGradient>
-          <filter id="neonTrace">
-            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <filter id="armorShadow">
-            <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8"/>
-          </filter>
-          <mask id="titaniumMask">
-            <rect x="-10" y="-10" width="340" height="500" fill="white" />
-            <path d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z" fill="black" />
-          </mask>
-        </defs>
-        <rect x="-5" y="-5" width="330" height="490" fill="url(#gunmetal)" mask="url(#titaniumMask)" />
-        <path d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z" fill="none" stroke="url(#neonGrad)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#neonTrace)" />
-        <g filter="url(#armorShadow)">
-            <path d="M -5,100 L 40,140 L 40,340 L -5,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-            <path d="M 0,160 L 25,180 L 25,300 L 0,320 Z" fill="#000" opacity="0.6" />
-            <g stroke={secondaryColor} strokeWidth="2.5" opacity="1" strokeLinecap="round" filter="url(#neonTrace)">
-               <line x1="8" y1="165" x2="28" y2="175" /><line x1="8" y1="175" x2="28" y2="185" /><line x1="8" y1="185" x2="28" y2="195" />
-               <line x1="8" y1="315" x2="28" y2="305" /><line x1="8" y1="305" x2="28" y2="295" /><line x1="8" y1="295" x2="28" y2="285" />
-               <line x1="28" y1="285" x2="28" y2="195" />
-            </g>
+  const pVars = getColorVariants(primaryColor);
+  const sVars = getColorVariants(secondaryColor);
+
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 60, ...transformStyle }}
+      viewBox="0 0 320 480"
+    >
+      <defs>
+        <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+          <rect width="6" height="6" fill="#151515" />
+          <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
+        </pattern>
+
+        <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+          <rect width="10" height="10" fill="#1a1a1a" />
+        </pattern>
+
+        <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor={pVars.lighter2} />
+          <stop offset="25%"  stopColor={pVars.base} />
+          <stop offset="50%"  stopColor={pVars.darker1} />
+          <stop offset="75%"  stopColor={pVars.base} />
+          <stop offset="100%" stopColor={pVars.lighter1} />
+        </linearGradient>
+
+        {/* Angled vent gradients (unchanged) */}
+        <linearGradient id="leftVentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor={sVars.darker2} stopOpacity="0.3" />
+          <stop offset="25%"  stopColor={sVars.darker1} stopOpacity="0.6" />
+          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
+          <stop offset="75%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={sVars.darker1} stopOpacity="0.4" />
+        </linearGradient>
+
+        <linearGradient id="rightVentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor={sVars.darker1} stopOpacity="0.4" />
+          <stop offset="25%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
+          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
+          <stop offset="75%"  stopColor={sVars.darker1} stopOpacity="0.6" />
+          <stop offset="100%" stopColor={sVars.darker2} stopOpacity="0.3" />
+        </linearGradient>
+
+        {/* NEW: vertical-only gradients */}
+        <linearGradient
+          id="leftVentVerticalGrad"
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          y1="195"
+          x2="0"
+          y2="285"
+        >
+          <stop offset="0%"   stopColor={sVars.darker2} stopOpacity="0.3" />
+          <stop offset="25%"  stopColor={sVars.darker1} stopOpacity="0.6" />
+          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
+          <stop offset="75%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={sVars.darker1} stopOpacity="0.4" />
+        </linearGradient>
+
+        <linearGradient
+          id="rightVentVerticalGrad"
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          y1="195"
+          x2="0"
+          y2="285"
+        >
+          <stop offset="0%"   stopColor={sVars.darker1} stopOpacity="0.4" />
+          <stop offset="25%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
+          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
+          <stop offset="75%"  stopColor={sVars.darker1} stopOpacity="0.6" />
+          <stop offset="100%" stopColor={sVars.darker2} stopOpacity="0.3" />
+        </linearGradient>
+
+        <filter id="neonTrace">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <filter id="armorShadow">
+          <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8" />
+        </filter>
+
+        <mask id="titaniumMask">
+          <rect x="-10" y="-10" width="340" height="500" fill="white" />
+          <path d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z" fill="black" />
+        </mask>
+      </defs>
+
+      <rect x="-5" y="-5" width="330" height="490" fill="url(#gunmetal)" mask="url(#titaniumMask)" />
+
+      <path
+        d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z"
+        fill="none"
+        stroke="url(#neonGrad)"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        filter="url(#neonTrace)"
+      />
+
+      {/* LEFT VENTS */}
+      <g filter="url(#armorShadow)">
+  {/* metal shell */}
+  <path
+    d="M -5,100 L 40,140 L 40,340 L -5,380 Z"
+    fill="url(#titaniumMesh)"
+    stroke="#333"
+    strokeWidth="1"
+  />
+
+  {/* dark recess (slightly lighter so glow pops) */}
+  <path
+    d="M 0,160 L 25,180 L 25,300 L 0,320 Z"
+    fill="#000"
+    opacity="0.45"
+  />
+
+  {/* angled glowing vents */}
+  <g
+    stroke="url(#leftVentGrad)"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    filter="url(#neonTrace)"
+    style={{ mixBlendMode: 'screen' }}
+  >
+    <line x1="8" y1="165" x2="28" y2="175" />
+    <line x1="8" y1="175" x2="28" y2="185" />
+    <line x1="8" y1="185" x2="28" y2="195" />
+
+    <line x1="8" y1="315" x2="28" y2="305" />
+    <line x1="8" y1="305" x2="28" y2="295" />
+    <line x1="8" y1="295" x2="28" y2="285" />
+  </g>
+
+  {/* vertical connector — NOW VISIBLE */}
+  <line
+    x1="28"
+    y1="285"
+    x2="28"
+    y2="195"
+    stroke="url(#leftVentVerticalGrad)"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    filter="url(#neonTrace)"
+    style={{ mixBlendMode: 'screen' }}
+  />
+</g>
+
+
+      {/* RIGHT VENTS */}
+      <g filter="url(#armorShadow)">
+        <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
+
+        <g stroke="url(#rightVentGrad)" strokeWidth="2.5" strokeLinecap="round" filter="url(#neonTrace)">
+          <line x1="312" y1="165" x2="292" y2="175" />
+          <line x1="312" y1="175" x2="292" y2="185" />
+          <line x1="312" y1="185" x2="292" y2="195" />
+          <line x1="312" y1="315" x2="292" y2="305" />
+          <line x1="312" y1="305" x2="292" y2="295" />
+          <line x1="312" y1="295" x2="292" y2="285" />
         </g>
-        <g filter="url(#armorShadow)">
-            <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-            <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
-            <g stroke={secondaryColor} strokeWidth="2.5" opacity="1" strokeLinecap="round" filter="url(#neonTrace)">
-               <line x1="312" y1="165" x2="292" y2="175" /><line x1="312" y1="175" x2="292" y2="185" /><line x1="312" y1="185" x2="292" y2="195" />
-               <line x1="312" y1="315" x2="292" y2="305" /><line x1="312" y1="305" x2="292" y2="295" /><line x1="312" y1="295" x2="292" y2="285" />
-               <line x1="292" y1="285" x2="292" y2="195" />
-            </g>
-        </g>
-        <path d="M -5,-5 H 70 L 60,10 L 30,10 L 10,25 L 10,60 L -5,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M 325,-5 H 250 L 260,10 L 290,10 L 310,25 L 310,60 L 325,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M -5,485 H 70 L 60,470 L 30,470 L 10,455 L 10,420 L -5,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M 325,485 H 250 L 260,470 L 290,470 L 310,455 L 310,420 L 325,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-      </svg>
-    );
-  }
+
+        <line
+          x1="292"
+          y1="285"
+          x2="292"
+          y2="195"
+          stroke="url(#rightVentVerticalGrad)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          filter="url(#neonTrace)"
+        />
+      </g>
+    </svg>
+  );
+}
+
 
   if (style === 'classic') {
     return (
@@ -379,7 +506,12 @@ const BORDER_STYLES = [
   { id: 'classic', name: 'Classic' },
 ];
 
-const OrderForm: React.FC = () => {
+interface OrderFormProps {
+  setPage?: (p: string) => void;
+  setPendingOrder?: (o: any) => void;
+}
+
+const OrderForm: React.FC<OrderFormProps> = ({ setPage, setPendingOrder }) => {
   // 1. BASIC FORM STATE
   const [details, setDetails] = useState<PlayerDetails>({
     name: '', team: '', position: '', number: '', sport: 'Athlete'
@@ -631,11 +763,149 @@ const OrderForm: React.FC = () => {
     if (logoInputRef.current) logoInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Order submitted! This would process both front and back card designs.");
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  if (!cardRef.current) {
+    alert('Preview not available');
+    return;
+  }
 
+  try {
+    const cardContainer = cardRef.current;
+    const wasShowingBack = showBack;
+    
+    console.log('Starting capture process...');
+    
+    // Helper to convert blob URL to data URL
+    const blobToDataURL = async (blobUrl: string): Promise<string> => {
+      const response = await fetch(blobUrl);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    };
+    
+    // Convert all blob images to data URLs before capture
+    const convertBlobImages = async (element: HTMLElement) => {
+      const images = element.querySelectorAll('img');
+      for (const img of Array.from(images)) {
+        if (img.src.startsWith('blob:')) {
+          try {
+            const dataUrl = await blobToDataURL(img.src);
+            img.src = dataUrl;
+          } catch (err) {
+            console.warn('Failed to convert blob image:', err);
+          }
+        }
+      }
+    };
+    
+// Helper to capture a face
+const captureFace = async (faceSelector: string, faceName: string) => {
+  console.log(`Capturing ${faceName}...`);
+  const face = cardContainer.querySelector(faceSelector) as HTMLElement;
+  if (!face) {
+    throw new Error(`${faceName} face not found`);
+  }
+
+  // Store original transform
+  const originalTransform = face.style.transform;
+  
+  // Add capturing class to disable animations
+  face.classList.add('capturing');
+  
+  // Remove the rotateY transform for back face
+  if (faceSelector.includes('back')) {
+    face.style.transform = 'rotateY(0deg)';
+    await new Promise(resolve => setTimeout(resolve, 150));
+  }
+
+  // Convert blob images to data URLs
+  await convertBlobImages(face);
+  
+  // Wait for conversion and animation to stop
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  // Capture
+  const dataUrl = await toPng(face, {
+    width: 320,
+    height: 480,
+    pixelRatio: 2.34375,
+    backgroundColor: '#1e293b',
+    cacheBust: true,
+    skipFonts: false,
+  });
+
+  console.log(`${faceName} captured successfully, data length:`, dataUrl.length);
+
+  // Restore original transform and remove capturing class
+  face.style.transform = originalTransform;
+  face.classList.remove('capturing');
+
+  return dataUrl;
+};
+
+    // --- CAPTURE FRONT ---
+    console.log('Setting to front view...');
+    setShowBack(false);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const frontDataUrl = await captureFace('[data-card-face="front"]', 'Front');
+
+    // --- CAPTURE BACK (if enabled) ---
+    let backDataUrl = '';
+    if (createBackMode) {
+      console.log('Setting to back view...');
+      setShowBack(true);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      backDataUrl = await captureFace('[data-card-face="back"]', 'Back');
+    }
+
+    console.log('Capture complete, navigating to checkout...');
+
+    // Restore original view
+    setShowBack(wasShowingBack);
+
+   // Send to checkout
+if (setPendingOrder) {
+  setPendingOrder({ 
+    frontDataUrl, 
+    backDataUrl, 
+    details, 
+    backDetails, 
+    colors,
+    // Add these metadata fields
+    backgroundStyle,
+    borderStyle,
+    showLogo,
+    enableBorder
+  });
+}
+    
+    if (setPage) {
+      setPage('checkout');
+    }
+    
+  } catch (err) {
+    console.error('Full error object:', err);
+    
+    let errorMessage = 'Unknown error occurred';
+    if (err instanceof Error) {
+      errorMessage = err.message;
+      console.error('Error stack:', err.stack);
+    } else if (typeof err === 'string') {
+      errorMessage = err;
+    } else {
+      errorMessage = 'Capture failed - check console for details';
+    }
+    
+    alert(`Failed to create order preview: ${errorMessage}`);
+  }
+};
+   
   // --- PROCEDURAL GENERATION: FRONT AND BACK ---
   useEffect(() => {
     const drawPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isForeground = false) => {
@@ -1263,15 +1533,18 @@ const OrderForm: React.FC = () => {
              }
         }
         else if (backgroundStyle === 'impact' && isForeground) {
-             ctx.fillStyle = '#111';
-             for(let i=0; i<500; i++) {
-                 const x = rng(0, 320); const y = rng(0, 480); const s = rng(0.5, 3);
-                 const dist = Math.sqrt(Math.pow(x-160,2) + Math.pow(y-200,2));
-                 if(dist < 80 && Math.random() > 0.2) continue; 
-                 if (Math.random() > 0.5) ctx.fillRect(x, y, s, s); 
-                 else { ctx.beginPath(); ctx.arc(x, y, s/2, 0, Math.PI*2); ctx.fill(); }
-             }
-        }
+     ctx.fillStyle = 'rgba(17, 17, 17, 0.3)'; // Much more transparent
+     for(let i=0; i<150; i++) { // Reduced from 500 to 150
+         const x = rng(0, 320); const y = rng(0, 480); const s = rng(0.3, 1.5); // Smaller particles
+         const dist = Math.sqrt(Math.pow(x-160,2) + Math.pow(y-200,2));
+         if(dist < 120 && Math.random() > 0.3) continue; // Larger clear area around center
+         
+         ctx.globalAlpha = rng(0.2, 0.5); // Variable transparency
+         if (Math.random() > 0.5) ctx.fillRect(x, y, s, s); 
+         else { ctx.beginPath(); ctx.arc(x, y, s/2, 0, Math.PI*2); ctx.fill(); }
+     }
+     ctx.globalAlpha = 1; // Reset alpha
+}
         else if (backgroundStyle === 'hurricane' && !isForeground) {
              const grad = ctx.createRadialGradient(160, 240, 0, 160, 240, 400);
              grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#020617');
@@ -1329,27 +1602,27 @@ const OrderForm: React.FC = () => {
 
     // 2. Draw Front Canvas (Using Shared Logic)
     if (canvasRef.current) {
-        const dpr = window.devicePixelRatio || 1;
-        canvasRef.current.width = 320 * dpr;
-        canvasRef.current.height = 480 * dpr;
-        const ctx = canvasRef.current.getContext('2d');
-        if (ctx) drawPattern(ctx, 320, 480, false);
+      const dpr = window.devicePixelRatio || 1;
+      canvasRef.current.width = 320 * dpr;
+      canvasRef.current.height = 480 * dpr;
+      const ctx = canvasRef.current.getContext('2d');
+      if (ctx) drawPattern(ctx, 320, 480, false);
     }
     // 3. Draw Front Foreground (Using Shared Logic)
     if (foregroundCanvasRef.current) {
-        const dpr = window.devicePixelRatio || 1;
-        foregroundCanvasRef.current.width = 320 * dpr;
-        foregroundCanvasRef.current.height = 480 * dpr;
-        const ctx = foregroundCanvasRef.current.getContext('2d');
-        if (ctx) drawPattern(ctx, 320, 480, true);
+      const dpr = window.devicePixelRatio || 1;
+      foregroundCanvasRef.current.width = 320 * dpr;
+      foregroundCanvasRef.current.height = 480 * dpr;
+      const ctx = foregroundCanvasRef.current.getContext('2d');
+      if (ctx) drawPattern(ctx, 320, 480, true);
     }
     // 4. Draw Back Canvas (Using Shared Logic - Reusing "false" for background pattern)
     if (backCanvasRef.current) {
-        const dpr = window.devicePixelRatio || 1;
-        backCanvasRef.current.width = 320 * dpr;
-        backCanvasRef.current.height = 480 * dpr;
-        const ctx = backCanvasRef.current.getContext('2d');
-        if (ctx) drawPattern(ctx, 320, 480, false);
+      const dpr = window.devicePixelRatio || 1;
+      backCanvasRef.current.width = 320 * dpr;
+      backCanvasRef.current.height = 480 * dpr;
+      const ctx = backCanvasRef.current.getContext('2d');
+      if (ctx) drawPattern(ctx, 320, 480, false);
     }
 
   }, [backgroundStyle, colors]); // REMOVED isFullScreen to fix "blank" glitch
@@ -1535,7 +1808,7 @@ const OrderForm: React.FC = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+           <form onSubmit={handleSubmit} className="space-y-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
             
             {/* CONDITIONAL FORM INPUTS */}
             {!showBack ? (
@@ -2188,17 +2461,16 @@ const OrderForm: React.FC = () => {
             </div>
             {/* THE FLIPPING CARD CONTAINER */}
             <div 
-              ref={cardRef} 
-              className="relative w-full h-full transition-transform duration-700 transform-style-3d"
-              style={{ transform: showBack ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
-              onClickCapture={(e) => {
-                if (isDraggingRef.current) { e.stopPropagation(); return; }
-                if (!isFullScreen) setIsFullScreen(true);
-              }}
+  ref={cardRef}
+  data-card-container="true"
+  data-card-wrapper
+  className="relative w-full h-full transition-transform duration-700 transform-style-3d"
+  style={{ transform: showBack ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+
             >
               
               {/* --- FRONT FACE --- */}
-              <div className={`absolute inset-0 backface-hidden bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl ${showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}>
+              <div data-card-face="front" className={`absolute inset-0 backface-hidden bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl ${showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}>
                   {/* CSS BACKGROUND */}
                   <div className="absolute inset-0 transition-all duration-500" style={getCssBackground()}></div>
 
@@ -2253,7 +2525,7 @@ const OrderForm: React.FC = () => {
                     <>
                       {backgroundStyle === 'impact' && (
                         <>
-                          <div className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
+                          <div className="absolute z-20 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
                             style={{ top: positions.groupHeader.y, left: positions.groupHeader.x }} 
                             onMouseDown={(e) => startDrag(e, 'groupHeader')}
                             onTouchStart={(e) => startDrag(e, 'groupHeader')}
@@ -2355,24 +2627,40 @@ const OrderForm: React.FC = () => {
                         </div>
 
                         <div 
-    // 1. Set your fixed width here
-    className="absolute z-50 cursor-move select-none pointer-events-auto w-[260px]"
-    style={{ top: positions.stdName.y, left: positions.stdName.x }} 
+    className="absolute z-50 cursor-move select-none pointer-events-auto"
+    style={{ top: positions.stdName.y, left: positions.stdName.x, width: '260px' }} 
     onMouseDown={(e) => startDrag(e, 'stdName')}
     onTouchStart={(e) => startDrag(e, 'stdName')}
 >
-     {/* 2. Add 'flex justify-center' to center the text within the 260px box */}
-     <div className={`border-b pb-2 mb-1 flex justify-center ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`}>
-        
-        {/* 3. Change this from 'relative' to 'relative inline-block' 
-               This makes the container stretch to fit the text exactly, fixing the gradient cutoff. */}
-        <div className="relative inline-block">
-            <h1 className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 w-full whitespace-nowrap"
-                style={{ fontSize: getNameFontSize(details.name, 3.1), color: colors.primary, WebkitTextStroke: `2px ${colors.primary}`, zIndex: 10, filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))', paddingRight: '0.2em' }}>
+     <div className={`border-b pb-2 mb-1 ${backgroundStyle === 'radar' ? 'border-black/20' : 'border-white/30'}`} style={{ width: '260px' }}>
+        <div className="relative" style={{ width: '260px', overflow: 'visible' }}>
+            <h1 className="font-['Teko'] font-bold leading-none italic uppercase absolute top-0 left-0 whitespace-nowrap"
+                style={{ 
+                    fontSize: getNameFontSize(details.name, 3.1), 
+                    color: colors.primary, 
+                    WebkitTextStroke: `2px ${colors.primary}`, 
+                    zIndex: 10, 
+                    filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.5))', 
+                    paddingRight: '10px',
+                    width: '260px',
+                    textAlign: 'center'
+                }}>
                 {details.name || 'PLAYER NAME'}
             </h1>
             <h1 className="font-['Teko'] font-bold leading-none italic uppercase relative whitespace-nowrap"
-                style={{ fontSize: getNameFontSize(details.name, 3.1), ...chromeTextStyle, zIndex: 20, paddingRight: '0.2em' }}>
+                style={{ 
+                    fontSize: getNameFontSize(details.name, 3.1), 
+                    background: 'linear-gradient(180deg, #FFFFFF 20%, #E0E0E0 45%, #888888 50%, #D0D0D0 55%, #F0F0F0 90%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    filter: 'drop-shadow(0 2px 0px rgba(0,0,0,0.1))',
+                    zIndex: 20, 
+                    paddingRight: '10px',
+                    width: '260px',
+                    textAlign: 'center',
+                    display: 'block'
+                }}>
                 {details.name || 'PLAYER NAME'}
             </h1>
         </div>
@@ -2446,9 +2734,10 @@ const OrderForm: React.FC = () => {
 
               {/* --- BACK FACE --- */}
               <div 
-                  className={`absolute inset-0 backface-hidden bg-slate-900 rounded-xl overflow-hidden border-4 border-slate-600 shadow-xl ${!showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}
-                  style={{ transform: 'rotateY(180deg)' }}
-              >
+  data-card-face="back"
+  className={`absolute inset-0 backface-hidden bg-slate-900 rounded-xl overflow-hidden border-4 border-slate-600 shadow-xl ${!showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}
+  style={{ transform: 'rotateY(180deg)' }}
+>
                     {/* Reuse Background but Darkened */}
                     <div className="absolute inset-0" style={getCssBackground()}></div>
                     <canvas ref={backCanvasRef} className="absolute inset-0 w-full h-full z-0"/>
@@ -2570,20 +2859,55 @@ const OrderForm: React.FC = () => {
       </div>
     </div>
     
-    {/* Global Styles for 3D Transforms */}
+{/* Global Styles for 3D Transforms */}
     <style>{`
-      .perspective-1000 { perspective: 1000px; }
-      .transform-style-3d { 
-          transform-style: preserve-3d; 
-          -webkit-transform-style: preserve-3d; /* iOS Safari Fix */
-      }
-      .backface-hidden { 
-          backface-visibility: hidden; 
-          -webkit-backface-visibility: hidden; /* iOS Safari Fix */
-          -webkit-transform: translate3d(0,0,0); /* iOS Hardware Accel Fix */
-      }
-      .rotate-y-180 { transform: rotateY(180deg); }
-    `}</style>
+  .perspective-1000 { perspective: 1000px; }
+  .transform-style-3d { 
+      transform-style: preserve-3d; 
+      -webkit-transform-style: preserve-3d;
+  }
+  .backface-hidden { 
+      backface-visibility: hidden; 
+      -webkit-backface-visibility: hidden;
+      -webkit-transform: translate3d(0,0,0);
+  }
+  .rotate-y-180 { transform: rotateY(180deg); }
+  
+  /* Card shine effect - matches Gallery */
+  .card-shine::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.05) 75%,
+      transparent 100%
+    );
+    transform: rotate(25deg);
+    animation: shine-sweep 8s ease-in-out infinite;
+    pointer-events: none;
+  }
+  
+  /* Disable shine during capture */
+  .capturing .card-shine::before {
+    display: none !important;
+  }
+  
+  @keyframes shine-sweep {
+    0% { 
+      transform: translateX(-100%) rotate(25deg); 
+    }
+    100% { 
+      transform: translateX(200%) rotate(25deg); 
+    }
+  }
+`}</style>
     </>
   );
 };
