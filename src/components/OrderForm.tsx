@@ -86,6 +86,9 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
   const transformStyle = flipped ? { transform: 'scaleX(-1)' } : {};
 
   if (style === 'tech-frame') {
+    const pVars = getColorVariants(primaryColor);
+    const sVars = getColorVariants(secondaryColor);
+    
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60, ...transformStyle }} viewBox="0 0 320 480">
         <defs>
@@ -106,11 +109,29 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <stop offset="0%" style={{ stopColor: '#444', stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: '#000', stopOpacity: 1 }} />
           </radialGradient>
+          
+          {/* Left side diagonal gradient */}
+          <linearGradient id="leftDiagonalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: pVars.darker2, stopOpacity: 0.6 }} />
+            <stop offset="25%" style={{ stopColor: pVars.darker1, stopOpacity: 0.8 }} />
+            <stop offset="50%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: pVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="100%" style={{ stopColor: pVars.darker1, stopOpacity: 0.7 }} />
+          </linearGradient>
+          
+          {/* Right side diagonal gradient */}
+          <linearGradient id="rightDiagonalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: sVars.darker1, stopOpacity: 0.7 }} />
+            <stop offset="25%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="50%" style={{ stopColor: sVars.base, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: sVars.darker1, stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker2, stopOpacity: 0.6 }} />
+          </linearGradient>
         </defs>
         <path d="M -2,-2 H 322 V 482 H -2 Z M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="url(#techCarbon)" fillRule="evenodd" stroke="none"/>
         <path d="M 20,20 L 300,20 L 305,150 L 265,240 L 305,330 L 300,460 L 20,460 L 15,330 L 55,240 L 15,150 Z" fill="none" stroke="url(#silverBevel)" strokeWidth="3"/>
-        <path d="M -2,130 L 35,240 L -2,350" fill="none" stroke={primaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
-        <path d="M 322,130 L 285,240 L 322,350" fill="none" stroke={secondaryColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
+        <path d="M -2,145 L 35,240 L -2,335" fill="none" stroke="url(#leftDiagonalGrad)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
+        <path d="M 322,145 L 285,240 L 322,335" fill="none" stroke="url(#rightDiagonalGrad)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#lineGlow)"/>
         <g transform="translate(35, 240)">
           <polygon points="-9,-15 9,-15 17,0 9,15 -9,15 -17,0" fill="url(#hexGrad)" stroke={primaryColor} strokeWidth="2"/>
           <circle cx="0" cy="0" r="4" fill={primaryColor} filter="url(#lineGlow)" />
@@ -124,6 +145,9 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
   }
   
   if (style === 'chrome-metal') {
+    const pVars = getColorVariants(primaryColor);
+    const sVars = getColorVariants(secondaryColor);
+    
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60, ...transformStyle }} viewBox="0 0 320 480">
         <defs>
@@ -158,6 +182,47 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
           <filter id="plateShadow">
              <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.5" />
           </filter>
+          
+          {/* Gradient for left armor piping - more variation */}
+          <linearGradient id="leftPipingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: pVars.darker2, stopOpacity: 0.4 }} />
+            <stop offset="15%" style={{ stopColor: pVars.base, stopOpacity: 0.7 }} />
+            <stop offset="30%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="45%" style={{ stopColor: pVars.darker1, stopOpacity: 0.6 }} />
+            <stop offset="60%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: pVars.base, stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: pVars.darker2, stopOpacity: 0.5 }} />
+          </linearGradient>
+          
+          {/* Gradient for right armor piping - more variation */}
+          <linearGradient id="rightPipingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: sVars.darker2, stopOpacity: 0.5 }} />
+            <stop offset="15%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="30%" style={{ stopColor: sVars.darker1, stopOpacity: 0.6 }} />
+            <stop offset="50%" style={{ stopColor: sVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="65%" style={{ stopColor: sVars.base, stopOpacity: 0.7 }} />
+            <stop offset="85%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.95 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker2, stopOpacity: 0.4 }} />
+          </linearGradient>
+          
+          {/* Gradient for top horizontal line */}
+          <linearGradient id="topHorizontalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: pVars.darker2, stopOpacity: 0.6 }} />
+            <stop offset="25%" style={{ stopColor: pVars.darker1, stopOpacity: 0.8 }} />
+            <stop offset="50%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: pVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="100%" style={{ stopColor: pVars.darker1, stopOpacity: 0.7 }} />
+          </linearGradient>
+          
+          {/* Gradient for bottom horizontal line */}
+          <linearGradient id="bottomHorizontalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: sVars.darker1, stopOpacity: 0.7 }} />
+            <stop offset="25%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="50%" style={{ stopColor: sVars.base, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: sVars.darker1, stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker2, stopOpacity: 0.6 }} />
+          </linearGradient>
+          
           <path id="leftArmorPath" d="M -10,75 L 25,105 L 25,280 L 45,295 L 45,345 L 25,360 L 25,445 L -10,475 Z" />
           <path id="rightArmorPath" d="M 330,5 L 295,35 L 295,90 L 275,105 L 275,155 L 295,170 L 295,375 L 330,405 Z" />
           <path id="topLeftBase" d="M -5,-5 H 80 V 25 H 20 V 90 H -5 Z" />
@@ -178,7 +243,7 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <g filter="url(#plateShadow)">
             <use href="#leftArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#leftArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
-            <path d="M 15,115 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke={primaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
+            <path d="M 15,115 L 15,275 L 35,290 L 35,350 L 15,365 L 15,420" fill="none" stroke="url(#leftPipingGrad)" strokeWidth="2" filter="url(#pipingGlow)" />
             <g fill="#222">
                 <rect x="5" y="135" width="10" height="4" />
                 <rect x="5" y="145" width="10" height="4" />
@@ -188,16 +253,16 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
         <g filter="url(#plateShadow)">
             <use href="#rightArmorPath" fill="url(#brushedWhite)" stroke="#000" strokeWidth="1" />
             <use href="#rightArmorPath" fill="url(#microGrid)" opacity="0.3" pointerEvents="none" />
-            <path d="M 305,45 L 305,85 L 285,100 L 285,160 L 305,175 L 305,360" fill="none" stroke={secondaryColor} strokeWidth="2" filter="url(#pipingGlow)" />
+            <path d="M 305,45 L 305,85 L 285,100 L 285,160 L 305,175 L 305,360" fill="none" stroke="url(#rightPipingGrad)" strokeWidth="2" filter="url(#pipingGlow)" />
             <g fill="#222">
                 <rect x="305" y="330" width="10" height="4" />
                 <rect x="305" y="340" width="10" height="4" />
                 <rect x="305" y="350" width="10" height="4" />
             </g>
         </g>
-        <rect x="70" y="16" width="180" height="2" fill={primaryColor} filter="url(#pipingGlow)" />
+        <rect x="70" y="16" width="180" height="2" fill="url(#topHorizontalGrad)" filter="url(#pipingGlow)" />
         <rect x="40" y="468" width="240" height="4" fill="#111" stroke="#333" />
-        <rect x="120" y="470" width="80" height="2" fill={secondaryColor} filter="url(#pipingGlow)" />
+        <rect x="120" y="470" width="80" height="2" fill="url(#bottomHorizontalGrad)" filter="url(#pipingGlow)" />
         <line x1="50" y1="295" x2="50" y2="345" stroke={primaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
         <line x1="270" y1="105" x2="270" y2="155" stroke={secondaryColor} strokeWidth="3" opacity="0.8" filter="url(#pipingGlow)" />
       </svg>
@@ -205,6 +270,9 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
   }
   
   if (style === 'carbon-fiber') {
+    const pVars = getColorVariants(primaryColor);
+    const sVars = getColorVariants(secondaryColor);
+    
     return (
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60, ...transformStyle }} viewBox="0 0 320 480">
         <defs>
@@ -221,207 +289,176 @@ const BorderFrame: React.FC<BorderFrameProps> = ({ style, primaryColor, secondar
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
             <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
+          
+          {/* Gradient for top/left piping path */}
+          <linearGradient id="topLeftPipingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: pVars.darker2, stopOpacity: 0.5 }} />
+            <stop offset="10%" style={{ stopColor: pVars.base, stopOpacity: 0.7 }} />
+            <stop offset="25%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="40%" style={{ stopColor: pVars.darker1, stopOpacity: 0.6 }} />
+            <stop offset="55%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="70%" style={{ stopColor: pVars.base, stopOpacity: 0.8 }} />
+            <stop offset="85%" style={{ stopColor: pVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="100%" style={{ stopColor: pVars.darker2, stopOpacity: 0.5 }} />
+          </linearGradient>
+          
+          {/* Gradient for bottom/right piping path */}
+          <linearGradient id="bottomRightPipingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: sVars.darker2, stopOpacity: 0.5 }} />
+            <stop offset="15%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.9 }} />
+            <stop offset="30%" style={{ stopColor: sVars.base, stopOpacity: 0.7 }} />
+            <stop offset="45%" style={{ stopColor: sVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="60%" style={{ stopColor: sVars.darker1, stopOpacity: 0.6 }} />
+            <stop offset="75%" style={{ stopColor: sVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="90%" style={{ stopColor: sVars.base, stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker2, stopOpacity: 0.5 }} />
+          </linearGradient>
+          
+          {/* Gradient for left vertical bar */}
+          <linearGradient id="leftVerticalBarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: pVars.darker2, stopOpacity: 0.5 }} />
+            <stop offset="30%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="70%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: pVars.darker2, stopOpacity: 0.5 }} />
+          </linearGradient>
+          
+          {/* Gradient for right vertical bar */}
+          <linearGradient id="rightVerticalBarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: sVars.darker2, stopOpacity: 0.5 }} />
+            <stop offset="30%" style={{ stopColor: sVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: sVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="70%" style={{ stopColor: sVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker2, stopOpacity: 0.5 }} />
+          </linearGradient>
         </defs>
         <path d="M -10,-10 H 330 V 490 H -10 Z M 15,25 L 80,25 L 95,10 L 225,10 L 240,25 L 305,25 L 305,100 L 295,130 L 295,350 L 305,380 L 305,455 L 240,455 L 225,470 L 95,470 L 80,455 L 15,455 L 15,380 L 25,350 L 25,130 L 15,100 Z" fill="url(#carbonWeave)" fillRule="evenodd" stroke="#000" strokeWidth="2"/>
-        <path d="M 305,25 L 240,25 L 225,10 L 95,10 L 80,25 L 15,25 L 15,100 L 25,130 L 25,350 L 15,380 L 15,455" fill="none" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" filter="url(#neonTube)"/>
-        <path d="M 15,455 L 80,455 L 95,470 L 225,470 L 240,455 L 305,455 L 305,380 L 295,350 L 295,130 L 305,100 L 305,25" fill="none" stroke={secondaryColor} strokeWidth="3" strokeLinecap="round" filter="url(#neonTube)"/>
+        <path d="M 305,25 L 240,25 L 225,10 L 95,10 L 80,25 L 15,25 L 15,100 L 25,130 L 25,350 L 15,380 L 15,455" fill="none" stroke="url(#topLeftPipingGrad)" strokeWidth="3" strokeLinecap="round" filter="url(#neonTube)"/>
+        <path d="M 15,455 L 80,455 L 95,470 L 225,470 L 240,455 L 305,455 L 305,380 L 295,350 L 295,130 L 305,100 L 305,25" fill="none" stroke="url(#bottomRightPipingGrad)" strokeWidth="3" strokeLinecap="round" filter="url(#neonTube)"/>
         <path d="M -5,90 L 35,120 L 35,360 L -5,390 Z" fill="url(#plateGrad)" stroke="#444" strokeWidth="1"/>
         <path d="M 0,130 L 20,145 L 20,335 L 0,350" fill="#111" opacity="0.6" />
-        <rect x="22" y="220" width="4" height="40" fill={primaryColor} filter="url(#neonTube)" />
+        <rect x="22" y="220" width="4" height="40" fill="url(#leftVerticalBarGrad)" filter="url(#neonTube)" />
         <path d="M 325,90 L 285,120 L 285,360 L 325,390 Z" fill="url(#plateGrad)" stroke="#444" strokeWidth="1"/>
         <path d="M 320,130 L 300,145 L 300,335 L 320,350" fill="#111" opacity="0.6" />
-        <rect x="294" y="220" width="4" height="40" fill={secondaryColor} filter="url(#neonTube)" />
-        <path d="M 15,25 L 45,25 L 35,35 L 15,35 Z" fill="#333" stroke="none" />
-        <path d="M 305,25 L 275,25 L 285,35 L 305,35 Z" fill="#333" stroke="none" />
-        <path d="M 15,455 L 45,455 L 35,445 L 15,445 Z" fill="#333" stroke="none" />
-        <path d="M 305,455 L 275,455 L 285,445 L 305,445 Z" fill="#333" stroke="none" />
+        <rect x="294" y="220" width="4" height="40" fill="url(#rightVerticalBarGrad)" filter="url(#neonTube)" />
+       <path d="M 16,26 L 48,28 L 38,38 L 18,38 Z" fill="#333" stroke="none" />
+<path d="M 306,26 L 272,28 L 282,38 L 302,38 Z" fill="#333" stroke="none" />
+<path d="M 16,454 L 48,452 L 38,442 L 18,442 Z" fill="#333" stroke="none" />
+<path d="M 306,454 L 272,452 L 282,442 L 302,442 Z" fill="#333" stroke="none" />
       </svg>
     );
   }
 
   if (style === 'geometric') {
-  const pVars = getColorVariants(primaryColor);
-  const sVars = getColorVariants(secondaryColor);
-
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 60, ...transformStyle }}
-      viewBox="0 0 320 480"
-    >
-      <defs>
-        <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
-          <rect width="6" height="6" fill="#151515" />
-          <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
-        </pattern>
-
-        <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-          <rect width="10" height="10" fill="#1a1a1a" />
-        </pattern>
-
-        <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor={pVars.lighter2} />
-          <stop offset="25%"  stopColor={pVars.base} />
-          <stop offset="50%"  stopColor={pVars.darker1} />
-          <stop offset="75%"  stopColor={pVars.base} />
-          <stop offset="100%" stopColor={pVars.lighter1} />
-        </linearGradient>
-
-        {/* Angled vent gradients (unchanged) */}
-        <linearGradient id="leftVentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor={sVars.darker2} stopOpacity="0.3" />
-          <stop offset="25%"  stopColor={sVars.darker1} stopOpacity="0.6" />
-          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
-          <stop offset="75%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
-          <stop offset="100%" stopColor={sVars.darker1} stopOpacity="0.4" />
-        </linearGradient>
-
-        <linearGradient id="rightVentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stopColor={sVars.darker1} stopOpacity="0.4" />
-          <stop offset="25%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
-          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
-          <stop offset="75%"  stopColor={sVars.darker1} stopOpacity="0.6" />
-          <stop offset="100%" stopColor={sVars.darker2} stopOpacity="0.3" />
-        </linearGradient>
-
-        {/* NEW: vertical-only gradients */}
-        <linearGradient
-          id="leftVentVerticalGrad"
-          gradientUnits="userSpaceOnUse"
-          x1="0"
-          y1="195"
-          x2="0"
-          y2="285"
-        >
-          <stop offset="0%"   stopColor={sVars.darker2} stopOpacity="0.3" />
-          <stop offset="25%"  stopColor={sVars.darker1} stopOpacity="0.6" />
-          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
-          <stop offset="75%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
-          <stop offset="100%" stopColor={sVars.darker1} stopOpacity="0.4" />
-        </linearGradient>
-
-        <linearGradient
-          id="rightVentVerticalGrad"
-          gradientUnits="userSpaceOnUse"
-          x1="0"
-          y1="195"
-          x2="0"
-          y2="285"
-        >
-          <stop offset="0%"   stopColor={sVars.darker1} stopOpacity="0.4" />
-          <stop offset="25%"  stopColor={sVars.lighter1} stopOpacity="0.8" />
-          <stop offset="50%"  stopColor={sVars.base}    stopOpacity="1" />
-          <stop offset="75%"  stopColor={sVars.darker1} stopOpacity="0.6" />
-          <stop offset="100%" stopColor={sVars.darker2} stopOpacity="0.3" />
-        </linearGradient>
-
-        <filter id="neonTrace">
-          <feGaussianBlur stdDeviation="2.5" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-
-        <filter id="armorShadow">
-          <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8" />
-        </filter>
-
-        <mask id="titaniumMask">
-          <rect x="-10" y="-10" width="340" height="500" fill="white" />
-          <path d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z" fill="black" />
-        </mask>
-      </defs>
-
-      <rect x="-5" y="-5" width="330" height="490" fill="url(#gunmetal)" mask="url(#titaniumMask)" />
-
-      <path
-        d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z"
-        fill="none"
-        stroke="url(#neonGrad)"
-        strokeWidth="4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        filter="url(#neonTrace)"
-      />
-
-      {/* LEFT VENTS */}
-      <g filter="url(#armorShadow)">
-  {/* metal shell */}
-  <path
-    d="M -5,100 L 40,140 L 40,340 L -5,380 Z"
-    fill="url(#titaniumMesh)"
-    stroke="#333"
-    strokeWidth="1"
-  />
-
-  {/* dark recess (slightly lighter so glow pops) */}
-  <path
-    d="M 0,160 L 25,180 L 25,300 L 0,320 Z"
-    fill="#000"
-    opacity="0.45"
-  />
-
-  {/* angled glowing vents */}
-  <g
-    stroke="url(#leftVentGrad)"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    filter="url(#neonTrace)"
-    style={{ mixBlendMode: 'screen' }}
-  >
-    <line x1="8" y1="165" x2="28" y2="175" />
-    <line x1="8" y1="175" x2="28" y2="185" />
-    <line x1="8" y1="185" x2="28" y2="195" />
-
-    <line x1="8" y1="315" x2="28" y2="305" />
-    <line x1="8" y1="305" x2="28" y2="295" />
-    <line x1="8" y1="295" x2="28" y2="285" />
-  </g>
-
-  {/* vertical connector — NOW VISIBLE */}
-  <line
-    x1="28"
-    y1="285"
-    x2="28"
-    y2="195"
-    stroke="url(#leftVentVerticalGrad)"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    filter="url(#neonTrace)"
-    style={{ mixBlendMode: 'screen' }}
-  />
-</g>
-
-
-      {/* RIGHT VENTS */}
-      <g filter="url(#armorShadow)">
-        <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
-        <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
-
-        <g stroke="url(#rightVentGrad)" strokeWidth="2.5" strokeLinecap="round" filter="url(#neonTrace)">
-          <line x1="312" y1="165" x2="292" y2="175" />
-          <line x1="312" y1="175" x2="292" y2="185" />
-          <line x1="312" y1="185" x2="292" y2="195" />
-          <line x1="312" y1="315" x2="292" y2="305" />
-          <line x1="312" y1="305" x2="292" y2="295" />
-          <line x1="312" y1="295" x2="292" y2="285" />
+    const pVars = getColorVariants(primaryColor);
+    const sVars = getColorVariants(secondaryColor);
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 60, ...transformStyle }} viewBox="0 0 320 480">
+        <defs>
+          <pattern id="titaniumMesh" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="6" height="6" fill="#151515" />
+            <path d="M0,6 L6,0" stroke="#222" strokeWidth="1" />
+          </pattern>
+          <pattern id="gunmetal" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <rect width="10" height="10" fill="#1a1a1a" />
+          </pattern>
+          <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: pVars.lighter2, stopOpacity: 1 }} />
+            <stop offset="25%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="50%" style={{ stopColor: pVars.darker1, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: pVars.base, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: pVars.lighter1, stopOpacity: 1 }} />
+          </linearGradient>
+          
+          {/* Gradient for left vent horizontal lines */}
+          <linearGradient id="leftVentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: sVars.darker2, stopOpacity: 0.3 }} />
+            <stop offset="25%" style={{ stopColor: sVars.darker1, stopOpacity: 0.6 }} />
+            <stop offset="50%" style={{ stopColor: sVars.base, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker1, stopOpacity: 0.4 }} />
+          </linearGradient>
+          
+          {/* Gradient for left vertical connector */}
+          <linearGradient id="leftVerticalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: sVars.darker1, stopOpacity: 0.4 }} />
+            <stop offset="30%" style={{ stopColor: sVars.base, stopOpacity: 0.9 }} />
+            <stop offset="50%" style={{ stopColor: sVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="70%" style={{ stopColor: sVars.base, stopOpacity: 0.9 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker1, stopOpacity: 0.4 }} />
+          </linearGradient>
+          
+          {/* Gradient for right vent horizontal lines */}
+          <linearGradient id="rightVentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: sVars.darker1, stopOpacity: 0.4 }} />
+            <stop offset="25%" style={{ stopColor: sVars.lighter1, stopOpacity: 0.8 }} />
+            <stop offset="50%" style={{ stopColor: sVars.base, stopOpacity: 1 }} />
+            <stop offset="75%" style={{ stopColor: sVars.darker1, stopOpacity: 0.6 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker2, stopOpacity: 0.3 }} />
+          </linearGradient>
+          
+          {/* Gradient for right vertical connector */}
+          <linearGradient id="rightVerticalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: sVars.darker1, stopOpacity: 0.4 }} />
+            <stop offset="30%" style={{ stopColor: sVars.base, stopOpacity: 0.9 }} />
+            <stop offset="50%" style={{ stopColor: sVars.lighter1, stopOpacity: 1 }} />
+            <stop offset="70%" style={{ stopColor: sVars.base, stopOpacity: 0.9 }} />
+            <stop offset="100%" style={{ stopColor: sVars.darker1, stopOpacity: 0.4 }} />
+          </linearGradient>
+          
+          <filter id="neonTrace">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="armorShadow">
+            <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.8"/>
+          </filter>
+          <mask id="titaniumMask">
+            <rect x="-10" y="-10" width="340" height="500" fill="white" />
+            <path d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z" fill="black" />
+          </mask>
+        </defs>
+        <rect x="-5" y="-5" width="330" height="490" fill="url(#gunmetal)" mask="url(#titaniumMask)" />
+        <path d="M 30,20 L 290,20 L 305,35 L 305,120 L 270,150 L 270,330 L 305,360 L 305,445 L 290,460 L 30,460 L 15,445 L 15,360 L 50,330 L 50,150 L 15,120 L 15,35 Z" fill="none" stroke="url(#neonGrad)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#neonTrace)" />
+        <g filter="url(#armorShadow)">
+            <path d="M -5,100 L 40,140 L 40,340 L -5,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+            <path d="M 0,160 L 25,180 L 25,300 L 0,320 Z" fill="#000" opacity="0.6" />
+            <g strokeLinecap="round" filter="url(#neonTrace)">
+               {/* Top horizontal lines */}
+               <line x1="8" y1="165" x2="28" y2="175" stroke="url(#leftVentGrad)" strokeWidth="2.5" />
+               <line x1="8" y1="175" x2="28" y2="185" stroke="url(#leftVentGrad)" strokeWidth="2.5" />
+               <line x1="8" y1="185" x2="28" y2="195" stroke="url(#leftVentGrad)" strokeWidth="2.5" />
+               {/* Bottom horizontal lines */}
+               <line x1="8" y1="315" x2="28" y2="305" stroke="url(#leftVentGrad)" strokeWidth="2.5" />
+               <line x1="8" y1="305" x2="28" y2="295" stroke="url(#leftVentGrad)" strokeWidth="2.5" />
+               <line x1="8" y1="295" x2="28" y2="285" stroke="url(#leftVentGrad)" strokeWidth="2.5" />
+               {/* Vertical connector with its own gradient */}
+               <line x1="28" y1="285" x2="28" y2="195" stroke={sVars.base} strokeWidth="1.5" />
+            </g>
         </g>
-
-        <line
-          x1="292"
-          y1="285"
-          x2="292"
-          y2="195"
-          stroke="url(#rightVentVerticalGrad)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          filter="url(#neonTrace)"
-        />
-      </g>
-    </svg>
-  );
-}
+        <g filter="url(#armorShadow)">
+            <path d="M 325,100 L 280,140 L 280,340 L 325,380 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+            <path d="M 320,160 L 295,180 L 295,300 L 320,320 Z" fill="#000" opacity="0.6" />
+            <g strokeLinecap="round" filter="url(#neonTrace)">
+               {/* Top horizontal lines */}
+               <line x1="312" y1="165" x2="292" y2="175" stroke="url(#rightVentGrad)" strokeWidth="2.5" />
+               <line x1="312" y1="175" x2="292" y2="185" stroke="url(#rightVentGrad)" strokeWidth="2.5" />
+               <line x1="312" y1="185" x2="292" y2="195" stroke="url(#rightVentGrad)" strokeWidth="2.5" />
+               {/* Bottom horizontal lines */}
+               <line x1="312" y1="315" x2="292" y2="305" stroke="url(#rightVentGrad)" strokeWidth="2.5" />
+               <line x1="312" y1="305" x2="292" y2="295" stroke="url(#rightVentGrad)" strokeWidth="2.5" />
+               <line x1="312" y1="295" x2="292" y2="285" stroke="url(#rightVentGrad)" strokeWidth="2.5" />
+               {/* Vertical connector with its own gradient */}
+               <line x1="292" y1="285" x2="292" y2="195" stroke={sVars.base} strokeWidth="1.5" />
+            </g>
+        </g>
+        <path d="M -5,-5 H 70 L 60,10 L 30,10 L 10,25 L 10,60 L -5,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M 325,-5 H 250 L 260,10 L 290,10 L 310,25 L 310,60 L 325,75 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M -5,485 H 70 L 60,470 L 30,470 L 10,455 L 10,420 L -5,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+        <path d="M 325,485 H 250 L 260,470 L 290,470 L 310,455 L 310,420 L 325,405 Z" fill="url(#titaniumMesh)" stroke="#333" strokeWidth="1" />
+      </svg>
+    );
+  }
 
 
   if (style === 'classic') {
@@ -909,7 +946,7 @@ if (setPendingOrder) {
   // --- PROCEDURAL GENERATION: FRONT AND BACK ---
   useEffect(() => {
     const drawPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isForeground = false) => {
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = 1;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, width, height);
         ctx.scale(dpr, dpr);
@@ -1602,7 +1639,7 @@ if (setPendingOrder) {
 
     // 2. Draw Front Canvas (Using Shared Logic)
     if (canvasRef.current) {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = 1;
       canvasRef.current.width = 320 * dpr;
       canvasRef.current.height = 480 * dpr;
       const ctx = canvasRef.current.getContext('2d');
@@ -1610,7 +1647,7 @@ if (setPendingOrder) {
     }
     // 3. Draw Front Foreground (Using Shared Logic)
     if (foregroundCanvasRef.current) {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = 1;
       foregroundCanvasRef.current.width = 320 * dpr;
       foregroundCanvasRef.current.height = 480 * dpr;
       const ctx = foregroundCanvasRef.current.getContext('2d');
@@ -1618,7 +1655,7 @@ if (setPendingOrder) {
     }
     // 4. Draw Back Canvas (Using Shared Logic - Reusing "false" for background pattern)
     if (backCanvasRef.current) {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = 1;
       backCanvasRef.current.width = 320 * dpr;
       backCanvasRef.current.height = 480 * dpr;
       const ctx = backCanvasRef.current.getContext('2d');
@@ -2555,7 +2592,7 @@ if (setPendingOrder) {
                                   <div className="flex gap-3 text-black font-['Teko'] font-bold uppercase tracking-widest leading-none items-center justify-center whitespace-nowrap" style={{ fontSize: getRibbonFontSize(details.team, details.position) }}>
                                     <span className={teamTextOpts.italic ? 'italic' : ''} style={{ textShadow: teamTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none', color: 'black' }}>{details.team || 'TEAM'}</span>
                                     <span className="opacity-50">•</span>
-                                    <span style={{ WebkitTextStroke: posTextOpts.stroke ? `1px ${colors.secondary}` : '0px', textShadow: posTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none', color: posTextOpts.stroke ? 'transparent' : 'black' }}>{details.position || 'POS'}</span>
+                                    <span style={{ WebkitTextStroke: posTextOpts.stroke ? `0.5px ${colors.secondary}` : '0px', textShadow: posTextOpts.shadow ? '2px 2px 2px rgba(0,0,0,0.5)' : 'none', color: posTextOpts.stroke ? 'transparent' : 'black' }}>{details.position || 'POS'}</span>
                                   </div>
                               </div>
                           </div>
