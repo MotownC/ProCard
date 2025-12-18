@@ -595,6 +595,9 @@ const OrderForm: React.FC<OrderFormProps> = ({ setPage, setPendingOrder }) => {
   const [createBackMode, setCreateBackMode] = useState(false); // Checkbox state
   const [showBack, setShowBack] = useState(false); // Visual flip state
 
+  // iOS Workaround: Always run double-capture on every "Create Card" click
+  const [isProcessingWorkaround, setIsProcessingWorkaround] = useState(false);
+
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backFileInputRef = useRef<HTMLInputElement>(null);
@@ -750,9 +753,16 @@ const OrderForm: React.FC<OrderFormProps> = ({ setPage, setPendingOrder }) => {
 
     try {
       const blob = await removeBackground(file);
-      const url = URL.createObjectURL(blob);
-      if (isBack) setBackImagePreview(url);
-      else setImagePreview(url);
+
+      // Convert blob to data URL immediately (iOS-friendly)
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        console.log('Background removed, converted to data URL for', isBack ? 'back' : 'front');
+        if (isBack) setBackImagePreview(dataUrl);
+        else setImagePreview(dataUrl);
+      };
+      reader.readAsDataURL(blob);
     } catch (error) {
       console.error("Background removal failed:", error);
       const reader = new FileReader();
@@ -802,18 +812,39 @@ const OrderForm: React.FC<OrderFormProps> = ({ setPage, setPendingOrder }) => {
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  
+
   if (!cardRef.current) {
     alert('Preview not available');
     return;
   }
 
+  // iOS Workaround: Always do double-capture to prime iOS rendering
+  console.log('iOS Workaround: Starting double-capture process...');
+  setIsProcessingWorkaround(true);
+
   try {
     const cardContainer = cardRef.current;
     const wasShowingBack = showBack;
-    
-    console.log('Starting capture process...');
-    
+
+    // FIRST CAPTURE (primes the iOS cache, might be blank)
+    console.log('iOS Workaround: First capture (priming cache)...');
+        // Helper to force canvas redraw
+    const forceCanvasRedraw = () => {
+      return new Promise<void>((resolve) => {
+        // Trigger a state change that will cause useEffect to run
+        const currentBg = backgroundStyle;
+        setBackgroundStyle(''); // Clear it
+        
+        requestAnimationFrame(() => {
+          setBackgroundStyle(currentBg); // Restore it
+          
+          // Wait for the useEffect to complete
+          setTimeout(() => {
+            resolve();
+          }, 300);
+        });
+      });
+    };
     // Helper to convert blob URL to data URL
     const blobToDataURL = async (blobUrl: string): Promise<string> => {
       const response = await fetch(blobUrl);
@@ -841,6 +872,86 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
     };
     
+// Helper to wait for all images in an element to load
+const waitForImages = async (element: HTMLElement): Promise<void> => {
+  const images = Array.from(element.querySelectorAll('img')) as HTMLImageElement[];
+  console.log(`Found ${images.length} images to wait for`);
+
+  const imagePromises = images.map(img => {
+    if (img.complete && img.naturalWidth > 0) {
+      console.log('Image already loaded:', img.src.substring(0, 50));
+      return Promise.resolve();
+    }
+    console.log('Waiting for image to load:', img.src.substring(0, 50));
+    return new Promise<void>((resolve, reject) => {
+      img.onload = () => {
+        console.log('Image loaded:', img.src.substring(0, 50));
+        resolve();
+      };
+      img.onerror = () => {
+        console.warn('Image failed to load, continuing anyway:', img.src.substring(0, 50));
+        resolve(); // Resolve anyway to not block
+      };
+      // Force reload if src is set but not loaded
+      if (img.src) {
+        const currentSrc = img.src;
+        img.src = '';
+        img.src = currentSrc;
+      }
+    });
+  });
+
+  await Promise.all(imagePromises);
+  console.log('All images loaded');
+};
+
+// Helper to ensure canvas has rendered
+const waitForCanvasRender = async (element: HTMLElement): Promise<void> => {
+  const canvases = Array.from(element.querySelectorAll('canvas')) as HTMLCanvasElement[];
+  console.log(`Found ${canvases.length} canvases to check`);
+
+  // Force a reflow to ensure canvas is painted
+  void element.offsetHeight;
+
+  // Wait for next animation frame (ensures paint cycle completes)
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(undefined))));
+
+  // Wait for browser to complete painting - iOS needs more time
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // Double-check canvases have content - retry up to 3 times if empty
+  for (const canvas of canvases) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      let hasContent = false;
+      let retries = 0;
+      const maxRetries = 3;
+
+      while (!hasContent && retries < maxRetries) {
+        try {
+          const imageData = ctx.getImageData(0, 0, Math.min(10, canvas.width), Math.min(10, canvas.height));
+          hasContent = imageData.data.some(value => value !== 0);
+          console.log(`Canvas has content (attempt ${retries + 1}): ${hasContent}`);
+
+          if (!hasContent && retries < maxRetries - 1) {
+            console.warn(`Canvas appears empty, retry ${retries + 1}/${maxRetries}...`);
+            await new Promise(resolve => setTimeout(resolve, 700));
+          }
+          retries++;
+        } catch (err) {
+          console.warn('Could not read canvas data (may be tainted):', err);
+          // Canvas may be tainted by cross-origin image, assume it's okay
+          hasContent = true;
+        }
+      }
+
+      if (!hasContent) {
+        console.error('Canvas still empty after retries, proceeding anyway...');
+      }
+    }
+  }
+};
+
 // Helper to capture a face
 const captureFace = async (faceSelector: string, faceName: string) => {
   console.log(`Capturing ${faceName}...`);
@@ -848,26 +959,35 @@ const captureFace = async (faceSelector: string, faceName: string) => {
   if (!face) {
     throw new Error(`${faceName} face not found`);
   }
-
   // Store original transform
   const originalTransform = face.style.transform;
-  
+
   // Add capturing class to disable animations
   face.classList.add('capturing');
-  
+
   // Remove the rotateY transform for back face
   if (faceSelector.includes('back')) {
     face.style.transform = 'rotateY(0deg)';
-    await new Promise(resolve => setTimeout(resolve, 150));
-  }
+    await new Promise(resolve => setTimeout(resolve, 100));
+   } else {
+        // Still wait a bit for front face
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+  // CRITICAL: Wait for all images to load completely
+  await waitForImages(face);
+
+  // CRITICAL: Wait for canvas rendering to complete
+  await waitForCanvasRender(face);
 
   // Convert blob images to data URLs
   await convertBlobImages(face);
-  
-  // Wait for conversion and animation to stop
-  await new Promise(resolve => setTimeout(resolve, 300));
+
+  // Final wait for any remaining paint operations (iOS needs this)
+  await new Promise(resolve => setTimeout(resolve, 200));
 
   // Capture
+  console.log(`Starting toPng for ${faceName}...`);
   const dataUrl = await toPng(face, {
     width: 320,
     height: 480,
@@ -876,59 +996,112 @@ const captureFace = async (faceSelector: string, faceName: string) => {
     cacheBust: true,
     skipFonts: false,
   });
-
   console.log(`${faceName} captured successfully, data length:`, dataUrl.length);
-
   // Restore original transform and remove capturing class
   face.style.transform = originalTransform;
   face.classList.remove('capturing');
-
   return dataUrl;
 };
-
     // --- CAPTURE FRONT ---
     console.log('Setting to front view...');
     setShowBack(false);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const frontDataUrl = await captureFace('[data-card-face="front"]', 'Front');
 
-    // --- CAPTURE BACK (if enabled) ---
-    let backDataUrl = '';
+    // iOS-specific: Wait for multiple browser paint cycles
+    await new Promise(resolve => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setTimeout(resolve, 1000);
+          });
+        });
+      });
+    });
+
+    const firstFrontDataUrl = await captureFace('[data-card-face="front"]', 'Front (first)');
+
+    let firstBackDataUrl = '';
     if (createBackMode) {
       console.log('Setting to back view...');
       setShowBack(true);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      backDataUrl = await captureFace('[data-card-face="back"]', 'Back');
+      await new Promise(resolve => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              setTimeout(resolve, 1000);
+            });
+          });
+        });
+      });
+      firstBackDataUrl = await captureFace('[data-card-face="back"]', 'Back (first)');
     }
 
-    console.log('Capture complete, navigating to checkout...');
+    console.log('iOS Workaround: First capture complete (might be blank). Waiting then doing second capture...');
 
+    // Wait a bit for iOS to settle
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // SECOND CAPTURE (this should be perfect!)
+    console.log('iOS Workaround: Second capture (final)...');
+    setShowBack(false);
+    await new Promise(resolve => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setTimeout(resolve, 1000);
+          });
+        });
+      });
+    });
+
+    const frontDataUrl = await captureFace('[data-card-face="front"]', 'Front (final)');
+
+    let backDataUrl = '';
+    if (createBackMode) {
+      console.log('Setting to back view for final capture...');
+      setShowBack(true);
+      await new Promise(resolve => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              setTimeout(resolve, 1000);
+            });
+          });
+        });
+      });
+      backDataUrl = await captureFace('[data-card-face="back"]', 'Back (final)');
+    }
+
+    console.log('iOS Workaround: Both captures complete, navigating to checkout...');
     // Restore original view
     setShowBack(wasShowingBack);
 
-   // Send to checkout
-if (setPendingOrder) {
-  setPendingOrder({ 
-    frontDataUrl, 
-    backDataUrl, 
-    details, 
-    backDetails, 
-    colors,
-    // Add these metadata fields
-    backgroundStyle,
-    borderStyle,
-    showLogo,
-    enableBorder
-  });
-}
-    
+    // Send to checkout with FINAL (second) capture
+    if (setPendingOrder) {
+      setPendingOrder({
+        frontDataUrl,
+        backDataUrl,
+        details,
+        backDetails,
+        colors,
+        backgroundStyle,
+        borderStyle,
+        showLogo,
+        enableBorder
+      });
+    }
+
+    // Hide overlay and navigate to checkout
+    setIsProcessingWorkaround(false);
+
     if (setPage) {
       setPage('checkout');
     }
-    
   } catch (err) {
     console.error('Full error object:', err);
-    
+
+    // Hide processing overlay on error
+    setIsProcessingWorkaround(false);
+
     let errorMessage = 'Unknown error occurred';
     if (err instanceof Error) {
       errorMessage = err.message;
@@ -938,11 +1111,9 @@ if (setPendingOrder) {
     } else {
       errorMessage = 'Capture failed - check console for details';
     }
-    
     alert(`Failed to create order preview: ${errorMessage}`);
   }
 };
-   
   // --- PROCEDURAL GENERATION: FRONT AND BACK ---
   useEffect(() => {
     const drawPattern = (ctx: CanvasRenderingContext2D, width: number, height: number, isForeground = false) => {
@@ -1829,7 +2000,27 @@ if (setPendingOrder) {
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-      </svg>  
+      </svg>
+
+    {/* iOS Workaround Processing Overlay */}
+    {isProcessingWorkaround && (
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center">
+        <div className="bg-slate-800 rounded-2xl p-8 border-2 border-cyan-500 shadow-2xl shadow-cyan-500/20 max-w-md mx-4">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="w-16 h-16 text-cyan-500 animate-spin" />
+            <h3 className="text-2xl font-bold text-white font-['Teko'] tracking-wide">PROCESSING CARD</h3>
+            <p className="text-gray-400 text-center text-sm">
+              Preparing your card for export...
+            </p>
+            <div className="flex gap-2 mt-4">
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
 
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -2503,9 +2694,7 @@ if (setPendingOrder) {
   data-card-wrapper
   className="relative w-full h-full transition-transform duration-700 transform-style-3d"
   style={{ transform: showBack ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
-
             >
-              
               {/* --- FRONT FACE --- */}
               <div data-card-face="front" className={`absolute inset-0 backface-hidden bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-600 shadow-2xl ${showBack ? 'pointer-events-none z-0' : 'pointer-events-auto z-10'}`}>
                   {/* CSS BACKGROUND */}
@@ -2636,7 +2825,6 @@ if (setPendingOrder) {
                                   </span>
                               </div>
                           </div>
-
                           <div className="absolute z-50 cursor-move select-none w-full flex justify-center hover:scale-[1.02] transition-transform pointer-events-auto"
                             style={{ top: positions.splatterTeam.y, left: positions.splatterTeam.x }}
                             onMouseDown={(e) => startDrag(e, 'splatterTeam')}
@@ -2662,7 +2850,6 @@ if (setPendingOrder) {
                               {details.team || 'TEAM NAME'}
                             </p>
                         </div>
-
                         <div 
     className="absolute z-50 cursor-move select-none pointer-events-auto"
     style={{ top: positions.stdName.y, left: positions.stdName.x, width: '260px' }} 

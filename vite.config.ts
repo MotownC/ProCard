@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    // ----------------------------------------------------
+    // ADD THIS SECTION HERE:
+    server: {
+      host: true,        // Allows network access (required for ngrok)
+      allowedHosts: true // Disables the security check blocking ngrok
+    },
+    // ----------------------------------------------------
     define: {
       // This allows 'process.env.API_KEY' to work in the browser by replacing it with the value from env
       'process.env.API_KEY': JSON.stringify(env.VITE_API_KEY),
