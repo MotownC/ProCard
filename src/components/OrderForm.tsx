@@ -1889,14 +1889,14 @@ const captureFace = async (faceSelector: string, faceName: string) => {
               </div>
             ) : (
               <>
-                {/* Circular Preview with Draggable Image */}
+                {/* Circular Preview with Draggable Image - SAME SIZE as card (w-32 = 128px) */}
                 {tempCropImage && (
-                <div className="relative w-40 h-40 mx-auto">
+                <div className="relative w-32 h-32 mx-auto">
                   <div 
                     className="absolute inset-0 rounded-full border-4 border-cyan-500 overflow-hidden bg-black shadow-lg"
                     style={{ pointerEvents: 'auto' }}
                   >
-                    <img 
+                    <img
                       src={tempCropImage}
                       alt="Crop preview"
                       className="w-full h-full cursor-move select-none"
@@ -1904,29 +1904,56 @@ const captureFace = async (faceSelector: string, faceName: string) => {
                         transform: `translate(${backImageCropData.offsetX}px, ${backImageCropData.offsetY}px) scale(${backImageCropData.scale})`,
                         transformOrigin: 'center',
                         transition: 'none',
-                        userSelect: 'none'
+                        userSelect: 'none',
+                        touchAction: 'none',
+                        WebkitUserSelect: 'none'
                       }}
                       onMouseDown={(e) => {
                         const startX = e.clientX - backImageCropData.offsetX;
                         const startY = e.clientY - backImageCropData.offsetY;
-                        
+
                         const handleMouseMove = (moveEvent: MouseEvent) => {
                           const newOffsetX = moveEvent.clientX - startX;
                           const newOffsetY = moveEvent.clientY - startY;
                           setBackImageCropData({
                             ...backImageCropData,
-                            offsetX: Math.max(-80, Math.min(80, newOffsetX)),
-                            offsetY: Math.max(-80, Math.min(80, newOffsetY))
+                            offsetX: Math.max(-64, Math.min(64, newOffsetX)),
+                            offsetY: Math.max(-64, Math.min(64, newOffsetY))
                           });
                         };
-                        
+
                         const handleMouseUp = () => {
                           document.removeEventListener('mousemove', handleMouseMove);
                           document.removeEventListener('mouseup', handleMouseUp);
                         };
-                        
+
                         document.addEventListener('mousemove', handleMouseMove);
                         document.addEventListener('mouseup', handleMouseUp);
+                      }}
+                      onTouchStart={(e) => {
+                        e.preventDefault(); // Prevent scrolling
+                        const touch = e.touches[0];
+                        const startX = touch.clientX - backImageCropData.offsetX;
+                        const startY = touch.clientY - backImageCropData.offsetY;
+
+                        const handleTouchMove = (moveEvent: TouchEvent) => {
+                          const moveTouch = moveEvent.touches[0];
+                          const newOffsetX = moveTouch.clientX - startX;
+                          const newOffsetY = moveTouch.clientY - startY;
+                          setBackImageCropData({
+                            ...backImageCropData,
+                            offsetX: Math.max(-64, Math.min(64, newOffsetX)),
+                            offsetY: Math.max(-64, Math.min(64, newOffsetY))
+                          });
+                        };
+
+                        const handleTouchEnd = () => {
+                          document.removeEventListener('touchmove', handleTouchMove as any);
+                          document.removeEventListener('touchend', handleTouchEnd);
+                        };
+
+                        document.addEventListener('touchmove', handleTouchMove as any, { passive: false });
+                        document.addEventListener('touchend', handleTouchEnd);
                       }}
                     />
                   </div>
@@ -2978,10 +3005,11 @@ const captureFace = async (faceSelector: string, faceName: string) => {
                           onTouchStart={(e) => startDrag(e, 'backImage')}
                         >
                             <div className="w-32 h-32 rounded-full border-4 overflow-hidden shadow-lg" style={{ borderColor: colors.primary }}>
-                              <img 
-                                src={backImagePreview} 
-                                className="w-full h-full object-cover pointer-events-none select-none" 
+                              <img
+                                src={backImagePreview}
+                                className="w-full h-full pointer-events-none select-none"
                                 style={{
+                                  // No scaling needed - modal and card are same size now
                                   transform: `translate(${backImageCropData.offsetX}px, ${backImageCropData.offsetY}px) scale(${backImageCropData.scale})`,
                                   transformOrigin: 'center'
                                 }}
