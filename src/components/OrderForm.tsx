@@ -590,10 +590,13 @@ const OrderForm: React.FC<OrderFormProps> = ({ setPage, setPendingOrder }) => {
   const [numberStrokeOpts, setNumberStrokeOpts] = useState({ stroke: false });
   const [numberGradient, setNumberGradient] = useState(false);
   const [showPowerRating, setShowPowerRating] = useState(true);
-  
+
   // NEW: Split State for Back Card
   const [createBackMode, setCreateBackMode] = useState(false); // Checkbox state
   const [showBack, setShowBack] = useState(false); // Visual flip state
+
+  // AI Background Removal Toggle
+  const [aiRemoveBackground, setAiRemoveBackground] = useState(true); // Checked by default
 
   // iOS Workaround: Always run double-capture on every "Create Card" click
   const [isProcessingWorkaround, setIsProcessingWorkaround] = useState(false);
@@ -752,17 +755,31 @@ const OrderForm: React.FC<OrderFormProps> = ({ setPage, setPendingOrder }) => {
     }
 
     try {
-      const blob = await removeBackground(file);
+      // Check if AI background removal is enabled
+      if (aiRemoveBackground) {
+        const blob = await removeBackground(file);
 
-      // Convert blob to data URL immediately (iOS-friendly)
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        console.log('Background removed, converted to data URL for', isBack ? 'back' : 'front');
-        if (isBack) setBackImagePreview(dataUrl);
-        else setImagePreview(dataUrl);
-      };
-      reader.readAsDataURL(blob);
+        // Convert blob to data URL immediately (iOS-friendly)
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          console.log('Background removed, converted to data URL for', isBack ? 'back' : 'front');
+          if (isBack) setBackImagePreview(dataUrl);
+          else setImagePreview(dataUrl);
+        };
+        reader.readAsDataURL(blob);
+      } else {
+        // Skip AI processing, load image directly
+        console.log('Skipping AI background removal for', isBack ? 'back' : 'front');
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          console.log('Image loaded directly without AI processing for', isBack ? 'back' : 'front');
+          if (isBack) setBackImagePreview(dataUrl);
+          else setImagePreview(dataUrl);
+        };
+        reader.readAsDataURL(file);
+      }
     } catch (error) {
       console.error("Background removal failed:", error);
       const reader = new FileReader();
@@ -2071,7 +2088,22 @@ const captureFace = async (faceSelector: string, faceName: string) => {
               <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
                 {/* File Upload & Player Size */}
                 <div className="space-y-4">
-                <div 
+
+                {/* AI Background Removal Checkbox */}
+                <div className="flex items-center gap-2 px-2 py-1 bg-slate-900/30 rounded-lg border border-slate-700/50">
+                  <input
+                    type="checkbox"
+                    id="ai-remove-bg"
+                    checked={aiRemoveBackground}
+                    onChange={(e) => setAiRemoveBackground(e.target.checked)}
+                    className="w-4 h-4 text-cyan-600 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500 focus:ring-2 cursor-pointer"
+                  />
+                  <label htmlFor="ai-remove-bg" className="text-sm text-gray-300 cursor-pointer select-none">
+                    AI Remove Background <span className="text-xs text-gray-500">(recommended for photos with backgrounds)</span>
+                  </label>
+                </div>
+
+                <div
                     className={`border-2 border-dashed border-slate-600 rounded-xl p-6 text-center transition-all relative ${isProcessing ? 'bg-slate-800 cursor-wait' : 'hover:border-cyan-500 cursor-pointer bg-slate-900/50'}`}
                     onClick={() => !isProcessing && fileInputRef.current?.click()}
                 >
@@ -2492,7 +2524,21 @@ const captureFace = async (faceSelector: string, faceName: string) => {
             ) : (
               // --- BACK FORM (New Inputs) ---
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                
+
+                {/* AI Background Removal Checkbox */}
+                <div className="flex items-center gap-2 px-2 py-1 bg-slate-900/30 rounded-lg border border-slate-700/50">
+                  <input
+                    type="checkbox"
+                    id="ai-remove-bg-back"
+                    checked={aiRemoveBackground}
+                    onChange={(e) => setAiRemoveBackground(e.target.checked)}
+                    className="w-4 h-4 text-cyan-600 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500 focus:ring-2 cursor-pointer"
+                  />
+                  <label htmlFor="ai-remove-bg-back" className="text-sm text-gray-300 cursor-pointer select-none">
+                    AI Remove Background <span className="text-xs text-gray-500">(recommended for photos with backgrounds)</span>
+                  </label>
+                </div>
+
                 {/* 1. Back Image Upload */}
                 <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
                     <div className="flex items-center gap-4 mb-3">
