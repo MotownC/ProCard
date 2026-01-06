@@ -96,3 +96,43 @@ export const saveCustomOrderToFirebase = async (order: CustomOrder) => {
     throw new Error(`Failed to submit order: ${error.message}`);
   }
 };
+
+export const subscribeToCustomOrders = (callback: (orders: CustomOrder[]) => void) => {
+  const ordersRef = ref(db, 'customOrders');
+
+  return onValue(ordersRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const orderList = Object.values(data) as CustomOrder[];
+      // Sort by timestamp descending (newest first)
+      callback(orderList.sort((a, b) => b.timestamp - a.timestamp));
+    } else {
+      callback([]);
+    }
+  }, (error) => {
+    console.error("🔥 Custom Orders Read Error:", error);
+    callback([]);
+  });
+};
+
+export const updateCustomOrderStatus = async (timestamp: number, status: string) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    await set(orderRef, { status } as any);
+    console.log("✅ Updated order status:", timestamp, status);
+  } catch (error: any) {
+    console.error("🔥 Status Update Error:", error);
+    throw new Error(`Failed to update status: ${error.message}`);
+  }
+};
+
+export const deleteCustomOrder = async (timestamp: number) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    await remove(orderRef);
+    console.log("✅ Deleted custom order:", timestamp);
+  } catch (error) {
+    console.error("🔥 Delete Error:", error);
+    throw error;
+  }
+};

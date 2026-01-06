@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import OrderForm from './components/OrderForm';
 import CustomOrderForm from './components/CustomOrderForm';
+import AdminOrders from './components/AdminOrders';
 import Checkout from './components/Checkout';
 import Roadmap from './components/Roadmap';
 import { CardRarity, ShowcaseCard } from './types';
@@ -34,6 +35,7 @@ const App: React.FC = () => {
   const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [cards, setCards] = useState<ShowcaseCard[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [adminTab, setAdminTab] = useState<'gallery' | 'orders'>('gallery');
 
   // Subscribe to Firebase updates with Safety Timeout
   useEffect(() => {
@@ -114,19 +116,57 @@ const App: React.FC = () => {
       case 'admin':
         return (
           <div className="bg-slate-800/50 min-h-screen pb-20">
-            <div className="bg-red-900/20 border-b border-red-500/30 py-4 mb-8">
+            <div className="bg-red-900/20 border-b border-red-500/30 py-4">
               <div className="max-w-7xl mx-auto px-4 text-red-200 font-mono text-sm flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                 ADMIN MODE ACTIVE: Connected to Cloud Database.
               </div>
             </div>
-            <Gallery 
-              cards={cards} 
-              onAddCards={handleAddCards} 
-              onUpdateCard={handleUpdateCard}
-              onRemoveCard={handleRemoveCard} 
-              isAdmin={true} 
-            />
+
+            {/* Admin Tabs */}
+            <div className="max-w-7xl mx-auto px-4 py-4">
+              <div className="flex gap-4 border-b border-slate-700">
+                <button
+                  onClick={() => setAdminTab('gallery')}
+                  className={`px-6 py-3 font-semibold transition-colors relative ${
+                    adminTab === 'gallery'
+                      ? 'text-cyan-400'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Gallery Management
+                  {adminTab === 'gallery' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400"></div>
+                  )}
+                </button>
+                <button
+                  onClick={() => setAdminTab('orders')}
+                  className={`px-6 py-3 font-semibold transition-colors relative ${
+                    adminTab === 'orders'
+                      ? 'text-cyan-400'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Custom Orders
+                  {adminTab === 'orders' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400"></div>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Admin Content */}
+            {adminTab === 'gallery' ? (
+              <Gallery
+                cards={cards}
+                onAddCards={handleAddCards}
+                onUpdateCard={handleUpdateCard}
+                onRemoveCard={handleRemoveCard}
+                isAdmin={true}
+              />
+            ) : (
+              <AdminOrders />
+            )}
           </div>
         );
       case 'create':

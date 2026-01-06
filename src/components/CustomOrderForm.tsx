@@ -75,6 +75,31 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
       await saveCustomOrderToFirebase(submission);
       console.log('Custom Order Submission:', submission);
 
+      // Send email notification (optional - requires EmailJS setup)
+      try {
+        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            template_id: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            user_id: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+            template_params: {
+              customer_name: formData.name,
+              customer_email: formData.email,
+              customer_phone: formData.phone,
+              photo_url: photoUrl,
+              notes: formData.notes,
+              order_time: new Date(submission.timestamp).toLocaleString()
+            }
+          })
+        });
+        console.log('📧 Email notification sent');
+      } catch (emailError) {
+        console.warn('Email notification failed (not critical):', emailError);
+        // Don't fail the whole submission if email fails
+      }
+
       // Show success
       setUploadSuccess(true);
 

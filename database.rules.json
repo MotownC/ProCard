@@ -10,7 +10,7 @@
       }
     },
     "customOrders": {
-      ".read": false,
+      ".read": true,
       "$orderId": {
         ".write": "newData.hasChildren(['name', 'email', 'photoUrl', 'timestamp']) && newData.child('name').isString() && newData.child('email').isString() && newData.child('photoUrl').isString() && newData.child('timestamp').isNumber()"
       }
