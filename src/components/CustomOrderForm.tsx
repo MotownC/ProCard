@@ -121,13 +121,13 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
       // Show success
       setUploadSuccess(true);
 
-      // Reset form after 3 seconds
+      // Reset form after 5 seconds (give user time to see success state)
       setTimeout(() => {
         setFormData({ name: '', email: '', phone: '', notes: '' });
         setPhotoFile(null);
         setPhotoPreview('');
         setUploadSuccess(false);
-      }, 3000);
+      }, 5000);
 
     } catch (err) {
       console.error('Upload error:', err);
@@ -157,17 +157,6 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
             Upload your photo and our design team will create a professional trading card for you.
           </p>
         </div>
-
-        {/* Success Message */}
-        {uploadSuccess && (
-          <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-500" />
-            <div>
-              <p className="text-green-400 font-semibold">Photo Uploaded Successfully!</p>
-              <p className="text-green-300 text-sm">Your custom order has been submitted. We've sent you a confirmation email and will contact you within 24-48 hours with your custom card design.</p>
-            </div>
-          </div>
-        )}
 
         {/* Error Message */}
         {error && (
@@ -291,13 +280,22 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isUploading}
-            className="w-full py-3 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+            disabled={isUploading || uploadSuccess}
+            className={`w-full py-3 font-bold rounded-lg transition-colors flex items-center justify-center gap-2 ${
+              uploadSuccess
+                ? 'bg-green-600 text-white cursor-default'
+                : 'bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white'
+            }`}
           >
             {isUploading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 Uploading...
+              </>
+            ) : uploadSuccess ? (
+              <>
+                <CheckCircle className="w-5 h-5" />
+                Successfully Submitted!
               </>
             ) : (
               <>
