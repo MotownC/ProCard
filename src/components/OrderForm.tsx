@@ -2864,7 +2864,16 @@ const captureFace = async (faceSelector: string, faceName: string) => {
                               onMouseDown={(e) => startDrag(e, 'impactNumber')}
                               onTouchStart={(e) => startDrag(e, 'impactNumber')}
                           >
-                              <span className="text-8xl font-['Teko'] font-bold text-transparent transform -rotate-6 block" style={{ WebkitTextStroke: '3px white', textShadow: `4px 4px 0 ${colors.secondary}` }}>{details.number || '00'}</span>
+                              <span className="text-8xl font-['Teko'] font-bold transform -rotate-6 block"
+                                style={{
+                                  color: numberGradient ? 'transparent' : 'white',
+                                  background: numberGradient ? `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` : 'none',
+                                  WebkitBackgroundClip: numberGradient ? 'text' : 'none',
+                                  backgroundClip: numberGradient ? 'text' : 'none',
+                                  filter: `${numberStrokeOpts.stroke ? 'drop-shadow(0 0 3px white) drop-shadow(0 0 3px white)' : ''} drop-shadow(4px 4px 0 ${colors.secondary})`
+                                }}>
+                                {details.number || '00'}
+                              </span>
                           </div>
                         </>
                       )}
