@@ -77,7 +77,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
 
       // Send email notification (optional - requires EmailJS setup)
       try {
-        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        const emailResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -94,9 +94,15 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
             }
           })
         });
-        console.log('📧 Email notification sent');
+
+        if (emailResponse.ok) {
+          console.log('📧 Email notification sent');
+        } else {
+          const errorText = await emailResponse.text();
+          console.warn('📧 Email failed:', emailResponse.status, errorText);
+        }
       } catch (emailError) {
-        console.warn('Email notification failed (not critical):', emailError);
+        console.warn('📧 Email notification error:', emailError);
         // Don't fail the whole submission if email fails
       }
 
