@@ -163,8 +163,8 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
           <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-green-500" />
             <div>
-              <p className="text-green-400 font-semibold">Order Submitted Successfully!</p>
-              <p className="text-green-300 text-sm">We'll contact you within 24 hours.</p>
+              <p className="text-green-400 font-semibold">Photo Uploaded Successfully!</p>
+              <p className="text-green-300 text-sm">Your custom order has been submitted. We've sent you a confirmation email and will contact you within 24-48 hours with your custom card design.</p>
             </div>
           </div>
         )}
@@ -308,7 +308,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
           </button>
 
           <p className="text-sm text-gray-400 text-center mt-4">
-            Our team will review your photo and create a custom card design. You'll receive a proof within 24-48 hours.
+            You'll receive a confirmation email immediately after submission. Our design team will create your custom card and send you a proof within 24-48 hours.
           </p>
         </form>
       </div>
