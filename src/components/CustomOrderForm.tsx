@@ -77,6 +77,11 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
 
       // Send email notification (optional - requires EmailJS setup)
       try {
+        console.log('📧 Attempting to send email notification...');
+        console.log('Service ID:', import.meta.env.VITE_EMAILJS_SERVICE_ID);
+        console.log('Template ID:', import.meta.env.VITE_EMAILJS_TEMPLATE_ID);
+        console.log('Public Key:', import.meta.env.VITE_EMAILJS_PUBLIC_KEY ? '✓ Set' : '✗ Missing');
+
         const emailResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -96,13 +101,20 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
         });
 
         if (emailResponse.ok) {
-          console.log('📧 Email notification sent');
+          console.log('✅ Email notification sent successfully');
         } else {
           const errorText = await emailResponse.text();
-          console.warn('📧 Email failed:', emailResponse.status, errorText);
+          console.error('❌ Email failed with status:', emailResponse.status);
+          console.error('Error details:', errorText);
+          try {
+            const errorJson = JSON.parse(errorText);
+            console.error('Parsed error:', errorJson);
+          } catch {
+            // Error wasn't JSON, already logged as text
+          }
         }
       } catch (emailError) {
-        console.warn('📧 Email notification error:', emailError);
+        console.error('❌ Email notification exception:', emailError);
         // Don't fail the whole submission if email fails
       }
 
