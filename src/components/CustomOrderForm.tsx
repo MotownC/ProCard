@@ -1,0 +1,276 @@
+import React, { useState, useRef } from 'react';
+import { Upload, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { uploadToCloudinary } from '../utils/cloudinary';
+import { saveCustomOrderToFirebase, CustomOrder } from '../utils/firebase';
+
+interface CustomOrderFormProps {
+  setPage: (page: string) => void;
+}
+
+const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    notes: ''
+  });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [error, setError] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError('');
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validation
+    if (!photoFile) {
+      setError('Please upload a photo');
+      return;
+    }
+    if (!formData.name || !formData.email) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    setIsUploading(true);
+    setError('');
+
+    try {
+      // Upload photo to Cloudinary
+      const photoUrl = await uploadToCloudinary(photoFile);
+
+      // Create order submission object
+      const submission: CustomOrder = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        photoUrl: photoUrl,
+        notes: formData.notes,
+        timestamp: Date.now()
+      };
+
+      // Save to Firebase 'customOrders' collection
+      await saveCustomOrderToFirebase(submission);
+      console.log('Custom Order Submission:', submission);
+
+      // Show success
+      setUploadSuccess(true);
+
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setFormData({ name: '', email: '', phone: '', notes: '' });
+        setPhotoFile(null);
+        setPhotoPreview('');
+        setUploadSuccess(false);
+      }, 3000);
+
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Failed to upload photo. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => setPage('home')}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </button>
+
+          <h1 className="text-4xl font-bold text-white font-['Teko'] mb-2">
+            CUSTOM DESIGN SERVICE
+          </h1>
+          <p className="text-gray-400">
+            Upload your photo and our design team will create a professional trading card for you.
+          </p>
+        </div>
+
+        {/* Success Message */}
+        {uploadSuccess && (
+          <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-green-500" />
+            <div>
+              <p className="text-green-400 font-semibold">Order Submitted Successfully!</p>
+              <p className="text-green-300 text-sm">We'll contact you within 24 hours.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500" />
+            <p className="text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+          {/* Photo Upload */}
+          <div className="mb-6">
+            <label className="block text-white font-semibold mb-2">
+              Photo Upload <span className="text-red-500">*</span>
+            </label>
+            <p className="text-sm text-gray-400 mb-3">
+              Upload a high-quality photo. We'll handle background removal and card design.
+            </p>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePhotoChange}
+              accept="image/*"
+              className="hidden"
+            />
+
+            {!photoPreview ? (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full h-48 border-2 border-dashed border-slate-600 rounded-lg hover:border-cyan-500 transition-colors flex flex-col items-center justify-center gap-3 bg-slate-900/50"
+              >
+                <Upload className="w-8 h-8 text-gray-400" />
+                <span className="text-gray-400">Click to upload photo</span>
+              </button>
+            ) : (
+              <div className="relative">
+                <img
+                  src={photoPreview}
+                  alt="Preview"
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhotoPreview('');
+                    setPhotoFile(null);
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Name */}
+          <div className="mb-4">
+            <label className="block text-white font-semibold mb-2">
+              Your Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label className="block text-white font-semibold mb-2">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
+              placeholder="john@example.com"
+              required
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="mb-4">
+            <label className="block text-white font-semibold mb-2">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
+              placeholder="(123) 456-7890"
+            />
+          </div>
+
+          {/* Additional Notes */}
+          <div className="mb-6">
+            <label className="block text-white font-semibold mb-2">
+              Additional Notes
+            </label>
+            <textarea
+              name="notes"
+              value={formData.notes}
+              onChange={handleInputChange}
+              rows={4}
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none resize-none"
+              placeholder="Any specific requests for your card design? (e.g., preferred colors, style, text to include)"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isUploading}
+            className="w-full py-3 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            {isUploading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Uploading...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-5 h-5" />
+                Submit Order
+              </>
+            )}
+          </button>
+
+          <p className="text-sm text-gray-400 text-center mt-4">
+            Our team will review your photo and create a custom card design. You'll receive a proof within 24-48 hours.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CustomOrderForm;

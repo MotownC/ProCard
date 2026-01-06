@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import OrderForm from './components/OrderForm';
+import CustomOrderForm from './components/CustomOrderForm';
 import Checkout from './components/Checkout';
 import Roadmap from './components/Roadmap';
 import { CardRarity, ShowcaseCard } from './types';
@@ -148,6 +149,8 @@ case 'checkout':
     </>
   );
 
+      case 'custom':
+        return <CustomOrderForm setPage={setCurrentPage} />;
       case 'roadmap':
         return <Roadmap />;
       default:
@@ -170,7 +173,7 @@ case 'checkout':
       </main>
       <footer className="bg-slate-900 border-t border-slate-800 py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>&copy; 2025 ProCard Legends. Transform your game.</p>
+          <p>&copy; 2026 ProCard Legends. Transform your game.</p>
         </div>
       </footer>
     </div>

@@ -74,3 +74,25 @@ export const deleteCardFromFirebase = async (id: number) => {
     alert("Failed to delete.");
   }
 };
+
+// Custom Order Submission
+export interface CustomOrder {
+  name: string;
+  email: string;
+  phone: string;
+  photoUrl: string;
+  notes: string;
+  timestamp: number;
+  status?: string;
+}
+
+export const saveCustomOrderToFirebase = async (order: CustomOrder) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + order.timestamp);
+    await set(orderRef, { ...order, status: 'pending' });
+    console.log("✅ Saved custom order:", order.timestamp);
+  } catch (error: any) {
+    console.error("🔥 Custom Order Save Error:", error);
+    throw new Error(`Failed to submit order: ${error.message}`);
+  }
+};

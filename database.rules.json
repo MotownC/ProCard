@@ -8,6 +8,12 @@
         ".read": true,
         ".write": "newData.hasChildren(['id', 'player', 'team', 'imageType', 'rarity', 'gradient']) && newData.child('id').isNumber() && newData.child('player').isString() && newData.child('team').isString() && newData.child('imageType').isString() && newData.child('rarity').isString() && newData.child('gradient').isString()"
       }
+    },
+    "customOrders": {
+      ".read": false,
+      "$orderId": {
+        ".write": "newData.hasChildren(['name', 'email', 'photoUrl', 'timestamp']) && newData.child('name').isString() && newData.child('email').isString() && newData.child('photoUrl').isString() && newData.child('timestamp').isNumber()"
+      }
     }
   }
 }
