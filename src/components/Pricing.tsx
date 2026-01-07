@@ -95,7 +95,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
             >
               {tier.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">
                     MOST POPULAR
                   </span>
                 </div>
