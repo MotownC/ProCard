@@ -7,6 +7,7 @@ import CustomOrderForm from './components/CustomOrderForm';
 import AdminOrders from './components/AdminOrders';
 import Checkout from './components/Checkout';
 import Roadmap from './components/Roadmap';
+import Pricing from './components/Pricing';
 import { CardRarity, ShowcaseCard } from './types';
 import { subscribeToCards, saveCardToFirebase, deleteCardFromFirebase } from './utils/firebase';
 
@@ -191,6 +192,8 @@ case 'checkout':
 
       case 'custom':
         return <CustomOrderForm setPage={setCurrentPage} />;
+      case 'pricing':
+        return <Pricing setPage={setCurrentPage} />;
       case 'roadmap':
         return <Roadmap />;
       default:
