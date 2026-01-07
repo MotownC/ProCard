@@ -39,7 +39,7 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
           <p className="mt-4 text-xl text-gray-400 max-w-lg mx-auto lg:mx-0">
             We transform your raw action shots into professional-grade trading cards. Better than retail. Custom made. Built for glory.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">
             <button
               onClick={() => setPage('create')}
               className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold transition-all flex items-center justify-center gap-2"
@@ -59,6 +59,12 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
               className="px-8 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-white font-medium transition-all"
             >
               View Gallery
+            </button>
+            <button
+              onClick={() => setPage('pricing')}
+              className="px-8 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-white font-medium transition-all"
+            >
+              Pricing
             </button>
           </div>
         </div>
