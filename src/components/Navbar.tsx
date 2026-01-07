@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Layers, PenTool, Map, Lock, Upload, DollarSign } from 'lucide-react';
+import { Zap, Layers, PenTool, Lock, Upload, DollarSign } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;
@@ -13,7 +13,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
     { id: 'create', label: 'Create Card', icon: <PenTool className="w-4 h-4" /> },
     { id: 'custom', label: 'Custom Design', icon: <Upload className="w-4 h-4" /> },
     { id: 'pricing', label: 'Pricing', icon: <DollarSign className="w-4 h-4" /> },
-    { id: 'roadmap', label: 'Roadmap', icon: <Map className="w-4 h-4" /> },
     { id: 'admin', label: 'Admin', icon: <Lock className="w-4 h-4" /> },
   ];
 
