@@ -46,16 +46,29 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
       popular: false
     },
     {
+      name: 'Digital Download',
+      price: '+$10',
+      description: 'High-resolution digital file',
+      features: [
+        'High-res digital file (300 DPI)',
+        'Perfect for social media',
+        'Print your own copies',
+        'Keep forever in the cloud',
+        'Add-on to any card order'
+      ],
+      popular: false
+    },
+    {
       name: 'Deluxe Package',
       price: '$25',
       description: 'The ultimate card experience',
       features: [
-        'Custom double-sided card',
-        'Magnetic protective case',
-        'High-res digital download',
+        'Custom double-sided card ($15 value)',
+        'Magnetic protective case ($5 value)',
+        'High-res digital download ($10 value)',
         'Three design iterations included',
         'Priority 24-hour turnaround',
-        'Perfect for serious collectors'
+        'Save $5 with this bundle!'
       ],
       popular: true
     }
@@ -83,7 +96,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {pricingTiers.map((tier, index) => (
             <div
               key={index}
