@@ -6,7 +6,7 @@
       ".read": true,
       "$cardId": {
         ".read": true,
-        ".write": "newData.hasChildren(['id', 'player', 'team', 'imageType', 'rarity', 'gradient']) && newData.child('id').isNumber() && newData.child('player').isString() && newData.child('team').isString() && newData.child('imageType').isString() && newData.child('rarity').isString() && newData.child('gradient').isString()"
+        ".write": "!newData.exists() || (newData.hasChildren(['id', 'player', 'team', 'imageType', 'rarity', 'gradient']) && newData.child('id').isNumber() && newData.child('player').isString() && newData.child('team').isString() && newData.child('imageType').isString() && newData.child('rarity').isString() && newData.child('gradient').isString())"
       }
     },
     "customOrders": {
