@@ -23,4 +23,5 @@ export interface ShowcaseCard {
   gradient: string;
   imageUrl?: string; // Optional URL for custom uploaded images
   backImageUrl?: string; // Optional URL for the back of the card
+  order?: number; // Optional order field for manual reordering
 }

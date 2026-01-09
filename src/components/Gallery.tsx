@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { CardRarity, ShowcaseCard } from '../types';
-import { Upload, Trash2, Plus, X, Maximize2, RefreshCw, ImagePlus, Palette } from 'lucide-react';
+import { Upload, Trash2, Plus, X, Maximize2, RefreshCw, ImagePlus, Palette, ArrowUp, ArrowDown } from 'lucide-react';
 import { uploadToCloudinary } from '../utils/cloudinary';
 
 interface GalleryProps {
@@ -28,6 +28,39 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
   const [isModalFlipped, setIsModalFlipped] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string>('');
+
+  // Sort cards by order field (if present), otherwise by id
+  const sortedCards = [...cards].sort((a, b) => {
+    const orderA = a.order ?? a.id;
+    const orderB = b.order ?? b.id;
+    return orderA - orderB;
+  });
+
+  const handleMoveUp = (card: ShowcaseCard) => {
+    const currentIndex = sortedCards.findIndex(c => c.id === card.id);
+    if (currentIndex <= 0) return; // Already at the top
+
+    const prevCard = sortedCards[currentIndex - 1];
+    const currentOrder = card.order ?? card.id;
+    const prevOrder = prevCard.order ?? prevCard.id;
+
+    // Swap orders
+    onUpdateCard({ ...card, order: prevOrder });
+    onUpdateCard({ ...prevCard, order: currentOrder });
+  };
+
+  const handleMoveDown = (card: ShowcaseCard) => {
+    const currentIndex = sortedCards.findIndex(c => c.id === card.id);
+    if (currentIndex >= sortedCards.length - 1) return; // Already at the bottom
+
+    const nextCard = sortedCards[currentIndex + 1];
+    const currentOrder = card.order ?? card.id;
+    const nextOrder = nextCard.order ?? nextCard.id;
+
+    // Swap orders
+    onUpdateCard({ ...card, order: nextOrder });
+    onUpdateCard({ ...nextCard, order: currentOrder });
+  };
 
   const handleUploadNew = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -125,15 +158,19 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center">
-          {cards.map((card) => (
-            <GalleryCard 
-              key={card.id} 
-              card={card} 
+          {sortedCards.map((card, index) => (
+            <GalleryCard
+              key={card.id}
+              card={card}
               onRemove={() => onRemoveCard(card.id)}
               onExpand={() => openModal(card)}
               onExpandFlipped={() => openModalFlipped(card)}
               onUpdate={onUpdateCard}
+              onMoveUp={() => handleMoveUp(card)}
+              onMoveDown={() => handleMoveDown(card)}
               isAdmin={isAdmin}
+              isFirst={index === 0}
+              isLast={index === sortedCards.length - 1}
             />
           ))}
         </div>
@@ -248,8 +285,12 @@ const GalleryCard: React.FC<{
   onExpand: () => void;
   onExpandFlipped: () => void;
   onUpdate: (card: ShowcaseCard) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   isAdmin: boolean;
-}> = ({ card, onRemove, onExpand, onExpandFlipped, onUpdate, isAdmin }) => {
+  isFirst: boolean;
+  isLast: boolean;
+}> = ({ card, onRemove, onExpand, onExpandFlipped, onUpdate, onMoveUp, onMoveDown, isAdmin, isFirst, isLast }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const backInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -301,17 +342,17 @@ const GalleryCard: React.FC<{
                      <RefreshCw className="w-4 h-4" />
                    </button>
                 )}
-                
+
                 {/* ADMIN CONTROLS */}
                 {isAdmin && isUpload && !hasBack && (
                     <>
-                      <input 
-                         type="file" 
-                         ref={backInputRef} 
-                         className="hidden" 
+                      <input
+                         type="file"
+                         ref={backInputRef}
+                         className="hidden"
                          accept="image/*"
                          onChange={handleBackUpload}
-                         onClick={(e) => e.stopPropagation()} 
+                         onClick={(e) => e.stopPropagation()}
                       />
                       <button
                         onClick={(e) => {
@@ -326,9 +367,9 @@ const GalleryCard: React.FC<{
                       </button>
                     </>
                 )}
-                
+
                 {isAdmin && (
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -338,6 +379,38 @@ const GalleryCard: React.FC<{
                     title="Remove Card"
                   >
                     <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+             </div>
+           )}
+
+           {/* ADMIN: Arrow Buttons for Reordering */}
+           {!isFlipped && isAdmin && (
+             <div className="absolute top-2 left-2 z-30 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                {!isFirst && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onMoveUp();
+                    }}
+                    className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Move Up"
+                  >
+                    <ArrowUp className="w-4 h-4" />
+                  </button>
+                )}
+                {!isLast && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onMoveDown();
+                    }}
+                    className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Move Down"
+                  >
+                    <ArrowDown className="w-4 h-4" />
                   </button>
                 )}
              </div>
