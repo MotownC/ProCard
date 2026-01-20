@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Layers, PenTool, Lock, Upload, DollarSign } from 'lucide-react';
+import { Zap, Layers, Lock, Upload, DollarSign } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;
@@ -10,7 +10,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
   const navItems = [
     { id: 'home', label: 'Home', icon: <Zap className="w-4 h-4" /> },
     { id: 'gallery', label: 'Gallery', icon: <Layers className="w-4 h-4" /> },
-    { id: 'create', label: 'Create Card', icon: <PenTool className="w-4 h-4" /> },
+    // DIY Card Creator - Temporarily Hidden
+    // { id: 'create', label: 'Create Card', icon: <PenTool className="w-4 h-4" /> },
     { id: 'custom', label: 'Custom Design', icon: <Upload className="w-4 h-4" /> },
     { id: 'pricing', label: 'Pricing', icon: <DollarSign className="w-4 h-4" /> },
     { id: 'admin', label: 'Admin', icon: <Lock className="w-4 h-4" /> },

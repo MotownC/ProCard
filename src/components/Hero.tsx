@@ -40,13 +40,14 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
             We transform your raw action shots into professional-grade trading cards. Better than retail. Custom made. Built for glory.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">
-            <button
+            {/* DIY Card Creator - Temporarily Hidden */}
+            {/* <button
               onClick={() => setPage('create')}
               className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold transition-all flex items-center justify-center gap-2"
             >
               Create Card (DIY)
               <ChevronRight className="w-5 h-5" />
-            </button>
+            </button> */}
             <button
               onClick={() => setPage('custom')}
               className="px-8 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all flex items-center justify-center gap-2"
