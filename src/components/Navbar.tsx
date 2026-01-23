@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Layers, Lock, Upload, DollarSign } from 'lucide-react';
+import { Layers, Lock, Upload, DollarSign, Home } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;
@@ -8,7 +8,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
   const navItems = [
-    { id: 'home', label: 'Home', icon: <Zap className="w-4 h-4" /> },
+    { id: 'home', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { id: 'gallery', label: 'Gallery', icon: <Layers className="w-4 h-4" /> },
     // DIY Card Creator - Temporarily Hidden
     // { id: 'create', label: 'Create Card', icon: <PenTool className="w-4 h-4" /> },
@@ -22,9 +22,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage('home')}>
-            <div className="bg-cyan-500 p-1.5 rounded-lg transform -skew-x-12">
-              <Zap className="text-white w-6 h-6 transform skew-x-12" />
-            </div>
+            <img
+              src="/appicon.png"
+              alt="ProCard Legends"
+              className="w-10 h-10 rounded-lg"
+            />
             <span className="text-2xl font-bold tracking-wider text-white font-['Teko']">
               PROCARD <span className="text-cyan-400">LEGENDS</span>
             </span>
