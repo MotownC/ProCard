@@ -181,7 +181,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
             Get Started with Custom Design
           </button>
           <p className="text-gray-400 mt-4">
-            Questions? Contact us at support@procardlegends.com
+            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">support@procardlegends.com</a>
           </p>
         </div>
       </div>

@@ -308,6 +308,10 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
           <p className="text-sm text-gray-400 text-center mt-4">
             You'll receive a confirmation email immediately after submission. Our design team will create your custom card and send you a proof within 24-48 hours.
           </p>
+
+          <p className="text-sm text-gray-400 text-center mt-2">
+            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">support@procardlegends.com</a>
+          </p>
         </form>
       </div>
     </div>
