@@ -50,20 +50,20 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
             </button> */}
             <button
               onClick={() => setPage('custom')}
-              className="px-8 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all flex items-center justify-center gap-2"
+              className="gradient-btn px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
             >
               Custom Design Service
               <ChevronRight className="w-5 h-5" />
             </button>
             <button
               onClick={() => setPage('gallery')}
-              className="px-8 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-white font-medium transition-all"
+              className="gradient-btn px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
             >
               View Gallery
             </button>
             <button
               onClick={() => setPage('pricing')}
-              className="px-8 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-white font-medium transition-all"
+              className="gradient-btn px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
             >
               Pricing
             </button>

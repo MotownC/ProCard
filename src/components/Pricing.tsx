@@ -1,12 +1,128 @@
 import React from 'react';
-import { Check, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface PricingProps {
   setPage: (page: string) => void;
 }
 
+const CheckIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="hsl(240, 15%, 9%)"
+    stroke="hsl(240, 15%, 9%)"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+);
+
+interface PricingTier {
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  popular: boolean;
+}
+
+const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: 'hsla(240, 15%, 9%, 1)',
+    backgroundImage:
+      'radial-gradient(at 88% 40%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 49% 30%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 14% 26%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 0% 64%, hsla(263, 93%, 56%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 41% 94%, hsla(284, 100%, 84%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 100% 99%, hsla(306, 100%, 57%, 1) 0px, transparent 85%)',
+    boxShadow: '0px -16px 24px 0px rgba(255, 255, 255, 0.25) inset',
+  };
+
+  const borderContainerStyle: React.CSSProperties = {
+    overflow: 'hidden',
+    pointerEvents: 'none',
+    position: 'absolute',
+    zIndex: -10,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 'calc(100% + 2px)',
+    height: 'calc(100% + 2px)',
+    backgroundImage:
+      'linear-gradient(0deg, hsla(0, 0%, 100%, 0) -50%, hsla(0, 0%, 40%, 0) 100%)',
+    borderRadius: '1rem',
+  };
+
+  const rotatingBorderStyle: React.CSSProperties = {
+    content: '""',
+    pointerEvents: 'none',
+    position: 'fixed',
+    zIndex: 200,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(0deg)',
+    transformOrigin: 'left',
+    width: '200%',
+    height: '10rem',
+    backgroundImage:
+      'linear-gradient(0deg, hsla(0, 0%, 100%, 0) 0%, hsl(277, 95%, 60%) 40%, hsl(277, 95%, 60%) 60%, hsla(0, 0%, 40%, 0) 100%)',
+    animation: 'rotate 8s linear infinite',
+  };
+
+  return (
+    <div
+      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col"
+      style={cardStyle}
+    >
+      {tier.popular && (
+        <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 z-10">
+          <span className="bg-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full whitespace-nowrap">
+            MOST POPULAR
+          </span>
+        </div>
+      )}
+
+      <div className="flex-grow relative z-[1]">
+        <div style={borderContainerStyle}>
+          <div style={rotatingBorderStyle}></div>
+        </div>
+
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-white font-['Teko'] tracking-wide mb-1">
+            {tier.name}
+          </h3>
+          <p className="text-xs text-neutral-500">{tier.description}</p>
+        </div>
+
+        <div className="text-center mb-6">
+          <div className="flex items-baseline justify-center gap-2">
+            <span className="text-4xl font-semibold tracking-tight text-white">
+              {tier.price}
+            </span>
+          </div>
+        </div>
+
+        <ul className="space-y-3 text-sm text-neutral-300">
+          {tier.features.map((feature, idx) => (
+            <li key={idx} className="flex items-start gap-3">
+              <div className="flex items-center justify-center w-4 h-4 mt-0.5 bg-violet-500 rounded-full flex-shrink-0">
+                <CheckIcon />
+              </div>
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 const Pricing: React.FC<PricingProps> = ({ setPage }) => {
-  const pricingTiers = [
+  const pricingTiers: PricingTier[] = [
     {
       name: 'Single Sided',
       price: '$10',
@@ -75,97 +191,65 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
+    <div className="min-h-screen w-full bg-neutral-950 py-12 px-4">
+      <style>{`@keyframes rotate { to { transform: translate(-50%, -50%) rotate(360deg); } }`}</style>
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-16">
           <button
             onClick={() => setPage('home')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
+            className="flex items-center gap-2 text-neutral-500 hover:text-white transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </button>
 
-          <h1 className="text-5xl md:text-6xl font-bold text-white font-['Teko'] mb-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-bold text-white font-['Teko'] tracking-tight text-center">
             PRICING
           </h1>
-          <p className="text-xl text-gray-400 text-center max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-neutral-400 text-center max-w-2xl mx-auto">
             Professional trading cards at transparent prices. Choose the package that fits your needs.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-items-center">
           {pricingTiers.map((tier, index) => (
-            <div
-              key={index}
-              className={`relative bg-slate-800 rounded-xl p-6 border-2 transition-all hover:scale-105 ${
-                tier.popular
-                  ? 'border-purple-500 shadow-lg shadow-purple-500/20'
-                  : 'border-slate-700 hover:border-cyan-500'
-              }`}
-            >
-              {tier.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                    MOST POPULAR
-                  </span>
-                </div>
-              )}
-
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-white font-['Teko'] mb-2">
-                  {tier.name}
-                </h3>
-                <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2">
-                  {tier.price}
-                </div>
-                <p className="text-gray-400 text-sm">{tier.description}</p>
-              </div>
-
-              <div className="space-y-3">
-                {tier.features.map((feature, featureIndex) => (
-                  <div key={featureIndex} className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-300 text-sm">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <PricingCard key={index} tier={tier} />
           ))}
         </div>
 
-        {/* Additional Info */}
-        <div className="mt-12 bg-slate-800 rounded-xl p-8 border border-slate-700">
-          <h2 className="text-3xl font-bold text-white font-['Teko'] mb-4 text-center">
+        {/* How It Works */}
+        <div className="mt-16 rounded-2xl p-8 border border-white/10" style={{ backgroundColor: 'hsla(240, 15%, 9%, 1)' }}>
+          <h2 className="text-3xl font-bold text-white font-['Teko'] mb-4 text-center tracking-wide">
             HOW IT WORKS
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
             <div className="text-center">
-              <div className="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-slate-900 font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                 1
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Upload Your Photo</h3>
-              <p className="text-gray-400">
+              <p className="text-neutral-400">
                 Submit your best action shot through our Custom Design Service
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                 2
               </div>
               <h3 className="text-xl font-bold text-white mb-2">We Design Your Card</h3>
-              <p className="text-gray-400">
+              <p className="text-neutral-400">
                 Our team creates a professional design and sends you a proof within 24-48 hours
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-slate-900 font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                 3
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Receive Your Cards</h3>
-              <p className="text-gray-400">
+              <p className="text-neutral-400">
                 Approve the design and receive your premium trading cards
               </p>
             </div>
@@ -173,15 +257,15 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         </div>
 
         {/* CTA */}
-        <div className="mt-12 text-center">
+        <div className="mt-16 text-center">
           <button
             onClick={() => setPage('custom')}
-            className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-bold rounded-lg transition-all text-lg"
+            className="gradient-btn px-8 py-4 text-white font-bold rounded-xl text-lg"
           >
             Get Started with Custom Design
           </button>
-          <p className="text-gray-400 mt-4">
-            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">support@procardlegends.com</a>
+          <p className="text-neutral-500 mt-4">
+            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-violet-400 hover:text-violet-300 transition-colors underline">support@procardlegends.com</a>
           </p>
         </div>
       </div>

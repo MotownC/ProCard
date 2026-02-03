@@ -281,10 +281,10 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
           <button
             type="submit"
             disabled={isUploading || uploadSuccess}
-            className={`w-full py-3 font-bold rounded-lg transition-colors flex items-center justify-center gap-2 ${
+            className={`w-full py-3 font-bold rounded-xl flex items-center justify-center gap-2 ${
               uploadSuccess
                 ? 'bg-green-600 text-white cursor-default'
-                : 'bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white'
+                : 'gradient-btn text-white disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >
             {isUploading ? (
