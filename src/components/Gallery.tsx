@@ -3,6 +3,16 @@ import { CardRarity, ShowcaseCard } from '../types';
 import { Upload, Trash2, Plus, X, Maximize2, RefreshCw, ImagePlus, Palette, ArrowUp, ArrowDown } from 'lucide-react';
 import { uploadToCloudinary } from '../utils/cloudinary';
 
+// Generate Cloudinary srcset for responsive images
+const cloudinarySrcSet = (url: string | undefined) => {
+  if (!url || !url.includes('res.cloudinary.com')) return undefined;
+  const widths = [320, 480, 640];
+  return widths.map(w => {
+    const transformed = url.replace('/upload/', `/upload/w_${w},f_auto,q_auto/`);
+    return `${transformed} ${w}w`;
+  }).join(', ');
+};
+
 interface GalleryProps {
   cards: ShowcaseCard[];
   onAddCards: (newCards: ShowcaseCard[]) => void;
@@ -424,9 +434,12 @@ const GalleryCard: React.FC<{
 
            <div className="h-full relative overflow-hidden bg-slate-900 flex items-center justify-center">
               {/* UPDATED: Gallery Front Image (Stretched) */}
-              <img 
-                src={card.imageUrl || `https://picsum.photos/300/500?random=${card.id + 10}`} 
-                alt={card.player} 
+              <img
+                src={card.imageUrl || `https://picsum.photos/300/500?random=${card.id + 10}`}
+                srcSet={cloudinarySrcSet(card.imageUrl)}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                alt={card.player}
+                loading="lazy"
                 className="w-full h-full object-fill"
               />
               
@@ -507,9 +520,12 @@ const GalleryCard: React.FC<{
 
                {card.backImageUrl ? (
                    <div className="w-full h-full relative">
-                       <img 
-                         src={card.backImageUrl} 
-                         alt="Card Back" 
+                       <img
+                         src={card.backImageUrl}
+                         srcSet={cloudinarySrcSet(card.backImageUrl)}
+                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                         alt={`${card.player} card back`}
+                         loading="lazy"
                          className="w-full h-full object-fill"
                        />
                        <div className="absolute inset-0 card-shine opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"></div>

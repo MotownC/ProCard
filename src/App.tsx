@@ -31,11 +31,33 @@ const DEFAULT_CARDS: ShowcaseCard[] = [
 ];
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPageState] = useState('home');
   const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [cards, setCards] = useState<ShowcaseCard[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [adminTab, setAdminTab] = useState<'gallery' | 'orders'>('gallery');
+
+  // Navigation with browser history support
+  const setCurrentPage = (page: string) => {
+    setCurrentPageState(page);
+    window.history.pushState({ page }, '', `/${page === 'home' ? '' : page}`);
+    window.scrollTo(0, 0);
+  };
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state?.page) {
+        setCurrentPageState(event.state.page);
+      } else {
+        setCurrentPageState('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    // Set initial state
+    window.history.replaceState({ page: 'home' }, '', '/');
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Subscribe to Firebase updates with Safety Timeout
   useEffect(() => {

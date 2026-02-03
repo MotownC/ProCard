@@ -87,7 +87,7 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
                 */}
                 <img 
                   src={card.imageUrl || `https://picsum.photos/400/600?random=${card.id}`} 
-                  alt="Card Sample" 
+                  alt={`${card.player} trading card`} 
                   className="w-full h-full object-cover bg-black opacity-90 group-hover:scale-105 transition-transform duration-700"
                 />
                 
