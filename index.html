@@ -30,7 +30,10 @@
           transparent 80%
         );
         background-size: 200% 200%;
-        animation: shine 4s infinite linear;
+        background-position: 200% 0;
+      }
+      .group:hover .card-shine, .card-shine-active {
+        animation: shine 4s ease-out;
       }
       @keyframes shine {
         0% { background-position: 200% 0; }
@@ -42,6 +45,18 @@
         .gradient-btn { transition: none; }
         .gradient-btn::before { transition: none; }
         * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      }
+
+      /* Carbon fibre texture (self-hosted, replaces transparenttextures.com) */
+      .carbon-fibre {
+        background-image:
+          linear-gradient(27deg, #151515 5px, transparent 5px),
+          linear-gradient(207deg, #151515 5px, transparent 5px),
+          linear-gradient(27deg, #222 5px, transparent 5px),
+          linear-gradient(207deg, #222 5px, transparent 5px),
+          linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
+          linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+        background-size: 20px 20px;
       }
 
       /* Focus States - keyboard navigation */

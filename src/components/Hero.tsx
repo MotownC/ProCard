@@ -36,7 +36,7 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
             TURN SUNDAY GAMES <br />
             INTO <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">ETERNAL LEGENDS</span>
           </h1>
-          <p className="mt-4 text-xl text-gray-400 max-w-lg mx-auto lg:mx-0">
+          <p className="mt-4 text-xl text-gray-300 max-w-lg mx-auto lg:mx-0">
             We transform your raw action shots into professional-grade trading cards. Better than retail. Custom made. Built for glory.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">

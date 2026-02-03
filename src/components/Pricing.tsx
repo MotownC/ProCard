@@ -75,7 +75,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
 
   return (
     <div
-      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col"
+      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col cursor-pointer"
       style={cardStyle}
     >
       {tier.popular && (
@@ -95,7 +95,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
           <h3 className="text-2xl font-bold text-white font-['Teko'] tracking-wide mb-1">
             {tier.name}
           </h3>
-          <p className="text-xs text-neutral-500">{tier.description}</p>
+          <p className="text-xs text-neutral-400">{tier.description}</p>
         </div>
 
         <div className="text-center mb-6">
@@ -199,7 +199,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         <div className="mb-16">
           <button
             onClick={() => setPage('home')}
-            className="flex items-center gap-2 text-neutral-500 hover:text-white transition-colors mb-6"
+            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
@@ -214,7 +214,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-items-center">
           {pricingTiers.map((tier, index) => (
             <PricingCard key={index} tier={tier} />
           ))}
@@ -264,7 +264,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
           >
             Get Started with Custom Design
           </button>
-          <p className="text-neutral-500 mt-4">
+          <p className="text-neutral-400 mt-4">
             Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-violet-400 hover:text-violet-300 transition-colors underline">support@procardlegends.com</a>
           </p>
         </div>

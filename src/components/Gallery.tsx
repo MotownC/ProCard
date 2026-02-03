@@ -233,7 +233,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
 
                             {selectedCard.imageType !== 'upload' && (
                                 <>
-                                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay"></div>
+                                    <div className="absolute inset-0 carbon-fibre opacity-10 mix-blend-overlay"></div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
                                     <div className="absolute bottom-0 w-full p-8 bg-slate-900/40 backdrop-blur-md border-t border-white/10">
                                         <div className="flex justify-between items-end mb-2">
@@ -465,7 +465,7 @@ const GalleryCard: React.FC<{
 
               {!isUpload && (
                 <>
-                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+                  <div className="absolute inset-0 carbon-fibre opacity-10"></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
                   <div className="absolute bottom-0 w-full p-4 bg-slate-900/80 backdrop-blur-sm border-t border-slate-700">
                       <div className="flex justify-between items-start">
