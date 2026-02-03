@@ -36,6 +36,19 @@
         100% { background-position: -200% 0; }
       }
 
+      @media (prefers-reduced-motion: reduce) {
+        .card-shine { animation: none; }
+        .gradient-btn { transition: none; }
+        .gradient-btn::before { transition: none; }
+        * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      }
+
+      /* Focus States - keyboard navigation */
+      button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+        outline: 2px solid #22d3ee;
+        outline-offset: 2px;
+      }
+
       /* Gradient Buttons */
       @property --pos-x { syntax: '<percentage>'; initial-value: 11.14%; inherits: false; }
       @property --pos-y { syntax: '<percentage>'; initial-value: 140%; inherits: false; }

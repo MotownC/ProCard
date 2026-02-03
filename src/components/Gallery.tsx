@@ -336,7 +336,7 @@ const GalleryCard: React.FC<{
                 {hasBack && (
                    <button
                      onClick={handleFlip}
-                     className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Back"
                    >
                      <RefreshCw className="w-4 h-4" />
@@ -360,7 +360,7 @@ const GalleryCard: React.FC<{
                            e.stopPropagation();
                            backInputRef.current?.click();
                         }}
-                        className="p-2 bg-slate-900/80 text-yellow-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-yellow-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Add Back Photo"
                       >
                         {isUploading ? <RefreshCw className="w-4 h-4 animate-spin"/> : <ImagePlus className="w-4 h-4" />}
@@ -375,7 +375,7 @@ const GalleryCard: React.FC<{
                       e.stopPropagation();
                       onRemove();
                     }}
-                    className="p-2 bg-slate-900/80 text-gray-400 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-gray-400 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Remove Card"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -394,7 +394,7 @@ const GalleryCard: React.FC<{
                       e.stopPropagation();
                       onMoveUp();
                     }}
-                    className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Move Up"
                   >
                     <ArrowUp className="w-4 h-4" />
@@ -407,7 +407,7 @@ const GalleryCard: React.FC<{
                       e.stopPropagation();
                       onMoveDown();
                     }}
-                    className="p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Move Down"
                   >
                     <ArrowDown className="w-4 h-4" />
@@ -483,7 +483,7 @@ const GalleryCard: React.FC<{
                  
                  <button
                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFlip(e); }}
-                     className="absolute top-2 right-2 z-30 p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     className="absolute top-2 right-2 z-30 min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Front"
                    >
                      <RefreshCw className="w-4 h-4" />
@@ -498,7 +498,7 @@ const GalleryCard: React.FC<{
                  
                  <button
                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFlip(e); }}
-                     className="absolute top-2 right-2 z-30 p-2 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     className="absolute top-2 right-2 z-30 min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Front"
                    >
                      <RefreshCw className="w-4 h-4" />

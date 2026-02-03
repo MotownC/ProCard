@@ -170,7 +170,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
         <form onSubmit={handleSubmit} className="bg-slate-800 rounded-xl p-6 border border-slate-700">
           {/* Photo Upload */}
           <div className="mb-6">
-            <label className="block text-white font-semibold mb-2">
+            <label htmlFor="photo-upload" className="block text-white font-semibold mb-2">
               Photo Upload <span className="text-red-500">*</span>
             </label>
             <p className="text-sm text-gray-400 mb-3">
@@ -178,6 +178,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
             </p>
 
             <input
+              id="photo-upload"
               type="file"
               ref={fileInputRef}
               onChange={handlePhotoChange}
@@ -217,10 +218,11 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
 
           {/* Name */}
           <div className="mb-4">
-            <label className="block text-white font-semibold mb-2">
+            <label htmlFor="customer-name" className="block text-white font-semibold mb-2">
               Your Name <span className="text-red-500">*</span>
             </label>
             <input
+              id="customer-name"
               type="text"
               name="name"
               value={formData.name}
@@ -233,10 +235,11 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
 
           {/* Email */}
           <div className="mb-4">
-            <label className="block text-white font-semibold mb-2">
+            <label htmlFor="customer-email" className="block text-white font-semibold mb-2">
               Email <span className="text-red-500">*</span>
             </label>
             <input
+              id="customer-email"
               type="email"
               name="email"
               value={formData.email}
@@ -249,10 +252,11 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
 
           {/* Phone */}
           <div className="mb-4">
-            <label className="block text-white font-semibold mb-2">
+            <label htmlFor="customer-phone" className="block text-white font-semibold mb-2">
               Phone Number
             </label>
             <input
+              id="customer-phone"
               type="tel"
               name="phone"
               value={formData.phone}
@@ -264,10 +268,11 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
 
           {/* Additional Notes */}
           <div className="mb-6">
-            <label className="block text-white font-semibold mb-2">
+            <label htmlFor="customer-notes" className="block text-white font-semibold mb-2">
               Additional Notes
             </label>
             <textarea
+              id="customer-notes"
               name="notes"
               value={formData.notes}
               onChange={handleInputChange}
