@@ -76,7 +76,7 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
               aspect-[2.5/3.5] creates exact trading card proportions (2.5" x 3.5")
               w-80 provides appropriate size on desktop
           */}
-          <div className="relative w-80 aspect-[2.5/3.5] rounded-xl shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-500 group">
+          <div className="relative w-80 aspect-[2.5/3.5] rounded-xl shadow-2xl card-showcase group" style={{ transformStyle: 'preserve-3d' }}>
              {/* Dynamic Gradient Background */}
              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} rounded-xl opacity-50`}></div>
              <div className="absolute inset-0 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex items-center justify-center">
