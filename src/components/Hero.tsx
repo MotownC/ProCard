@@ -70,13 +70,15 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
           </div>
         </div>
         
-        <div className="lg:w-1/2 mt-12 lg:mt-0 flex justify-center perspective-1000">
+        <div className="lg:w-1/2 mt-12 lg:mt-0 flex justify-center" style={{ perspective: '1000px' }}>
           {/* 
               CARD DIMENSIONS: 
               aspect-[2.5/3.5] creates exact trading card proportions (2.5" x 3.5")
               w-80 provides appropriate size on desktop
           */}
           <div className="relative w-80 aspect-[2.5/3.5] rounded-xl shadow-2xl card-showcase group" style={{ transformStyle: 'preserve-3d' }}>
+             {/* Color glow behind card */}
+             <div className={`absolute -inset-2 bg-gradient-to-r ${card.gradient} rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition duration-500 -z-10`}></div>
              {/* Dynamic Gradient Background */}
              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} rounded-xl opacity-50`}></div>
              <div className="absolute inset-0 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex items-center justify-center">
@@ -107,6 +109,8 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
              </div>
              {/* Shine Effect */}
              <div className="absolute inset-0 pointer-events-none card-shine opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+             {/* Reflective glare synced with rotation */}
+             <div className="card-glare"></div>
           </div>
         </div>
       </div>
