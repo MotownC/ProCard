@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'ProCard Legends <onboarding@resend.dev>',
+      from: 'ProCard Legends <noreply@procardlegends.com>',
       to: customerEmail,
       subject: 'Your ProCard proof is ready for review!',
       html: `
