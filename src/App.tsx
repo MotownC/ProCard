@@ -7,6 +7,7 @@ import CustomOrderForm from './components/CustomOrderForm';
 import AdminOrders from './components/AdminOrders';
 import Checkout from './components/Checkout';
 import Pricing from './components/Pricing';
+import OrderApproval from './components/OrderApproval';
 import { CardRarity, ShowcaseCard } from './types';
 import { subscribeToCards, saveCardToFirebase, deleteCardFromFirebase } from './utils/firebase';
 
@@ -36,6 +37,7 @@ const App: React.FC = () => {
   const [cards, setCards] = useState<ShowcaseCard[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [adminTab, setAdminTab] = useState<'gallery' | 'orders'>('gallery');
+  const [approvalToken, setApprovalToken] = useState<string>('');
 
   // Navigation with browser history support
   const setCurrentPage = (page: string) => {
@@ -54,8 +56,16 @@ const App: React.FC = () => {
       }
     };
     window.addEventListener('popstate', handlePopState);
-    // Set initial state
-    window.history.replaceState({ page: 'home' }, '', '/');
+    // Handle initial URL (e.g., /approve?token=xxx)
+    const path = window.location.pathname.replace('/', '') || 'home';
+    const params = new URLSearchParams(window.location.search);
+    if (path === 'approve' && params.get('token')) {
+      setApprovalToken(params.get('token')!);
+      setCurrentPageState('approve');
+      window.history.replaceState({ page: 'approve' }, '', window.location.href);
+    } else {
+      window.history.replaceState({ page: 'home' }, '', '/');
+    }
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
@@ -215,6 +225,14 @@ case 'checkout':
         return <CustomOrderForm setPage={setCurrentPage} />;
       case 'pricing':
         return <Pricing setPage={setCurrentPage} />;
+      case 'approve':
+        return approvalToken ? (
+          <OrderApproval token={approvalToken} />
+        ) : (
+          <div className="min-h-screen bg-slate-900 flex items-center justify-center text-gray-400">
+            Invalid approval link.
+          </div>
+        );
       default:
         return <Hero setPage={setCurrentPage} featuredCard={cards[0]} />;
     }

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, remove } from "firebase/database";
+import { getDatabase, ref, onValue, set, remove, get, query, orderByChild, equalTo } from "firebase/database";
 import { ShowcaseCard } from "../types";
 
 // ------------------------------------------------------------------
@@ -84,6 +84,13 @@ export interface CustomOrder {
   notes: string;
   timestamp: number;
   status?: string;
+  // Payment & proof approval fields
+  proofImageUrl?: string;
+  approvalToken?: string;
+  selectedOptions?: string[];
+  quantities?: Record<string, number>;
+  totalPaidCents?: number;
+  paymentIntentId?: string;
 }
 
 export const saveCustomOrderToFirebase = async (order: CustomOrder) => {
@@ -134,5 +141,74 @@ export const deleteCustomOrder = async (timestamp: number) => {
   } catch (error) {
     console.error("🔥 Delete Error:", error);
     throw error;
+  }
+};
+
+// Update order with proof image and approval token
+export const updateOrderProof = async (timestamp: number, proofImageUrl: string, approvalToken: string) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    const snapshot = await get(orderRef);
+    if (!snapshot.exists()) throw new Error('Order not found');
+    const existing = snapshot.val();
+    await set(orderRef, { ...existing, proofImageUrl, approvalToken, status: 'proof_sent' });
+    console.log("✅ Updated order proof:", timestamp);
+  } catch (error: any) {
+    console.error("🔥 Proof Update Error:", error);
+    throw new Error(`Failed to update proof: ${error.message}`);
+  }
+};
+
+// Look up an order by its approval token
+export const getOrderByToken = async (token: string): Promise<CustomOrder | null> => {
+  try {
+    const ordersRef = ref(db, 'customOrders');
+    const q = query(ordersRef, orderByChild('approvalToken'), equalTo(token));
+    const snapshot = await get(q);
+    if (!snapshot.exists()) return null;
+    const data = snapshot.val();
+    const orders = Object.values(data) as CustomOrder[];
+    return orders[0] || null;
+  } catch (error) {
+    console.error("🔥 Token Lookup Error:", error);
+    return null;
+  }
+};
+
+// Mark order as complete (shipped)
+export const updateOrderComplete = async (timestamp: number) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    const snapshot = await get(orderRef);
+    if (!snapshot.exists()) throw new Error('Order not found');
+    const existing = snapshot.val();
+    await set(orderRef, { ...existing, status: 'complete' });
+    console.log("✅ Marked order complete:", timestamp);
+  } catch (error: any) {
+    console.error("🔥 Complete Update Error:", error);
+    throw new Error(`Failed to mark complete: ${error.message}`);
+  }
+};
+
+// Update order after successful payment
+export const updateOrderPayment = async (
+  timestamp: number,
+  paymentData: {
+    paymentIntentId: string;
+    selectedOptions: string[];
+    quantities: Record<string, number>;
+    totalPaidCents: number;
+  }
+) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    const snapshot = await get(orderRef);
+    if (!snapshot.exists()) throw new Error('Order not found');
+    const existing = snapshot.val();
+    await set(orderRef, { ...existing, ...paymentData, status: 'paid' });
+    console.log("✅ Updated order payment:", timestamp);
+  } catch (error: any) {
+    console.error("🔥 Payment Update Error:", error);
+    throw new Error(`Failed to update payment: ${error.message}`);
   }
 };

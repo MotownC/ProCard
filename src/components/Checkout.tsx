@@ -14,63 +14,6 @@ async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
   return await res.blob();
 }
 
-async function createPrintReadyPdf(frontDataUrl: string, backDataUrl: string): Promise<Uint8Array> {
-  const pdfDoc = await PDFDocument.create();
-  
-  // Convert data URLs to image bytes
-  const frontBlob = await dataUrlToBlob(frontDataUrl);
-  const backBlob = await dataUrlToBlob(backDataUrl);
-  
-  const frontBytes = await frontBlob.arrayBuffer(); // Don't wrap in Uint8Array yet
-  const backBytes = await backBlob.arrayBuffer();
-  
-  // Embed images (try PNG first, fallback to JPEG)
-  let frontImg, backImg;
-  try {
-    frontImg = await pdfDoc.embedPng(new Uint8Array(frontBytes)); // Wrap here
-  } catch {
-    frontImg = await pdfDoc.embedJpg(new Uint8Array(frontBytes));
-  }
-  
-  try {
-    backImg = await pdfDoc.embedPng(new Uint8Array(backBytes)); // Wrap here
-  } catch {
-    backImg = await pdfDoc.embedJpg(new Uint8Array(backBytes));
-  }
-  
-  // Standard poker card size: 2.5" x 3.5" at 300 DPI = 750 x 1050 pixels
-  // In PDF points (72 per inch): 180 x 252 points
-  const cardWidth = 2.5 * 72;
-  const cardHeight = 3.5 * 72;
-  
-  // Add bleed (0.125" = 9 points on each side)
-  const bleed = 0.125 * 72;
-  const pageWidth = cardWidth + (bleed * 2);
-  const pageHeight = cardHeight + (bleed * 2);
-  
-  // Front page with bleed
-  const frontPage = pdfDoc.addPage([pageWidth, pageHeight]);
-  frontPage.drawImage(frontImg, {
-    x: 0,
-    y: 0,
-    width: pageWidth,
-    height: pageHeight,
-  });
-  
-  // Back page with bleed (only if backDataUrl exists)
-  if (backDataUrl) {
-    const backPage = pdfDoc.addPage([pageWidth, pageHeight]);
-    backPage.drawImage(backImg, {
-      x: 0,
-      y: 0,
-      width: pageWidth,
-      height: pageHeight,
-    });
-  }
-  
-  return await pdfDoc.save();
-}
-
 async function uploadToCloudinary(file: Blob | Uint8Array, fileName: string, resourceType = 'raw') {
   const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`;
   const fd = new FormData();

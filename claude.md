@@ -22,25 +22,37 @@ ProCard is a card creation tool that allows users to:
   - `html-to-image` for card rendering
 - **PDF Generation**: `pdf-lib` 1.17.1
 - **Icons**: Lucide React
+- **Payments**: Stripe (Elements + PaymentIntent API)
 - **AI**: Google Generative AI (Gemini)
-- **Deployment**: Vercel
+- **Deployment**: Vercel (with serverless API functions in `/api`)
 
 ## Project Structure
 
 ```
+api/
+└── create-payment-intent.ts  # Vercel serverless: Stripe PaymentIntent creation
 src/
 ├── components/
-│   ├── OrderForm.tsx      # Main card creation interface
-│   ├── Gallery.tsx        # Showcase gallery with Firebase sync
-│   ├── Checkout.tsx       # Payment/order completion
-│   ├── Hero.tsx           # Landing page hero section
-│   ├── Navbar.tsx         # Navigation bar
-│   └── Roadmap.tsx        # Feature roadmap
+│   ├── OrderForm.tsx        # Main card creation interface
+│   ├── Gallery.tsx          # Showcase gallery with Firebase sync
+│   ├── Checkout.tsx         # PDF generation/order completion (self-serve)
+│   ├── CustomOrderForm.tsx  # Custom design service order form
+│   ├── OrderApproval.tsx    # Customer proof approval + Stripe checkout
+│   ├── PaymentForm.tsx      # Stripe Elements payment form wrapper
+│   ├── AdminOrders.tsx      # Admin: manage orders, upload proofs, copy approval links
+│   ├── Pricing.tsx          # Pricing tiers display
+│   ├── Hero.tsx             # Landing page hero section
+│   ├── Navbar.tsx           # Navigation bar
+│   └── Roadmap.tsx          # Feature roadmap
+├── config/
+│   └── pricing.ts           # Shared pricing constants and helpers
+├── lib/
+│   └── stripe.ts            # Stripe.js loader initialization
 ├── utils/
-│   ├── firebase.ts        # Firebase database operations
-│   └── cloudinary.ts      # Image upload to Cloudinary
-├── types.ts               # TypeScript type definitions
-└── App.tsx                # Main app component with routing
+│   ├── firebase.ts          # Firebase database operations
+│   └── cloudinary.ts        # Image upload to Cloudinary
+├── types.ts                 # TypeScript type definitions
+└── App.tsx                  # Main app component with routing
 ```
 
 ## Key Features
@@ -86,6 +98,24 @@ cards/
     gradient: string
     imageUrl?: string
     backImageUrl?: string
+
+customOrders/
+  {timestamp}/
+    name, email, phone, photoUrl, notes, timestamp
+    status: 'pending' | 'proof_sent' | 'paid'
+    proofImageUrl?: string
+    approvalToken?: string
+    selectedOptions?: string[]
+    quantities?: Record<string, number>
+    totalPaidCents?: number
+    paymentIntentId?: string
+```
+
+**Note:** The `approvalToken` field requires a Firebase index for querying. Add to `database.rules.json`:
+```json
+"customOrders": {
+  ".indexOn": ["approvalToken"]
+}
 ```
 
 **Security Rules:**
@@ -97,6 +127,14 @@ cards/
 - `subscribeToCards()` - Real-time listener for gallery updates
 - `saveCardToFirebase()` - Save new/updated cards
 - `deleteCardFromFirebase()` - Remove cards (admin only)
+
+**Custom Order Operations:**
+- `saveCustomOrderToFirebase()` - Save new custom orders (status: pending)
+- `subscribeToCustomOrders()` - Real-time listener for admin order panel
+- `updateOrderProof()` - Admin uploads proof image + generates approval token
+- `getOrderByToken()` - Look up order by approval token (for customer approval page)
+- `updateOrderPayment()` - Update order with Stripe payment details (status: paid)
+- `deleteCustomOrder()` - Remove custom orders
 
 ## Environment Variables
 
@@ -111,7 +149,11 @@ VITE_FIREBASE_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_STRIPE_PUBLISHABLE_KEY=    # pk_test_... or pk_live_...
+STRIPE_SECRET_KEY=               # sk_test_... or sk_live_... (server-side only, no VITE_ prefix)
 ```
+
+**Note:** `STRIPE_SECRET_KEY` intentionally lacks the `VITE_` prefix so Vite does NOT bundle it into client-side code. It is only accessible in Vercel serverless functions via `process.env`.
 
 ## Development Workflow
 
@@ -166,6 +208,18 @@ Player statistics and biographical information for card back.
 ### CardRarity
 Enum: BASE, CHROME, HOLOGRAPHIC, ONE_OF_ONE
 
+### CustomOrder
+Order data for custom design service. Key fields:
+- `name`, `email`, `phone`, `photoUrl`, `notes`, `timestamp`
+- `status`: `'pending'` | `'proof_sent'` | `'paid'`
+- `proofImageUrl?`: Proof image uploaded by admin
+- `approvalToken?`: UUID for customer approval link
+- `selectedOptions?`, `quantities?`: What the customer ordered
+- `totalPaidCents?`, `paymentIntentId?`: Stripe payment details
+
+### PricingOption (in `src/config/pricing.ts`)
+Pricing tier definition with `id`, `name`, `priceInCents`, `type` (base/addon/bundle), `description`.
+
 ## Git Workflow
 
 - Main branch: `main`
@@ -179,6 +233,47 @@ Access admin mode via navbar for:
 - Delete cards from gallery
 - Add back images to cards
 - Customize card gradients/colors
+
+### Custom Order Management (Admin > Custom Orders tab)
+- View all custom orders with status filters (All / Pending / Proof Sent / Paid)
+- Upload proof images to orders (uploads to Cloudinary)
+- Auto-generates unique approval token + customer approval link
+- Copy approval link to send to customer
+- View payment details and Stripe PaymentIntent ID for paid orders
+
+## Stripe Payment Integration
+
+### Custom Order Payment Flow
+```
+1. Customer submits CustomOrderForm (name, email, photo, notes) → saved to Firebase as "pending"
+2. Admin designs card, uploads proof image via AdminOrders panel
+3. System generates approval link: /approve?token=<uuid>
+4. Admin sends link to customer
+5. Customer opens link → sees proof → selects products + quantities
+6. Customer pays via Stripe Elements (embedded payment form)
+7. On success: Firebase order updated to "paid" with paymentIntentId, email notification sent
+```
+
+### Pricing Configuration
+Defined in `src/config/pricing.ts`. Five tiers:
+- Single Sided Card: $10.00 (base)
+- Double Sided Card: $15.00 (base)
+- Magnetic Case: $5.00 (addon)
+- Digital Download: $10.00 (addon)
+- Deluxe Package: $25.00 (bundle)
+
+Prices are validated server-side in `api/create-payment-intent.ts` — client sends option IDs and quantities, server calculates the total.
+
+### Serverless API
+- `POST /api/create-payment-intent` — Receives `{ items: [{id, quantity}], customerEmail }`, validates against server-side pricing, creates Stripe PaymentIntent, returns `{ clientSecret, amount }`
+- Vercel auto-routes `/api/*` as serverless functions before the SPA rewrite
+
+### Testing Stripe
+- Use test keys (`pk_test_...` / `sk_test_...`) during development
+- Test card: `4242 4242 4242 4242`, any future expiry, any 3-digit CVC
+- Declined card: `4000 0000 0000 0002`
+- View test payments: https://dashboard.stripe.com/test/payments
+- To go live: swap test keys for live keys in Vercel env vars (no code changes)
 
 ## Image Processing Pipeline
 

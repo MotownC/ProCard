@@ -75,7 +75,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
 
   return (
     <div
-      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col cursor-pointer"
+      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col cursor-pointer w-full"
       style={cardStyle}
     >
       {tier.popular && (
@@ -214,7 +214,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {pricingTiers.map((tier, index) => (
             <PricingCard key={index} tier={tier} />
           ))}
@@ -225,7 +225,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
           <h2 className="text-3xl font-bold text-white font-['Teko'] mb-4 text-center tracking-wide">
             HOW IT WORKS
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                 1
@@ -248,9 +248,18 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
               <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                 3
               </div>
+              <h3 className="text-xl font-bold text-white mb-2">Approve & Order</h3>
+              <p className="text-neutral-400">
+                Review your card design, select your packages and quantities, and place your order
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+                4
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Receive Your Cards</h3>
               <p className="text-neutral-400">
-                Approve the design and receive your premium trading cards
+                Your premium trading cards are printed and shipped straight to your door
               </p>
             </div>
           </div>

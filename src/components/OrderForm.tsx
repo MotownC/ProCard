@@ -845,23 +845,6 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     // FIRST CAPTURE (primes the iOS cache, might be blank)
     console.log('iOS Workaround: First capture (priming cache)...');
-        // Helper to force canvas redraw
-    const forceCanvasRedraw = () => {
-      return new Promise<void>((resolve) => {
-        // Trigger a state change that will cause useEffect to run
-        const currentBg = backgroundStyle;
-        setBackgroundStyle(''); // Clear it
-        
-        requestAnimationFrame(() => {
-          setBackgroundStyle(currentBg); // Restore it
-          
-          // Wait for the useEffect to complete
-          setTimeout(() => {
-            resolve();
-          }, 300);
-        });
-      });
-    };
     // Helper to convert blob URL to data URL
     const blobToDataURL = async (blobUrl: string): Promise<string> => {
       const response = await fetch(blobUrl);
@@ -900,7 +883,7 @@ const waitForImages = async (element: HTMLElement): Promise<void> => {
       return Promise.resolve();
     }
     console.log('Waiting for image to load:', img.src.substring(0, 50));
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       img.onload = () => {
         console.log('Image loaded:', img.src.substring(0, 50));
         resolve();
@@ -1034,9 +1017,8 @@ const captureFace = async (faceSelector: string, faceName: string) => {
       });
     });
 
-    const firstFrontDataUrl = await captureFace('[data-card-face="front"]', 'Front (first)');
+    await captureFace('[data-card-face="front"]', 'Front (first)');
 
-    let firstBackDataUrl = '';
     if (createBackMode) {
       console.log('Setting to back view...');
       setShowBack(true);
@@ -1049,7 +1031,7 @@ const captureFace = async (faceSelector: string, faceName: string) => {
           });
         });
       });
-      firstBackDataUrl = await captureFace('[data-card-face="back"]', 'Back (first)');
+      await captureFace('[data-card-face="back"]', 'Back (first)');
     }
 
     console.log('iOS Workaround: First capture complete (might be blank). Waiting then doing second capture...');
