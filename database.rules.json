@@ -11,6 +11,7 @@
     },
     "customOrders": {
       ".read": true,
+      ".indexOn": ["approvalToken"],
       "$orderId": {
         ".write": "!newData.exists() || (newData.hasChildren(['name', 'email', 'photoUrl', 'timestamp']) && newData.child('name').isString() && newData.child('email').isString() && newData.child('photoUrl').isString() && newData.child('timestamp').isNumber())"
       }
