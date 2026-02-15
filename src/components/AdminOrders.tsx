@@ -51,9 +51,10 @@ const AdminOrders: React.FC = () => {
               proofImageUrl: proofUrl,
             }),
           });
-          if (!resp.ok) throw new Error('Email send failed');
-        } catch {
-          alert('Proof uploaded but email failed to send. You can copy the approval link manually.');
+          const result = await resp.json();
+          if (!resp.ok) throw new Error(result.error || 'Email send failed');
+        } catch (emailErr: any) {
+          alert(`Proof uploaded but email failed: ${emailErr.message}. You can copy the approval link manually.`);
         }
       }
     } catch {
