@@ -106,6 +106,7 @@ customOrders/
     name, email, phone, photoUrl, notes, timestamp
     status: 'pending' | 'proof_sent' | 'paid' | 'complete'
     proofImageUrl?: string
+    proofBackImageUrl?: string
     approvalToken?: string
     selectedOptions?: string[]
     quantities?: Record<string, number>
@@ -133,7 +134,7 @@ customOrders/
 **Custom Order Operations:**
 - `saveCustomOrderToFirebase()` - Save new custom orders (status: pending)
 - `subscribeToCustomOrders()` - Real-time listener for admin order panel
-- `updateOrderProof()` - Admin uploads proof image + generates approval token
+- `updateOrderProof()` - Admin uploads front (+ optional back) proof image + generates approval token
 - `getOrderByToken()` - Look up order by approval token (for customer approval page)
 - `updateOrderPayment()` - Update order with Stripe payment details (status: paid)
 - `updateOrderComplete()` - Mark order as shipped/complete (status: complete)
@@ -221,7 +222,8 @@ Enum: BASE, CHROME, HOLOGRAPHIC, ONE_OF_ONE
 Order data for custom design service. Key fields:
 - `name`, `email`, `phone`, `photoUrl`, `notes`, `timestamp`
 - `status`: `'pending'` | `'proof_sent'` | `'paid'` | `'complete'`
-- `proofImageUrl?`: Proof image uploaded by admin
+- `proofImageUrl?`: Front proof image uploaded by admin
+- `proofBackImageUrl?`: Back proof image uploaded by admin (optional)
 - `approvalToken?`: UUID for customer approval link
 - `selectedOptions?`, `quantities?`: What the customer ordered
 - `totalPaidCents?`, `paymentIntentId?`: Stripe payment details
@@ -245,9 +247,9 @@ Access admin mode via navbar for:
 
 ### Custom Order Management (Admin > Custom Orders tab)
 - View all custom orders with status filters (All / Pending / Proof Sent / Paid / Complete)
-- Upload proof images to orders (uploads to Cloudinary)
+- Upload front and back proof images to orders (back is optional, both upload to Cloudinary)
 - Auto-generates unique approval token + customer approval link
-- Auto-sends proof notification email to customer via Resend
+- Auto-sends proof notification email to customer via Resend (shows front & back side-by-side if both provided)
 - Copy approval link to send to customer manually (fallback)
 - View payment details and Stripe PaymentIntent ID for paid orders
 - Mark paid orders as shipped/complete via checkbox
@@ -257,10 +259,10 @@ Access admin mode via navbar for:
 ### Custom Order Payment Flow
 ```
 1. Customer submits CustomOrderForm (name, email, photo, notes) → saved to Firebase as "pending"
-2. Admin designs card, uploads proof image via AdminOrders panel
+2. Admin designs card, uploads front proof image (+ optional back) via AdminOrders panel
 3. System generates approval link: /approve?token=<uuid>
-4. Proof notification email auto-sent to customer via Resend (with proof preview + approval link)
-5. Customer opens link → sees proof → selects products + quantities
+4. Proof notification email auto-sent to customer via Resend (with front & back preview + approval link)
+5. Customer opens link → sees front/back proof side-by-side → selects products + quantities
 6. Customer pays via Stripe Elements (embedded payment form)
 7. On success: Firebase order updated to "paid" with paymentIntentId
 8. Admin marks order as shipped → status updated to "complete"
@@ -278,7 +280,7 @@ Prices are validated server-side in `api/create-payment-intent.ts` — client se
 
 ### Serverless API
 - `POST /api/create-payment-intent` — Receives `{ items: [{id, quantity}], customerEmail }`, validates against server-side pricing, creates Stripe PaymentIntent, returns `{ clientSecret, amount }`
-- `POST /api/send-proof-email` — Receives `{ customerEmail, customerName, approvalUrl, proofImageUrl }`, sends styled HTML email via Resend, returns `{ success, emailId }`
+- `POST /api/send-proof-email` — Receives `{ customerEmail, customerName, approvalUrl, proofImageUrl, proofBackImageUrl?, isRevision }`, sends styled HTML email via Resend (front & back side-by-side if both provided), returns `{ success, emailId }`
 - Vercel auto-routes `/api/*` as serverless functions before the SPA rewrite
 - **Important:** `vercel.json` rewrite uses `/((?!api/).*)` to avoid intercepting API routes
 

@@ -238,11 +238,32 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
         {order?.proofImageUrl && (
           <div className="mb-10">
             <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-center">
-              <img
-                src={order.proofImageUrl}
-                alt="Your custom card design"
-                className="max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600"
-              />
+              {order.proofBackImageUrl ? (
+                <div className="flex justify-center gap-6 flex-wrap">
+                  <div className="text-center">
+                    <img
+                      src={order.proofImageUrl}
+                      alt="Card front"
+                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600"
+                    />
+                    <p className="text-gray-400 text-sm mt-2 font-medium">Front</p>
+                  </div>
+                  <div className="text-center">
+                    <img
+                      src={order.proofBackImageUrl}
+                      alt="Card back"
+                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600"
+                    />
+                    <p className="text-gray-400 text-sm mt-2 font-medium">Back</p>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={order.proofImageUrl}
+                  alt="Your custom card design"
+                  className="max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600"
+                />
+              )}
               <p className="text-cyan-400 mt-4 font-semibold">
                 Love your design? Select your products below! Or request changes if something needs adjusting.
               </p>

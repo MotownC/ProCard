@@ -82,6 +82,7 @@ export interface OrderMessage {
   text: string;
   timestamp: number;
   proofImageUrl?: string;
+  proofBackImageUrl?: string;
 }
 
 export interface CustomOrder {
@@ -94,6 +95,7 @@ export interface CustomOrder {
   status?: 'pending' | 'proof_sent' | 'revision_requested' | 'paid' | 'complete';
   // Payment & proof approval fields
   proofImageUrl?: string;
+  proofBackImageUrl?: string;
   approvalToken?: string;
   selectedOptions?: string[];
   quantities?: Record<string, number>;
@@ -156,30 +158,36 @@ export const deleteCustomOrder = async (timestamp: number) => {
 };
 
 // Update order with proof image and approval token (first proof)
-export const updateOrderProof = async (timestamp: number, proofImageUrl: string, approvalToken: string) => {
+export const updateOrderProof = async (timestamp: number, proofImageUrl: string, approvalToken: string, proofBackImageUrl?: string) => {
   try {
     const orderRef = ref(db, 'customOrders/' + timestamp);
     const snapshot = await get(orderRef);
     if (!snapshot.exists()) throw new Error('Order not found');
     const existing = snapshot.val();
 
-    const messages: OrderMessage[] = existing.messages || [];
-    messages.push({
+    const message: OrderMessage = {
       id: crypto.randomUUID(),
       sender: 'admin',
       text: 'Your card proof is ready for review!',
       timestamp: Date.now(),
       proofImageUrl,
-    });
+    };
+    if (proofBackImageUrl) message.proofBackImageUrl = proofBackImageUrl;
 
-    await set(orderRef, {
+    const messages: OrderMessage[] = existing.messages || [];
+    messages.push(message);
+
+    const updates: Record<string, any> = {
       ...existing,
       proofImageUrl,
       approvalToken,
       status: 'proof_sent',
       messages,
       proofHistory: existing.proofHistory || [],
-    });
+    };
+    if (proofBackImageUrl) updates.proofBackImageUrl = proofBackImageUrl;
+
+    await set(orderRef, updates);
     console.log("✅ Updated order proof:", timestamp);
   } catch (error: any) {
     console.error("🔥 Proof Update Error:", error);
@@ -188,7 +196,7 @@ export const updateOrderProof = async (timestamp: number, proofImageUrl: string,
 };
 
 // Update order with revised proof (keeps existing token)
-export const updateOrderProofRevision = async (timestamp: number, newProofImageUrl: string, adminNote?: string) => {
+export const updateOrderProofRevision = async (timestamp: number, newProofImageUrl: string, adminNote?: string, newProofBackImageUrl?: string) => {
   try {
     const orderRef = ref(db, 'customOrders/' + timestamp);
     const snapshot = await get(orderRef);
@@ -199,23 +207,34 @@ export const updateOrderProofRevision = async (timestamp: number, newProofImageU
     if (existing.proofImageUrl) {
       proofHistory.push(existing.proofImageUrl);
     }
+    if (existing.proofBackImageUrl) {
+      proofHistory.push(existing.proofBackImageUrl);
+    }
 
-    const messages: OrderMessage[] = existing.messages || [];
-    messages.push({
+    const message: OrderMessage = {
       id: crypto.randomUUID(),
       sender: 'admin',
       text: adminNote || 'Updated proof uploaded. Please review!',
       timestamp: Date.now(),
       proofImageUrl: newProofImageUrl,
-    });
+    };
+    if (newProofBackImageUrl) message.proofBackImageUrl = newProofBackImageUrl;
 
-    await set(orderRef, {
+    const messages: OrderMessage[] = existing.messages || [];
+    messages.push(message);
+
+    const updates: Record<string, any> = {
       ...existing,
       proofImageUrl: newProofImageUrl,
       proofHistory,
       messages,
       status: 'proof_sent',
-    });
+    };
+    if (newProofBackImageUrl) {
+      updates.proofBackImageUrl = newProofBackImageUrl;
+    }
+
+    await set(orderRef, updates);
     console.log("✅ Updated revised proof:", timestamp);
   } catch (error: any) {
     console.error("🔥 Proof Revision Error:", error);

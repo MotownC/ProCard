@@ -10,7 +10,10 @@ const AdminOrders: React.FC = () => {
   const [uploadingProof, setUploadingProof] = useState<number | null>(null);
   const [copiedToken, setCopiedToken] = useState<number | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ timestamp: number; name: string } | null>(null);
-  const proofInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const [pendingFrontFiles, setPendingFrontFiles] = useState<Record<number, File>>({});
+  const [pendingBackFiles, setPendingBackFiles] = useState<Record<number, File>>({});
+  const frontInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const backInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   useEffect(() => {
     const unsubscribe = subscribeToCustomOrders((fetchedOrders) => {
@@ -30,22 +33,37 @@ const AdminOrders: React.FC = () => {
     }
   };
 
-  const handleProofUpload = async (timestamp: number, file: File) => {
+  const handleProofUpload = async (timestamp: number) => {
+    const frontFile = pendingFrontFiles[timestamp];
+    if (!frontFile) {
+      alert('Please select at least a front proof image.');
+      return;
+    }
+    const backFile = pendingBackFiles[timestamp];
+
     setUploadingProof(timestamp);
     try {
-      const proofUrl = await uploadToCloudinary(file);
+      // Upload front (required) and back (optional) to Cloudinary
+      const proofUrl = await uploadToCloudinary(frontFile);
+      let backUrl: string | undefined;
+      if (backFile) {
+        backUrl = await uploadToCloudinary(backFile);
+      }
+
       const order = orders.find(o => o.timestamp === timestamp);
       let token = order?.approvalToken;
       const isRevision = !!token;
 
       if (token) {
-        // Revision: reuse existing token
-        await updateOrderProofRevision(timestamp, proofUrl);
+        await updateOrderProofRevision(timestamp, proofUrl, undefined, backUrl);
       } else {
-        // First proof: generate new token
         token = crypto.randomUUID();
-        await updateOrderProof(timestamp, proofUrl, token);
+        await updateOrderProof(timestamp, proofUrl, token, backUrl);
       }
+
+      // Clear pending files
+      setPendingFrontFiles(prev => { const { [timestamp]: _, ...rest } = prev; return rest; });
+      setPendingBackFiles(prev => { const { [timestamp]: _, ...rest } = prev; return rest; });
 
       // Send proof email to customer
       if (order?.email && token) {
@@ -59,6 +77,7 @@ const AdminOrders: React.FC = () => {
               customerName: order.name,
               approvalUrl,
               proofImageUrl: proofUrl,
+              proofBackImageUrl: backUrl,
               isRevision,
             }),
           });
@@ -356,8 +375,21 @@ const AdminOrders: React.FC = () => {
                               </span>
                             </div>
                             <p>{msg.text}</p>
-                            {msg.proofImageUrl && (
-                              <img src={msg.proofImageUrl} alt="Proof" className="mt-2 w-24 h-24 object-cover rounded border border-slate-600" />
+                            {(msg.proofImageUrl || msg.proofBackImageUrl) && (
+                              <div className="flex gap-2 mt-2">
+                                {msg.proofImageUrl && (
+                                  <div className="text-center">
+                                    <img src={msg.proofImageUrl} alt="Front" className="w-24 h-24 object-cover rounded border border-slate-600" />
+                                    <p className="text-xs text-gray-500 mt-0.5">Front</p>
+                                  </div>
+                                )}
+                                {msg.proofBackImageUrl && (
+                                  <div className="text-center">
+                                    <img src={msg.proofBackImageUrl} alt="Back" className="w-24 h-24 object-cover rounded border border-slate-600" />
+                                    <p className="text-xs text-gray-500 mt-0.5">Back</p>
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </div>
                         ))}
@@ -400,14 +432,21 @@ const AdminOrders: React.FC = () => {
                   {/* Proof Upload & Approval Link Section */}
                   {(order.status === 'pending' || order.status === 'proof_sent' || order.status === 'revision_requested') && (
                     <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 space-y-3">
-                      {/* Proof Image Preview */}
-                      {order.proofImageUrl && (
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={order.proofImageUrl}
-                            alt="Proof"
-                            className="w-16 h-16 object-cover rounded border border-slate-600"
-                          />
+                      {/* Existing Proof Previews */}
+                      {(order.proofImageUrl || order.proofBackImageUrl) && (
+                        <div className="flex items-center gap-4">
+                          {order.proofImageUrl && (
+                            <div className="text-center">
+                              <img src={order.proofImageUrl} alt="Front proof" className="w-16 h-16 object-cover rounded border border-slate-600" />
+                              <p className="text-xs text-gray-500 mt-1">Front</p>
+                            </div>
+                          )}
+                          {order.proofBackImageUrl && (
+                            <div className="text-center">
+                              <img src={order.proofBackImageUrl} alt="Back proof" className="w-16 h-16 object-cover rounded border border-slate-600" />
+                              <p className="text-xs text-gray-500 mt-1">Back</p>
+                            </div>
+                          )}
                           <span className="text-green-400 text-sm flex items-center gap-1">
                             <CheckCircle className="w-4 h-4" />
                             Proof uploaded
@@ -415,36 +454,83 @@ const AdminOrders: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Upload Proof Button */}
-                      <div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          ref={(el) => { proofInputRefs.current[order.timestamp] = el; }}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleProofUpload(order.timestamp, file);
-                          }}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => proofInputRefs.current[order.timestamp]?.click()}
-                          disabled={uploadingProof === order.timestamp}
-                          className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors"
-                        >
-                          {uploadingProof === order.timestamp ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4" />
-                              {order.proofImageUrl ? 'Replace Proof Image' : 'Upload Proof Image'}
-                            </>
-                          )}
-                        </button>
+                      {/* Front & Back File Selectors */}
+                      <div className="flex flex-wrap gap-3">
+                        {/* Front (required) */}
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={(el) => { frontInputRefs.current[order.timestamp] = el; }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setPendingFrontFiles(prev => ({ ...prev, [order.timestamp]: file }));
+                            }}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => frontInputRefs.current[order.timestamp]?.click()}
+                            disabled={uploadingProof === order.timestamp}
+                            className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors ${
+                              pendingFrontFiles[order.timestamp]
+                                ? 'bg-green-600 hover:bg-green-500 text-white'
+                                : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
+                            }`}
+                          >
+                            <Image className="w-4 h-4" />
+                            {pendingFrontFiles[order.timestamp]
+                              ? pendingFrontFiles[order.timestamp].name.slice(0, 20)
+                              : 'Select Front'}
+                          </button>
+                        </div>
+
+                        {/* Back (optional) */}
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={(el) => { backInputRefs.current[order.timestamp] = el; }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setPendingBackFiles(prev => ({ ...prev, [order.timestamp]: file }));
+                            }}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => backInputRefs.current[order.timestamp]?.click()}
+                            disabled={uploadingProof === order.timestamp}
+                            className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors ${
+                              pendingBackFiles[order.timestamp]
+                                ? 'bg-green-600 hover:bg-green-500 text-white'
+                                : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
+                            }`}
+                          >
+                            <Image className="w-4 h-4" />
+                            {pendingBackFiles[order.timestamp]
+                              ? pendingBackFiles[order.timestamp].name.slice(0, 20)
+                              : 'Select Back (optional)'}
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Upload / Send Button */}
+                      <button
+                        onClick={() => handleProofUpload(order.timestamp)}
+                        disabled={uploadingProof === order.timestamp || !pendingFrontFiles[order.timestamp]}
+                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors"
+                      >
+                        {uploadingProof === order.timestamp ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Uploading & Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            {order.proofImageUrl ? 'Replace & Send Proof' : 'Upload & Send Proof'}
+                          </>
+                        )}
+                      </button>
 
                       {/* Approval Link */}
                       {order.approvalToken && (

@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { customerEmail, customerName, approvalUrl, proofImageUrl, isRevision } = req.body;
+    const { customerEmail, customerName, approvalUrl, proofImageUrl, proofBackImageUrl, isRevision } = req.body;
 
     if (!customerEmail || !approvalUrl) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -42,7 +42,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           ${proofImageUrl ? `
             <div style="margin-bottom: 24px; text-align: center;">
-              <img src="${proofImageUrl}" alt="Your card proof" style="max-width: 300px; border-radius: 8px; border: 2px solid #334155;" />
+              ${proofBackImageUrl ? `
+                <table style="margin: 0 auto;" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="text-align: center; padding: 0 8px;">
+                      <img src="${proofImageUrl}" alt="Card front" style="max-width: 240px; border-radius: 8px; border: 2px solid #334155;" />
+                      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Front</p>
+                    </td>
+                    <td style="text-align: center; padding: 0 8px;">
+                      <img src="${proofBackImageUrl}" alt="Card back" style="max-width: 240px; border-radius: 8px; border: 2px solid #334155;" />
+                      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Back</p>
+                    </td>
+                  </tr>
+                </table>
+              ` : `
+                <img src="${proofImageUrl}" alt="Your card proof" style="max-width: 300px; border-radius: 8px; border: 2px solid #334155;" />
+              `}
             </div>
           ` : ''}
 
