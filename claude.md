@@ -23,6 +23,7 @@ ProCard is a card creation tool that allows users to:
 - **PDF Generation**: `pdf-lib` 1.17.1
 - **Icons**: Lucide React
 - **Payments**: Stripe (Elements + PaymentIntent API)
+- **Email**: Resend (transactional emails from `noreply@procardlegends.com`)
 - **AI**: Google Generative AI (Gemini)
 - **Deployment**: Vercel (with serverless API functions in `/api`)
 
@@ -30,7 +31,8 @@ ProCard is a card creation tool that allows users to:
 
 ```
 api/
-└── create-payment-intent.ts  # Vercel serverless: Stripe PaymentIntent creation
+├── create-payment-intent.ts  # Vercel serverless: Stripe PaymentIntent creation
+└── send-proof-email.ts       # Vercel serverless: Resend proof notification email
 src/
 ├── components/
 │   ├── OrderForm.tsx        # Main card creation interface
@@ -102,7 +104,7 @@ cards/
 customOrders/
   {timestamp}/
     name, email, phone, photoUrl, notes, timestamp
-    status: 'pending' | 'proof_sent' | 'paid'
+    status: 'pending' | 'proof_sent' | 'paid' | 'complete'
     proofImageUrl?: string
     approvalToken?: string
     selectedOptions?: string[]
@@ -134,6 +136,7 @@ customOrders/
 - `updateOrderProof()` - Admin uploads proof image + generates approval token
 - `getOrderByToken()` - Look up order by approval token (for customer approval page)
 - `updateOrderPayment()` - Update order with Stripe payment details (status: paid)
+- `updateOrderComplete()` - Mark order as shipped/complete (status: complete)
 - `deleteCustomOrder()` - Remove custom orders
 
 ## Environment Variables
@@ -151,9 +154,10 @@ VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_STRIPE_PUBLISHABLE_KEY=    # pk_test_... or pk_live_...
 STRIPE_SECRET_KEY=               # sk_test_... or sk_live_... (server-side only, no VITE_ prefix)
+RESEND_API_KEY=                  # Resend API key (server-side only, no VITE_ prefix)
 ```
 
-**Note:** `STRIPE_SECRET_KEY` intentionally lacks the `VITE_` prefix so Vite does NOT bundle it into client-side code. It is only accessible in Vercel serverless functions via `process.env`.
+**Note:** `STRIPE_SECRET_KEY` and `RESEND_API_KEY` intentionally lack the `VITE_` prefix so Vite does NOT bundle them into client-side code. They are only accessible in Vercel serverless functions via `process.env`.
 
 ## Development Workflow
 
@@ -193,6 +197,11 @@ ngrok http 5173    # In separate terminal
 ### Firebase Permission Errors
 - Ensure `.read: true` is set at both `/cards` level AND `/cards/$cardId` level
 - Write validation checks for required fields to prevent malformed data
+- `customOrders` requires `.indexOn: ["approvalToken"]` for token-based queries
+
+### Vercel API Routes
+- Serverless functions in `/api` won't work with `npm run dev` — use `vercel dev` or deploy to test
+- The SPA rewrite in `vercel.json` must exclude `/api/*` routes: `/((?!api/).*)`
 
 ## Type Definitions
 
@@ -211,7 +220,7 @@ Enum: BASE, CHROME, HOLOGRAPHIC, ONE_OF_ONE
 ### CustomOrder
 Order data for custom design service. Key fields:
 - `name`, `email`, `phone`, `photoUrl`, `notes`, `timestamp`
-- `status`: `'pending'` | `'proof_sent'` | `'paid'`
+- `status`: `'pending'` | `'proof_sent'` | `'paid'` | `'complete'`
 - `proofImageUrl?`: Proof image uploaded by admin
 - `approvalToken?`: UUID for customer approval link
 - `selectedOptions?`, `quantities?`: What the customer ordered
@@ -235,11 +244,13 @@ Access admin mode via navbar for:
 - Customize card gradients/colors
 
 ### Custom Order Management (Admin > Custom Orders tab)
-- View all custom orders with status filters (All / Pending / Proof Sent / Paid)
+- View all custom orders with status filters (All / Pending / Proof Sent / Paid / Complete)
 - Upload proof images to orders (uploads to Cloudinary)
 - Auto-generates unique approval token + customer approval link
-- Copy approval link to send to customer
+- Auto-sends proof notification email to customer via Resend
+- Copy approval link to send to customer manually (fallback)
 - View payment details and Stripe PaymentIntent ID for paid orders
+- Mark paid orders as shipped/complete via checkbox
 
 ## Stripe Payment Integration
 
@@ -248,10 +259,11 @@ Access admin mode via navbar for:
 1. Customer submits CustomOrderForm (name, email, photo, notes) → saved to Firebase as "pending"
 2. Admin designs card, uploads proof image via AdminOrders panel
 3. System generates approval link: /approve?token=<uuid>
-4. Admin sends link to customer
+4. Proof notification email auto-sent to customer via Resend (with proof preview + approval link)
 5. Customer opens link → sees proof → selects products + quantities
 6. Customer pays via Stripe Elements (embedded payment form)
-7. On success: Firebase order updated to "paid" with paymentIntentId, email notification sent
+7. On success: Firebase order updated to "paid" with paymentIntentId
+8. Admin marks order as shipped → status updated to "complete"
 ```
 
 ### Pricing Configuration
@@ -266,7 +278,9 @@ Prices are validated server-side in `api/create-payment-intent.ts` — client se
 
 ### Serverless API
 - `POST /api/create-payment-intent` — Receives `{ items: [{id, quantity}], customerEmail }`, validates against server-side pricing, creates Stripe PaymentIntent, returns `{ clientSecret, amount }`
+- `POST /api/send-proof-email` — Receives `{ customerEmail, customerName, approvalUrl, proofImageUrl }`, sends styled HTML email via Resend, returns `{ success, emailId }`
 - Vercel auto-routes `/api/*` as serverless functions before the SPA rewrite
+- **Important:** `vercel.json` rewrite uses `/((?!api/).*)` to avoid intercepting API routes
 
 ### Testing Stripe
 - Use test keys (`pk_test_...` / `sk_test_...`) during development

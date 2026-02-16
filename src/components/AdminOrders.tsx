@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, Mail, Phone, FileText, Trash2, ExternalLink, CheckCircle, Upload, Copy, DollarSign, Image, PackageCheck } from 'lucide-react';
-import { subscribeToCustomOrders, deleteCustomOrder, updateOrderProof, updateOrderComplete, CustomOrder } from '../utils/firebase';
+import { Clock, Mail, Phone, FileText, Trash2, ExternalLink, CheckCircle, Upload, Copy, DollarSign, Image, PackageCheck, MessageSquare, AlertTriangle } from 'lucide-react';
+import { subscribeToCustomOrders, deleteCustomOrder, updateOrderProof, updateOrderProofRevision, updateOrderComplete, CustomOrder, OrderMessage } from '../utils/firebase';
 import { uploadToCloudinary } from '../utils/cloudinary';
 import { formatPrice } from '../config/pricing';
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<CustomOrder[]>([]);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'proof_sent' | 'paid' | 'complete'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'proof_sent' | 'revision_requested' | 'paid' | 'complete'>('all');
   const [uploadingProof, setUploadingProof] = useState<number | null>(null);
   const [copiedToken, setCopiedToken] = useState<number | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ timestamp: number; name: string } | null>(null);
   const proofInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -20,12 +21,12 @@ const AdminOrders: React.FC = () => {
   }, []);
 
   const handleDelete = async (timestamp: number) => {
-    if (confirm('Are you sure you want to delete this order?')) {
-      try {
-        await deleteCustomOrder(timestamp);
-      } catch {
-        alert('Failed to delete order');
-      }
+    try {
+      await deleteCustomOrder(timestamp);
+    } catch {
+      alert('Failed to delete order');
+    } finally {
+      setDeleteConfirm(null);
     }
   };
 
@@ -33,12 +34,21 @@ const AdminOrders: React.FC = () => {
     setUploadingProof(timestamp);
     try {
       const proofUrl = await uploadToCloudinary(file);
-      const token = crypto.randomUUID();
-      await updateOrderProof(timestamp, proofUrl, token);
+      const order = orders.find(o => o.timestamp === timestamp);
+      let token = order?.approvalToken;
+      const isRevision = !!token;
+
+      if (token) {
+        // Revision: reuse existing token
+        await updateOrderProofRevision(timestamp, proofUrl);
+      } else {
+        // First proof: generate new token
+        token = crypto.randomUUID();
+        await updateOrderProof(timestamp, proofUrl, token);
+      }
 
       // Send proof email to customer
-      const order = orders.find(o => o.timestamp === timestamp);
-      if (order?.email) {
+      if (order?.email && token) {
         const approvalUrl = `${window.location.origin}/approve?token=${token}`;
         try {
           const resp = await fetch('/api/send-proof-email', {
@@ -49,6 +59,7 @@ const AdminOrders: React.FC = () => {
               customerName: order.name,
               approvalUrl,
               proofImageUrl: proofUrl,
+              isRevision,
             }),
           });
           const result = await resp.json();
@@ -97,6 +108,13 @@ const AdminOrders: React.FC = () => {
             Proof Sent
           </span>
         );
+      case 'revision_requested':
+        return (
+          <span className="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500 rounded-full text-sm font-medium flex items-center gap-1 animate-pulse">
+            <MessageSquare className="w-3 h-3" />
+            Revision Requested
+          </span>
+        );
       case 'pending':
       default:
         return (
@@ -126,6 +144,7 @@ const AdminOrders: React.FC = () => {
 
   const pendingCount = orders.filter(o => o.status === 'pending').length;
   const proofSentCount = orders.filter(o => o.status === 'proof_sent').length;
+  const revisionCount = orders.filter(o => o.status === 'revision_requested').length;
   const paidCount = orders.filter(o => o.status === 'paid').length;
   const completeCount = orders.filter(o => o.status === 'complete').length;
 
@@ -164,6 +183,10 @@ const AdminOrders: React.FC = () => {
             <p className="text-blue-400 text-sm">Proof Sent</p>
             <p className="text-2xl font-bold text-blue-400">{proofSentCount}</p>
           </div>
+          <div className="bg-amber-500/20 border border-amber-500 rounded-lg px-4 py-2">
+            <p className="text-amber-400 text-sm">Revisions</p>
+            <p className="text-2xl font-bold text-amber-400">{revisionCount}</p>
+          </div>
           <div className="bg-green-500/20 border border-green-500 rounded-lg px-4 py-2">
             <p className="text-green-400 text-sm">Paid</p>
             <p className="text-2xl font-bold text-green-400">{paidCount}</p>
@@ -175,7 +198,7 @@ const AdminOrders: React.FC = () => {
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          {(['all', 'pending', 'proof_sent', 'paid', 'complete'] as const).map((f) => (
+          {(['all', 'pending', 'proof_sent', 'revision_requested', 'paid', 'complete'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -185,7 +208,7 @@ const AdminOrders: React.FC = () => {
                   : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
               }`}
             >
-              {f === 'all' ? 'All' : f === 'proof_sent' ? 'Proof Sent' : f.charAt(0).toUpperCase() + f.slice(1)}
+              {f === 'all' ? 'All' : f === 'proof_sent' ? 'Proof Sent' : f === 'revision_requested' ? 'Revision Req.' : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
@@ -238,7 +261,7 @@ const AdminOrders: React.FC = () => {
                       {getStatusBadge(order)}
 
                       <button
-                        onClick={() => handleDelete(order.timestamp)}
+                        onClick={() => setDeleteConfirm({ timestamp: order.timestamp, name: order.name })}
                         className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                         title="Delete order"
                       >
@@ -283,6 +306,41 @@ const AdminOrders: React.FC = () => {
                     </div>
                   )}
 
+                  {/* Message Thread */}
+                  {order.messages && order.messages.length > 0 && (
+                    <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 space-y-3">
+                      <h4 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-cyan-400" />
+                        Conversation ({order.messages.length} messages)
+                      </h4>
+                      <div className="max-h-48 overflow-y-auto space-y-2">
+                        {order.messages.map((msg: OrderMessage) => (
+                          <div
+                            key={msg.id}
+                            className={`p-3 rounded-lg text-sm ${
+                              msg.sender === 'customer'
+                                ? 'bg-amber-500/10 border border-amber-500/30 text-amber-200'
+                                : 'bg-cyan-500/10 border border-cyan-500/30 text-cyan-200'
+                            }`}
+                          >
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-semibold text-xs">
+                                {msg.sender === 'customer' ? order.name : 'Admin'}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(msg.timestamp).toLocaleString()}
+                              </span>
+                            </div>
+                            <p>{msg.text}</p>
+                            {msg.proofImageUrl && (
+                              <img src={msg.proofImageUrl} alt="Proof" className="mt-2 w-24 h-24 object-cover rounded border border-slate-600" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Payment Details (for paid/complete orders) */}
                   {(order.status === 'paid' || order.status === 'complete') && order.paymentIntentId && (
                     <div className={`rounded-lg p-3 border ${order.status === 'complete' ? 'bg-purple-500/10 border-purple-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
@@ -316,7 +374,7 @@ const AdminOrders: React.FC = () => {
                   )}
 
                   {/* Proof Upload & Approval Link Section */}
-                  {order.status !== 'paid' && (
+                  {(order.status === 'pending' || order.status === 'proof_sent' || order.status === 'revision_requested') && (
                     <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 space-y-3">
                       {/* Proof Image Preview */}
                       {order.proofImageUrl && (
@@ -388,6 +446,36 @@ const AdminOrders: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-800 border border-slate-600 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-red-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Delete Order</h3>
+            </div>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete the order for <span className="text-white font-semibold">{deleteConfirm.name}</span>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm.timestamp)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

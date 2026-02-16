@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, AlertCircle, Plus, Minus, ShoppingCart, CreditCard } from 'lucide-react';
+import { CheckCircle, AlertCircle, Plus, Minus, ShoppingCart, CreditCard, MessageSquare, Send } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '../lib/stripe';
 import PaymentForm from './PaymentForm';
 import { PRICING_OPTIONS, formatPrice, calculateTotal } from '../config/pricing';
-import { getOrderByToken, updateOrderPayment, CustomOrder } from '../utils/firebase';
+import { getOrderByToken, updateOrderPayment, requestRevision, CustomOrder, OrderMessage } from '../utils/firebase';
 
 interface OrderApprovalProps {
   token: string;
@@ -26,6 +26,11 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [creatingIntent, setCreatingIntent] = useState(false);
 
+  // Revision feedback state
+  const [feedbackText, setFeedbackText] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [revisionSubmitted, setRevisionSubmitted] = useState(false);
+
   // Load order by token
   useEffect(() => {
     const loadOrder = async () => {
@@ -33,6 +38,9 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
       if (foundOrder) {
         if (foundOrder.status === 'paid') {
           setPaymentSuccess(true);
+        }
+        if (foundOrder.status === 'revision_requested') {
+          setRevisionSubmitted(true);
         }
         setOrder(foundOrder);
       } else {
@@ -135,6 +143,22 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
     }
   };
 
+  const handleRequestRevision = async () => {
+    if (!order || !feedbackText.trim()) return;
+    setSubmittingFeedback(true);
+    try {
+      await requestRevision(order.timestamp, feedbackText.trim());
+      setRevisionSubmitted(true);
+      setFeedbackText('');
+      const updated = await getOrderByToken(token);
+      if (updated) setOrder(updated);
+    } catch {
+      alert('Failed to submit feedback. Please try again.');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
@@ -178,16 +202,35 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
     );
   }
 
+  if (revisionSubmitted && order?.status === 'revision_requested') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4">
+        <div className="bg-slate-800 border border-amber-500/50 rounded-xl p-8 max-w-md text-center">
+          <MessageSquare className="w-16 h-16 text-amber-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Revision Requested</h2>
+          <p className="text-gray-400 mb-4">
+            Thanks, {order.name}! We've received your feedback and will update your design. You'll get an email when the new proof is ready.
+          </p>
+          <p className="text-sm text-gray-500">
+            You can revisit this same link to check for updates.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-white font-['Teko'] mb-2">
-            YOUR CARD IS READY
+            {order?.proofHistory && order.proofHistory.length > 0
+              ? 'YOUR UPDATED PROOF IS READY'
+              : 'YOUR CARD IS READY'}
           </h1>
           <p className="text-gray-400">
-            Review your custom card design below, then select your products and checkout.
+            Review your custom card design below. You can request changes or select your products and checkout.
           </p>
         </div>
 
@@ -201,9 +244,76 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                 className="max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600"
               />
               <p className="text-cyan-400 mt-4 font-semibold">
-                Love your design? Select your products below!
+                Love your design? Select your products below! Or request changes if something needs adjusting.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Message Thread */}
+        {order?.messages && order.messages.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-cyan-400" />
+              Design Notes
+            </h2>
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3 max-h-64 overflow-y-auto">
+              {order.messages.map((msg: OrderMessage) => (
+                <div
+                  key={msg.id}
+                  className={`p-3 rounded-lg text-sm ${
+                    msg.sender === 'customer'
+                      ? 'bg-amber-500/10 border border-amber-500/30 ml-8'
+                      : 'bg-cyan-500/10 border border-cyan-500/30 mr-8'
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-semibold text-xs text-gray-400">
+                      {msg.sender === 'customer' ? 'You' : 'ProCard Team'}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(msg.timestamp).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-200">{msg.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Request Changes Section */}
+        {order?.status === 'proof_sent' && !showPayment && (
+          <div className="mb-8 bg-slate-800 border border-slate-700 rounded-xl p-6">
+            <h3 className="text-white font-semibold mb-2">Want changes?</h3>
+            <p className="text-gray-400 text-sm mb-3">
+              If you'd like adjustments to your design, describe what you'd like changed below.
+            </p>
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              placeholder="e.g., Can you make the text bigger? I'd like a different background color..."
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-gray-500 resize-none focus:border-amber-500 focus:outline-none"
+              rows={3}
+            />
+            <button
+              type="button"
+              onClick={handleRequestRevision}
+              disabled={!feedbackText.trim() || submittingFeedback}
+              className="mt-3 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {submittingFeedback ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Request Changes
+                </>
+              )}
+            </button>
           </div>
         )}
 

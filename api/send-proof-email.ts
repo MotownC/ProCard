@@ -9,23 +9,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { customerEmail, customerName, approvalUrl, proofImageUrl } = req.body;
+    const { customerEmail, customerName, approvalUrl, proofImageUrl, isRevision } = req.body;
 
     if (!customerEmail || !approvalUrl) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    const subject = isRevision
+      ? 'Your updated ProCard proof is ready!'
+      : 'Your ProCard proof is ready for review!';
+
+    const greeting = isRevision
+      ? `Hey ${customerName || 'there'}! We've updated your card based on your feedback. Here's the revised proof:`
+      : `Hey ${customerName || 'there'}! Your custom card proof is ready for review.`;
+
+    const buttonText = isRevision
+      ? 'Review Updated Proof'
+      : 'Review & Approve Your Card';
+
     const { data, error } = await resend.emails.send({
       from: 'ProCard Legends <noreply@procardlegends.com>',
       to: customerEmail,
-      subject: 'Your ProCard proof is ready for review!',
+      subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
           <h1 style="color: #22d3ee; font-size: 28px; margin-bottom: 8px;">ProCard Legends</h1>
           <p style="color: #94a3b8; font-size: 14px; margin-bottom: 24px;">Custom Trading Card Design</p>
 
           <p style="font-size: 16px; margin-bottom: 16px;">
-            Hey ${customerName || 'there'}! Your custom card proof is ready for review.
+            ${greeting}
           </p>
 
           ${proofImageUrl ? `
@@ -35,12 +47,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ` : ''}
 
           <p style="font-size: 16px; margin-bottom: 24px;">
-            Click the button below to view your proof, select your options, and complete your order:
+            Click the button below to view your proof${isRevision ? ', request more changes,' : ', select your options,'} and complete your order:
           </p>
 
           <div style="text-align: center; margin-bottom: 32px;">
             <a href="${approvalUrl}" style="display: inline-block; background: #22d3ee; color: #0f172a; font-weight: bold; font-size: 16px; padding: 14px 32px; border-radius: 8px; text-decoration: none;">
-              Review & Approve Your Card
+              ${buttonText}
             </a>
           </div>
 

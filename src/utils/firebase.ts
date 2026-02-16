@@ -76,6 +76,14 @@ export const deleteCardFromFirebase = async (id: number) => {
 };
 
 // Custom Order Submission
+export interface OrderMessage {
+  id: string;
+  sender: 'customer' | 'admin';
+  text: string;
+  timestamp: number;
+  proofImageUrl?: string;
+}
+
 export interface CustomOrder {
   name: string;
   email: string;
@@ -83,7 +91,7 @@ export interface CustomOrder {
   photoUrl: string;
   notes: string;
   timestamp: number;
-  status?: string;
+  status?: 'pending' | 'proof_sent' | 'revision_requested' | 'paid' | 'complete';
   // Payment & proof approval fields
   proofImageUrl?: string;
   approvalToken?: string;
@@ -91,6 +99,9 @@ export interface CustomOrder {
   quantities?: Record<string, number>;
   totalPaidCents?: number;
   paymentIntentId?: string;
+  // Revision feedback fields
+  messages?: OrderMessage[];
+  proofHistory?: string[];
 }
 
 export const saveCustomOrderToFirebase = async (order: CustomOrder) => {
@@ -144,18 +155,99 @@ export const deleteCustomOrder = async (timestamp: number) => {
   }
 };
 
-// Update order with proof image and approval token
+// Update order with proof image and approval token (first proof)
 export const updateOrderProof = async (timestamp: number, proofImageUrl: string, approvalToken: string) => {
   try {
     const orderRef = ref(db, 'customOrders/' + timestamp);
     const snapshot = await get(orderRef);
     if (!snapshot.exists()) throw new Error('Order not found');
     const existing = snapshot.val();
-    await set(orderRef, { ...existing, proofImageUrl, approvalToken, status: 'proof_sent' });
+
+    const messages: OrderMessage[] = existing.messages || [];
+    messages.push({
+      id: crypto.randomUUID(),
+      sender: 'admin',
+      text: 'Your card proof is ready for review!',
+      timestamp: Date.now(),
+      proofImageUrl,
+    });
+
+    await set(orderRef, {
+      ...existing,
+      proofImageUrl,
+      approvalToken,
+      status: 'proof_sent',
+      messages,
+      proofHistory: existing.proofHistory || [],
+    });
     console.log("✅ Updated order proof:", timestamp);
   } catch (error: any) {
     console.error("🔥 Proof Update Error:", error);
     throw new Error(`Failed to update proof: ${error.message}`);
+  }
+};
+
+// Update order with revised proof (keeps existing token)
+export const updateOrderProofRevision = async (timestamp: number, newProofImageUrl: string, adminNote?: string) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    const snapshot = await get(orderRef);
+    if (!snapshot.exists()) throw new Error('Order not found');
+    const existing = snapshot.val();
+
+    const proofHistory: string[] = existing.proofHistory || [];
+    if (existing.proofImageUrl) {
+      proofHistory.push(existing.proofImageUrl);
+    }
+
+    const messages: OrderMessage[] = existing.messages || [];
+    messages.push({
+      id: crypto.randomUUID(),
+      sender: 'admin',
+      text: adminNote || 'Updated proof uploaded. Please review!',
+      timestamp: Date.now(),
+      proofImageUrl: newProofImageUrl,
+    });
+
+    await set(orderRef, {
+      ...existing,
+      proofImageUrl: newProofImageUrl,
+      proofHistory,
+      messages,
+      status: 'proof_sent',
+    });
+    console.log("✅ Updated revised proof:", timestamp);
+  } catch (error: any) {
+    console.error("🔥 Proof Revision Error:", error);
+    throw new Error(`Failed to update revised proof: ${error.message}`);
+  }
+};
+
+// Customer requests a revision with feedback
+export const requestRevision = async (timestamp: number, feedback: string) => {
+  try {
+    const orderRef = ref(db, 'customOrders/' + timestamp);
+    const snapshot = await get(orderRef);
+    if (!snapshot.exists()) throw new Error('Order not found');
+    const existing = snapshot.val();
+
+    const messages: OrderMessage[] = existing.messages || [];
+    messages.push({
+      id: crypto.randomUUID(),
+      sender: 'customer',
+      text: feedback,
+      timestamp: Date.now(),
+    });
+
+    await set(orderRef, {
+      ...existing,
+      status: 'revision_requested',
+      messages,
+    });
+    console.log("✅ Revision requested:", timestamp);
+  } catch (error: any) {
+    console.error("🔥 Revision Request Error:", error);
+    throw new Error(`Failed to request revision: ${error.message}`);
   }
 };
 
