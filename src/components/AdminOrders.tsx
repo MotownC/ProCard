@@ -169,49 +169,73 @@ const AdminOrders: React.FC = () => {
       </div>
 
       {/* Stats & Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2">
-            <p className="text-gray-400 text-sm">Total Orders</p>
-            <p className="text-2xl font-bold text-white">{orders.length}</p>
-          </div>
-          <div className="bg-orange-500/20 border border-orange-500 rounded-lg px-4 py-2">
-            <p className="text-orange-400 text-sm">Pending</p>
-            <p className="text-2xl font-bold text-orange-400">{pendingCount}</p>
-          </div>
-          <div className="bg-blue-500/20 border border-blue-500 rounded-lg px-4 py-2">
-            <p className="text-blue-400 text-sm">Proof Sent</p>
-            <p className="text-2xl font-bold text-blue-400">{proofSentCount}</p>
-          </div>
-          <div className="bg-amber-500/20 border border-amber-500 rounded-lg px-4 py-2">
-            <p className="text-amber-400 text-sm">Revisions</p>
-            <p className="text-2xl font-bold text-amber-400">{revisionCount}</p>
-          </div>
-          <div className="bg-green-500/20 border border-green-500 rounded-lg px-4 py-2">
-            <p className="text-green-400 text-sm">Paid</p>
-            <p className="text-2xl font-bold text-green-400">{paidCount}</p>
-          </div>
-          <div className="bg-purple-500/20 border border-purple-500 rounded-lg px-4 py-2">
-            <p className="text-purple-400 text-sm">Complete</p>
-            <p className="text-2xl font-bold text-purple-400">{completeCount}</p>
-          </div>
-        </div>
-
-        <div className="flex gap-2 flex-wrap">
-          {(['all', 'pending', 'proof_sent', 'revision_requested', 'paid', 'complete'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === f
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
-              }`}
-            >
-              {f === 'all' ? 'All' : f === 'proof_sent' ? 'Proof Sent' : f === 'revision_requested' ? 'Revision Req.' : f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
+      <div className="mb-6 flex gap-4 flex-wrap">
+        <button
+          onClick={() => setFilter('all')}
+          className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
+            filter === 'all'
+              ? 'bg-slate-800 border-2 border-cyan-500 ring-1 ring-cyan-500/50'
+              : 'bg-slate-800 border border-slate-700 hover:border-slate-500'
+          }`}
+        >
+          <p className="text-gray-400 text-sm">Total Orders</p>
+          <p className="text-2xl font-bold text-white">{orders.length}</p>
+        </button>
+        <button
+          onClick={() => setFilter('pending')}
+          className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
+            filter === 'pending'
+              ? 'bg-orange-500/20 border-2 border-orange-400 ring-1 ring-orange-400/50'
+              : 'bg-orange-500/20 border border-orange-500 hover:border-orange-400'
+          }`}
+        >
+          <p className="text-orange-400 text-sm">Pending</p>
+          <p className="text-2xl font-bold text-orange-400">{pendingCount}</p>
+        </button>
+        <button
+          onClick={() => setFilter('proof_sent')}
+          className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
+            filter === 'proof_sent'
+              ? 'bg-blue-500/20 border-2 border-blue-400 ring-1 ring-blue-400/50'
+              : 'bg-blue-500/20 border border-blue-500 hover:border-blue-400'
+          }`}
+        >
+          <p className="text-blue-400 text-sm">Proof Sent</p>
+          <p className="text-2xl font-bold text-blue-400">{proofSentCount}</p>
+        </button>
+        <button
+          onClick={() => setFilter('revision_requested')}
+          className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
+            filter === 'revision_requested'
+              ? 'bg-amber-500/20 border-2 border-amber-400 ring-1 ring-amber-400/50'
+              : 'bg-amber-500/20 border border-amber-500 hover:border-amber-400'
+          }`}
+        >
+          <p className="text-amber-400 text-sm">Revisions</p>
+          <p className="text-2xl font-bold text-amber-400">{revisionCount}</p>
+        </button>
+        <button
+          onClick={() => setFilter('paid')}
+          className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
+            filter === 'paid'
+              ? 'bg-green-500/20 border-2 border-green-400 ring-1 ring-green-400/50'
+              : 'bg-green-500/20 border border-green-500 hover:border-green-400'
+          }`}
+        >
+          <p className="text-green-400 text-sm">Paid</p>
+          <p className="text-2xl font-bold text-green-400">{paidCount}</p>
+        </button>
+        <button
+          onClick={() => setFilter('complete')}
+          className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
+            filter === 'complete'
+              ? 'bg-purple-500/20 border-2 border-purple-400 ring-1 ring-purple-400/50'
+              : 'bg-purple-500/20 border border-purple-500 hover:border-purple-400'
+          }`}
+        >
+          <p className="text-purple-400 text-sm">Complete</p>
+          <p className="text-2xl font-bold text-purple-400">{completeCount}</p>
+        </button>
       </div>
 
       {/* Orders List */}
