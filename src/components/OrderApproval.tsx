@@ -244,31 +244,64 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
               {order.proofBackImageUrl ? (
                 <div className="flex justify-center gap-6 flex-wrap">
                   <div className="text-center">
-                    <img
-                      src={order.proofImageUrl}
-                      alt="Card front"
-                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600 cursor-pointer hover:opacity-90 transition-opacity"
+                    <div
+                      className="relative max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity select-none"
                       onClick={() => setFullscreenImage(order.proofImageUrl!)}
-                    />
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
+                      <img
+                        src={order.proofImageUrl}
+                        alt="Card front"
+                        className="w-full block pointer-events-none"
+                        draggable={false}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 62px)' }}>
+                        <span className="text-white/20 text-2xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>
+                          PROCARD LEGENDS
+                        </span>
+                      </div>
+                    </div>
                     <p className="text-gray-400 text-sm mt-2 font-medium">Front</p>
                   </div>
                   <div className="text-center">
-                    <img
-                      src={order.proofBackImageUrl}
-                      alt="Card back"
-                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600 cursor-pointer hover:opacity-90 transition-opacity"
+                    <div
+                      className="relative max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity select-none"
                       onClick={() => setFullscreenImage(order.proofBackImageUrl!)}
-                    />
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
+                      <img
+                        src={order.proofBackImageUrl}
+                        alt="Card back"
+                        className="w-full block pointer-events-none"
+                        draggable={false}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 62px)' }}>
+                        <span className="text-white/20 text-2xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>
+                          PROCARD LEGENDS
+                        </span>
+                      </div>
+                    </div>
                     <p className="text-gray-400 text-sm mt-2 font-medium">Back</p>
                   </div>
                 </div>
               ) : (
-                <img
-                  src={order.proofImageUrl}
-                  alt="Your custom card design"
-                  className="max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600 cursor-pointer hover:opacity-90 transition-opacity"
+                <div
+                  className="relative max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity select-none"
                   onClick={() => setFullscreenImage(order.proofImageUrl!)}
-                />
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <img
+                    src={order.proofImageUrl}
+                    alt="Your custom card design"
+                    className="w-full block pointer-events-none"
+                    draggable={false}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 62px)' }}>
+                    <span className="text-white/20 text-2xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>
+                      PROCARD LEGENDS
+                    </span>
+                  </div>
+                </div>
               )}
               <p className="text-gray-500 text-xs mt-2">Tap image to view full screen</p>
               <p className="text-cyan-400 mt-4 font-semibold">
@@ -533,22 +566,30 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
       {/* Fullscreen Image Modal */}
       {fullscreenImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 select-none"
           onClick={() => setFullscreenImage(null)}
+          onContextMenu={(e) => e.preventDefault()}
         >
           <button
             type="button"
             onClick={() => setFullscreenImage(null)}
-            className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+            className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
           >
             <X className="w-6 h-6 text-white" />
           </button>
-          <img
-            src={fullscreenImage}
-            alt="Card preview"
-            className="max-w-full max-h-full object-contain rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={fullscreenImage}
+              alt="Card preview"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg pointer-events-none"
+              draggable={false}
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 80px, rgba(255,255,255,0.03) 80px, rgba(255,255,255,0.03) 82px)' }}>
+              <span className="text-white/20 text-4xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 15px rgba(0,0,0,0.5)' }}>
+                PROCARD LEGENDS
+              </span>
+            </div>
+          </div>
         </div>
       )}
     </div>
