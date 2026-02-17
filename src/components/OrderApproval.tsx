@@ -255,10 +255,18 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                         className="w-full block pointer-events-none"
                         draggable={false}
                       />
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 62px)' }}>
-                        <span className="text-white/20 text-2xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>
-                          PROCARD LEGENDS
-                        </span>
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ transform: 'rotate(-30deg)', transformOrigin: 'center center' }}>
+                        <div className="absolute flex flex-col items-center justify-center gap-8" style={{ inset: '-50%' }}>
+                          {[...Array(8)].map((_, i) => (
+                            <div key={i} className="flex gap-6 whitespace-nowrap">
+                              {[...Array(4)].map((_, j) => (
+                                <span key={j} className="text-white/20 text-lg font-bold tracking-[0.2em]" style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
+                                  PROCARD LEGENDS
+                                </span>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <p className="text-gray-400 text-sm mt-2 font-medium">Front</p>
@@ -275,10 +283,18 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                         className="w-full block pointer-events-none"
                         draggable={false}
                       />
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 62px)' }}>
-                        <span className="text-white/20 text-2xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>
-                          PROCARD LEGENDS
-                        </span>
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ transform: 'rotate(-30deg)', transformOrigin: 'center center' }}>
+                        <div className="absolute flex flex-col items-center justify-center gap-8" style={{ inset: '-50%' }}>
+                          {[...Array(8)].map((_, i) => (
+                            <div key={i} className="flex gap-6 whitespace-nowrap">
+                              {[...Array(4)].map((_, j) => (
+                                <span key={j} className="text-white/20 text-lg font-bold tracking-[0.2em]" style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
+                                  PROCARD LEGENDS
+                                </span>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <p className="text-gray-400 text-sm mt-2 font-medium">Back</p>
@@ -296,10 +312,18 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                     className="w-full block pointer-events-none"
                     draggable={false}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 62px)' }}>
-                    <span className="text-white/20 text-2xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>
-                      PROCARD LEGENDS
-                    </span>
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ transform: 'rotate(-30deg)', transformOrigin: 'center center' }}>
+                    <div className="absolute flex flex-col items-center justify-center gap-8" style={{ inset: '-50%' }}>
+                      {[...Array(8)].map((_, i) => (
+                        <div key={i} className="flex gap-6 whitespace-nowrap">
+                          {[...Array(4)].map((_, j) => (
+                            <span key={j} className="text-white/20 text-lg font-bold tracking-[0.2em]" style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
+                              PROCARD LEGENDS
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -584,10 +608,18 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
               className="max-w-full max-h-[90vh] object-contain rounded-lg pointer-events-none"
               draggable={false}
             />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ background: 'repeating-linear-gradient(-45deg, transparent, transparent 80px, rgba(255,255,255,0.03) 80px, rgba(255,255,255,0.03) 82px)' }}>
-              <span className="text-white/20 text-4xl font-bold tracking-widest rotate-[-30deg] whitespace-nowrap select-none" style={{ textShadow: '0 0 15px rgba(0,0,0,0.5)' }}>
-                PROCARD LEGENDS
-              </span>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ transform: 'rotate(-30deg)', transformOrigin: 'center center' }}>
+              <div className="absolute flex flex-col items-center justify-center gap-12" style={{ inset: '-50%' }}>
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="flex gap-8 whitespace-nowrap">
+                    {[...Array(6)].map((_, j) => (
+                      <span key={j} className="text-white/20 text-2xl font-bold tracking-[0.2em]" style={{ textShadow: '0 0 10px rgba(0,0,0,0.8)' }}>
+                        PROCARD LEGENDS
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
