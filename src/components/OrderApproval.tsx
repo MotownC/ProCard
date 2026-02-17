@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, AlertCircle, Plus, Minus, ShoppingCart, CreditCard, MessageSquare, Send } from 'lucide-react';
+import { CheckCircle, AlertCircle, Plus, Minus, ShoppingCart, CreditCard, MessageSquare, Send, X } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '../lib/stripe';
 import PaymentForm from './PaymentForm';
@@ -30,6 +30,9 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
   const [feedbackText, setFeedbackText] = useState('');
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const [revisionSubmitted, setRevisionSubmitted] = useState(false);
+
+  // Fullscreen image preview
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   // Load order by token
   useEffect(() => {
@@ -244,7 +247,8 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                     <img
                       src={order.proofImageUrl}
                       alt="Card front"
-                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600"
+                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600 cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setFullscreenImage(order.proofImageUrl!)}
                     />
                     <p className="text-gray-400 text-sm mt-2 font-medium">Front</p>
                   </div>
@@ -252,7 +256,8 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                     <img
                       src={order.proofBackImageUrl}
                       alt="Card back"
-                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600"
+                      className="max-w-xs mx-auto rounded-lg shadow-2xl border border-slate-600 cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setFullscreenImage(order.proofBackImageUrl!)}
                     />
                     <p className="text-gray-400 text-sm mt-2 font-medium">Back</p>
                   </div>
@@ -261,9 +266,11 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
                 <img
                   src={order.proofImageUrl}
                   alt="Your custom card design"
-                  className="max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600"
+                  className="max-w-sm mx-auto rounded-lg shadow-2xl border border-slate-600 cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => setFullscreenImage(order.proofImageUrl!)}
                 />
               )}
+              <p className="text-gray-500 text-xs mt-2">Tap image to view full screen</p>
               <p className="text-cyan-400 mt-4 font-semibold">
                 Love your design? Select your products below! Or request changes if something needs adjusting.
               </p>
@@ -522,6 +529,28 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
           </a>
         </p>
       </div>
+
+      {/* Fullscreen Image Modal */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setFullscreenImage(null)}
+            className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+          <img
+            src={fullscreenImage}
+            alt="Card preview"
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };
