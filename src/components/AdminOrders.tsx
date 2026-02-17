@@ -447,10 +447,23 @@ const AdminOrders: React.FC = () => {
                               <p className="text-xs text-gray-500 mt-1">Back</p>
                             </div>
                           )}
-                          <span className="text-green-400 text-sm flex items-center gap-1">
-                            <CheckCircle className="w-4 h-4" />
-                            Proof uploaded
-                          </span>
+                          {order.approvalToken ? (
+                            <a
+                              href={getApprovalUrl(order.approvalToken)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-green-400 hover:text-green-300 text-sm flex items-center gap-1 transition-colors"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              Proof uploaded
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="text-green-400 text-sm flex items-center gap-1">
+                              <CheckCircle className="w-4 h-4" />
+                              Proof uploaded
+                            </span>
+                          )}
                         </div>
                       )}
 

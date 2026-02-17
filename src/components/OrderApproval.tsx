@@ -601,11 +601,11 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
           >
             <X className="w-6 h-6 text-white" />
           </button>
-          <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+          <div className="relative inline-block overflow-hidden rounded-lg" onClick={(e) => e.stopPropagation()}>
             <img
               src={fullscreenImage}
               alt="Card preview"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg pointer-events-none"
+              className="block max-w-full max-h-[90vh] pointer-events-none"
               draggable={false}
             />
             <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ transform: 'rotate(-30deg)', transformOrigin: 'center center' }}>
