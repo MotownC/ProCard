@@ -129,8 +129,8 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
       description: 'Perfect for showcasing your best moment',
       features: [
         'Professional card design',
-        'High-quality print',
-        'Standard glossy finish',
+        'Printed on 15mil double-sided glossy card stock',
+        'Sturdy, premium feel in hand',
         'One design iteration included'
       ],
       popular: false
@@ -141,8 +141,8 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
       description: 'Tell the full story with front and back',
       features: [
         'Front and back design',
-        'High-quality print',
-        'Standard glossy finish',
+        'Printed on 15mil double-sided glossy card stock',
+        'Sturdy, premium feel in hand',
         'Two design iterations included',
         'Stats or info on back side'
       ],
@@ -180,6 +180,8 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
       description: 'The ultimate card experience',
       features: [
         'Custom double-sided card ($15 value)',
+        'Printed on 15mil double-sided glossy card stock',
+        'Silver mylar collector packaging',
         'Magnetic protective case ($5 value)',
         'High-res digital download ($10 value)',
         'Three design iterations included',
