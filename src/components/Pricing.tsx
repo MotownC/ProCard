@@ -222,6 +222,17 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
           ))}
         </div>
 
+        {/* Team Discount Banner */}
+        <div className="mt-10 rounded-2xl p-5 border border-violet-500/30 bg-violet-500/10 text-center">
+          <p className="text-white text-base">
+            <span className="font-bold">Ordering for the whole team?</span>{' '}
+            We offer big discounts for bulk team orders —{' '}
+            <a href="mailto:support@procardlegends.com" className="text-violet-400 hover:text-violet-300 transition-colors underline">
+              contact us for custom pricing
+            </a>.
+          </p>
+        </div>
+
         {/* How It Works */}
         <div className="mt-16 rounded-2xl p-8 border border-white/10" style={{ backgroundColor: 'hsla(240, 15%, 9%, 1)' }}>
           <h2 className="text-3xl font-bold text-white font-['Teko'] mb-4 text-center tracking-wide">
