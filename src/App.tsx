@@ -56,14 +56,19 @@ const App: React.FC = () => {
       }
     };
     window.addEventListener('popstate', handlePopState);
-    // Handle initial URL (e.g., /approve?token=xxx)
-    const path = window.location.pathname.replace('/', '') || 'home';
+    // Handle initial URL (e.g., /approve?token=xxx or /gallery)
+    const path = window.location.pathname.replace(/^\//, '') || 'home';
     const params = new URLSearchParams(window.location.search);
+    const VALID_PAGES = ['home', 'gallery', 'create', 'checkout', 'custom', 'pricing', 'admin'];
     if (path === 'approve' && params.get('token')) {
       setApprovalToken(params.get('token')!);
       setCurrentPageState('approve');
       window.history.replaceState({ page: 'approve' }, '', window.location.href);
+    } else if (VALID_PAGES.includes(path)) {
+      setCurrentPageState(path);
+      window.history.replaceState({ page: path }, '', window.location.pathname);
     } else {
+      setCurrentPageState('home');
       window.history.replaceState({ page: 'home' }, '', '/');
     }
     return () => window.removeEventListener('popstate', handlePopState);
