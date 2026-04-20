@@ -6,14 +6,16 @@
     <title>ProCard Legends - Youth Sports Custom Cards</title>
     <meta name="description" content="Create professional custom sports trading cards from your photos. Youth sports cards, personalized baseball, basketball & football cards with premium printing, magnetic cases, and digital downloads." />
 
-    <link rel="canonical" id="canonical-tag" href="https://procardlegends.com/">
     <script>
       (function () {
+        var link = document.createElement('link');
+        link.rel = 'canonical';
+        link.id = 'canonical-tag';
+        link.href = 'https://procardlegends.com' + location.pathname;
+        document.head.appendChild(link);
         function updateCanonical() {
-          var tag = document.getElementById('canonical-tag');
-          if (tag) tag.href = location.origin + location.pathname;
+          link.href = 'https://procardlegends.com' + location.pathname;
         }
-        updateCanonical();
         var orig = [history.pushState, history.replaceState];
         ['pushState','replaceState'].forEach(function(m,i){
           history[m] = function(){ orig[i].apply(this,arguments); updateCanonical(); };
