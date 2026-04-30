@@ -27,16 +27,13 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNav('home')}>
+        <div className="flex items-center justify-between h-20">
+          <div className="flex items-center cursor-pointer" onClick={() => handleNav('home')}>
             <img
-              src="/appicon.png"
+              src="/pcl-logo.png"
               alt="ProCard Legends"
-              className="w-10 h-10 rounded-lg"
+              className="h-20 w-auto"
             />
-            <span className="text-2xl font-bold tracking-wider text-white font-['Teko']">
-              PROCARD <span className="text-amber-400">LEGENDS</span>
-            </span>
           </div>
 
           {/* Desktop Nav */}

@@ -253,7 +253,7 @@ case 'checkout':
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50">
       <Navbar currentPage={currentPage} setPage={setCurrentPage} />
-      <main className="pt-16">
+      <main className="pt-20">
         {renderPage()}
       </main>
       <footer className="bg-slate-900 border-t border-slate-800 py-8 mt-12">
