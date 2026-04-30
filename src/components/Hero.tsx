@@ -22,50 +22,42 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
     <div className="relative overflow-hidden bg-slate-900 pt-24 pb-12 lg:pt-32 lg:pb-24">
       {/* Background Accents */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 -left-24 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 -left-24 w-72 h-72 bg-amber-700/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center">
         <div className="lg:w-1/2 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-cyan-400 text-sm font-medium mb-6">
-            <Star className="w-3 h-3 fill-cyan-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-amber-400 text-sm font-medium mb-6">
+            <Star className="w-3 h-3 fill-amber-400" />
             <span>Next Gen Sports Design</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-none font-['Teko']">
             TURN SUNDAY GAMES <br />
-            INTO <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">ETERNAL LEGENDS</span>
+            INTO <span className="text-amber-400">ETERNAL LEGENDS</span>
           </h1>
           <p className="mt-4 text-xl text-gray-300 max-w-lg mx-auto lg:mx-0">
             We transform your raw action shots into professional-grade trading cards. Better than retail. Custom made. Built for glory.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap">
-            {/* DIY Card Creator - Temporarily Hidden */}
-            {/* <button
-              onClick={() => setPage('create')}
-              className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold transition-all flex items-center justify-center gap-2"
-            >
-              Create Card (DIY)
-              <ChevronRight className="w-5 h-5" />
-            </button> */}
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start flex-wrap items-center">
             <button
               onClick={() => setPage('custom')}
-              className="gradient-btn px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
+              className="gradient-btn gradient-btn-primary px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
             >
-              Custom Design Service
+              Order Your Custom Card
               <ChevronRight className="w-5 h-5" />
             </button>
             <button
               onClick={() => setPage('gallery')}
-              className="gradient-btn px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
+              className="px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 border border-slate-600 text-gray-300 hover:border-amber-500/50 hover:text-amber-300 transition-colors"
             >
               View Gallery
             </button>
             <button
               onClick={() => setPage('pricing')}
-              className="gradient-btn px-8 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2"
+              className="px-4 py-3 font-medium text-gray-400 hover:text-amber-300 transition-colors underline-offset-4 hover:underline"
             >
-              Pricing
+              See Pricing
             </button>
           </div>
         </div>
@@ -100,7 +92,7 @@ const Hero: React.FC<HeroProps> = ({ setPage, featuredCard }) => {
                         <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
                         <h3 className="text-3xl font-['Teko'] font-bold text-white uppercase italic leading-none drop-shadow-md">{card.player}</h3>
                         <div className="flex justify-between items-end mt-1">
-                            <p className="text-cyan-400 font-bold uppercase tracking-wider drop-shadow-md">{card.team}</p>
+                            <p className="text-amber-400 font-bold uppercase tracking-wider drop-shadow-md">{card.team}</p>
                             <span className="text-xs text-gray-400 border border-gray-600 px-1 rounded bg-black/50">RC</span>
                         </div>
                         </div>

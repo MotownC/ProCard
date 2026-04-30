@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, ArrowLeft, ChevronRight } from 'lucide-react';
 import { uploadToCloudinary } from '../utils/cloudinary';
 import { saveCustomOrderToFirebase, CustomOrder } from '../utils/firebase';
 
@@ -190,7 +190,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-48 border-2 border-dashed border-slate-600 rounded-lg hover:border-cyan-500 transition-colors flex flex-col items-center justify-center gap-3 bg-slate-900/50"
+                className="w-full h-48 border-2 border-dashed border-slate-600 rounded-lg hover:border-amber-500 transition-colors flex flex-col items-center justify-center gap-3 bg-slate-900/50"
               >
                 <Upload className="w-8 h-8 text-gray-400" />
                 <span className="text-gray-400">Click to upload photo</span>
@@ -227,7 +227,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-amber-500 focus:outline-none"
               placeholder="John Doe"
               required
             />
@@ -244,7 +244,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-amber-500 focus:outline-none"
               placeholder="john@example.com"
               required
             />
@@ -261,7 +261,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none"
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-amber-500 focus:outline-none"
               placeholder="(123) 456-7890"
             />
           </div>
@@ -277,7 +277,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
               value={formData.notes}
               onChange={handleInputChange}
               rows={4}
-              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-cyan-500 focus:outline-none resize-none"
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-amber-500 focus:outline-none resize-none"
               placeholder="Any specific requests for your card design? (e.g., preferred colors, style, text to include)"
             />
           </div>
@@ -300,12 +300,12 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
             ) : uploadSuccess ? (
               <>
                 <CheckCircle className="w-5 h-5" />
-                Successfully Submitted!
+                Order Received — Check Your Email!
               </>
             ) : (
               <>
-                <CheckCircle className="w-5 h-5" />
-                Submit Order
+                <ChevronRight className="w-5 h-5" />
+                Request My Custom Card
               </>
             )}
           </button>
@@ -315,7 +315,7 @@ const CustomOrderForm: React.FC<CustomOrderFormProps> = ({ setPage }) => {
           </p>
 
           <p className="text-sm text-gray-400 text-center mt-2">
-            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">support@procardlegends.com</a>
+            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-amber-400 hover:text-amber-300 transition-colors underline">support@procardlegends.com</a>
           </p>
         </form>
       </div>

@@ -99,9 +99,14 @@ const AdminOrders: React.FC = () => {
   };
 
   const copyApprovalLink = (timestamp: number, token: string) => {
-    navigator.clipboard.writeText(getApprovalUrl(token));
-    setCopiedToken(timestamp);
-    setTimeout(() => setCopiedToken(null), 2000);
+    navigator.clipboard.writeText(getApprovalUrl(token))
+      .then(() => {
+        setCopiedToken(timestamp);
+        setTimeout(() => setCopiedToken(null), 2000);
+      })
+      .catch(() => {
+        alert('Copy failed — please copy the link manually.');
+      });
   };
 
   const getStatusBadge = (order: CustomOrder) => {
@@ -193,7 +198,7 @@ const AdminOrders: React.FC = () => {
           onClick={() => setFilter('all')}
           className={`rounded-lg px-4 py-2 transition-colors cursor-pointer ${
             filter === 'all'
-              ? 'bg-slate-800 border-2 border-cyan-500 ring-1 ring-cyan-500/50'
+              ? 'bg-slate-800 border-2 border-amber-500 ring-1 ring-amber-500/50'
               : 'bg-slate-800 border border-slate-700 hover:border-slate-500'
           }`}
         >
@@ -267,7 +272,7 @@ const AdminOrders: React.FC = () => {
           {filteredOrders.map((order) => (
             <div
               key={order.timestamp}
-              className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-cyan-500/50 transition-colors"
+              className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-amber-500/50 transition-colors"
             >
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Photo Preview */}
@@ -281,9 +286,9 @@ const AdminOrders: React.FC = () => {
                     <img
                       src={order.photoUrl}
                       alt="Customer upload"
-                      className="w-full lg:w-48 h-48 object-cover rounded-lg border border-slate-600 group-hover:border-cyan-500 transition-colors"
+                      className="w-full lg:w-48 h-48 object-cover rounded-lg border border-slate-600 group-hover:border-amber-500 transition-colors"
                     />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                       <ExternalLink className="w-8 h-8 text-white" />
                     </div>
                   </a>
@@ -315,10 +320,10 @@ const AdminOrders: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="flex items-center gap-2 text-gray-300">
-                      <Mail className="w-4 h-4 text-cyan-400" />
+                      <Mail className="w-4 h-4 text-amber-400" />
                       <a
                         href={`mailto:${order.email}`}
-                        className="hover:text-cyan-400 transition-colors"
+                        className="hover:text-amber-400 transition-colors"
                       >
                         {order.email}
                       </a>
@@ -326,10 +331,10 @@ const AdminOrders: React.FC = () => {
 
                     {order.phone && (
                       <div className="flex items-center gap-2 text-gray-300">
-                        <Phone className="w-4 h-4 text-cyan-400" />
+                        <Phone className="w-4 h-4 text-amber-400" />
                         <a
                           href={`tel:${order.phone}`}
-                          className="hover:text-cyan-400 transition-colors"
+                          className="hover:text-amber-400 transition-colors"
                         >
                           {order.phone}
                         </a>
@@ -353,7 +358,7 @@ const AdminOrders: React.FC = () => {
                   {order.messages && order.messages.length > 0 && (
                     <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 space-y-3">
                       <h4 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4 text-cyan-400" />
+                        <MessageSquare className="w-4 h-4 text-amber-400" />
                         Conversation ({order.messages.length} messages)
                       </h4>
                       <div className="max-h-48 overflow-y-auto space-y-2">
@@ -363,7 +368,7 @@ const AdminOrders: React.FC = () => {
                             className={`p-3 rounded-lg text-sm ${
                               msg.sender === 'customer'
                                 ? 'bg-amber-500/10 border border-amber-500/30 text-amber-200'
-                                : 'bg-cyan-500/10 border border-cyan-500/30 text-cyan-200'
+                                : 'bg-amber-500/10 border border-amber-500/30 text-amber-200'
                             }`}
                           >
                             <div className="flex justify-between items-center mb-1">
@@ -530,7 +535,7 @@ const AdminOrders: React.FC = () => {
                       <button
                         onClick={() => handleProofUpload(order.timestamp)}
                         disabled={uploadingProof === order.timestamp || !pendingFrontFiles[order.timestamp]}
-                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors"
+                        className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors"
                       >
                         {uploadingProof === order.timestamp ? (
                           <>
@@ -573,7 +578,7 @@ const AdminOrders: React.FC = () => {
       )}
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
           <div className="bg-slate-800 border border-slate-600 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-red-500/20 rounded-lg">

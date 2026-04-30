@@ -36,9 +36,9 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
       'radial-gradient(at 88% 40%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),' +
       ' radial-gradient(at 49% 30%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),' +
       ' radial-gradient(at 14% 26%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),' +
-      ' radial-gradient(at 0% 64%, hsla(263, 93%, 56%, 1) 0px, transparent 85%),' +
-      ' radial-gradient(at 41% 94%, hsla(284, 100%, 84%, 1) 0px, transparent 85%),' +
-      ' radial-gradient(at 100% 99%, hsla(306, 100%, 57%, 1) 0px, transparent 85%)',
+      ' radial-gradient(at 0% 64%, hsla(38, 92%, 45%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 41% 94%, hsla(43, 96%, 65%, 1) 0px, transparent 85%),' +
+      ' radial-gradient(at 100% 99%, hsla(32, 95%, 48%, 1) 0px, transparent 85%)',
     boxShadow: '0px -16px 24px 0px rgba(255, 255, 255, 0.25) inset',
   };
 
@@ -53,7 +53,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
     width: 'calc(100% + 2px)',
     height: 'calc(100% + 2px)',
     backgroundImage:
-      'linear-gradient(0deg, hsla(0, 0%, 100%, 0) -50%, hsla(0, 0%, 40%, 0) 100%)',
+      'linear-gradient(0deg, hsla(38, 92%, 60%, 0) -50%, hsla(38, 60%, 40%, 0) 100%)',
     borderRadius: '1rem',
   };
 
@@ -69,18 +69,18 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
     width: '200%',
     height: '10rem',
     backgroundImage:
-      'linear-gradient(0deg, hsla(0, 0%, 100%, 0) 0%, hsl(277, 95%, 60%) 40%, hsl(277, 95%, 60%) 60%, hsla(0, 0%, 40%, 0) 100%)',
+      'linear-gradient(0deg, hsla(38, 92%, 55%, 0) 0%, hsl(38, 92%, 55%) 40%, hsl(38, 92%, 55%) 60%, hsla(38, 60%, 40%, 0) 100%)',
     animation: 'rotate 8s linear infinite',
   };
 
   return (
     <div
-      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col cursor-pointer w-full"
+      className="relative hover:bg-white/[0.04] transition-all duration-300 group rounded-2xl p-6 flex flex-col w-full"
       style={cardStyle}
     >
       {tier.popular && (
         <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 z-10">
-          <span className="bg-purple-600 text-white text-xs font-semibold px-4 py-1 rounded-full whitespace-nowrap">
+          <span className="bg-amber-500 text-black text-xs font-semibold px-4 py-1 rounded-full whitespace-nowrap">
             MOST POPULAR
           </span>
         </div>
@@ -109,7 +109,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
         <ul className="space-y-3 text-sm text-neutral-300">
           {tier.features.map((feature, idx) => (
             <li key={idx} className="flex items-start gap-3">
-              <div className="flex items-center justify-center w-4 h-4 mt-0.5 bg-violet-500 rounded-full flex-shrink-0">
+              <div className="flex items-center justify-center w-4 h-4 mt-0.5 bg-amber-500 rounded-full flex-shrink-0">
                 <CheckIcon />
               </div>
               {feature}
@@ -129,7 +129,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
       description: 'Perfect for showcasing your best moment',
       features: [
         'Professional card design',
-        'Printed on 15mil double-sided glossy card stock',
+        'Printed on 15mil smooth photo matte card stock',
         'Sturdy, premium feel in hand',
         'One design iteration included'
       ],
@@ -215,19 +215,50 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
           </p>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {pricingTiers.map((tier, index) => (
-            <PricingCard key={index} tier={tier} />
-          ))}
+        {/* Base Cards + Add-Ons */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* Left: Base Cards */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-5">
+              Step 1 — Choose Your Card
+            </p>
+            <div className="flex flex-col gap-5">
+              <PricingCard tier={pricingTiers[0]} />
+              <PricingCard tier={pricingTiers[1]} />
+            </div>
+          </div>
+
+          {/* Right: Add-Ons */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-5">
+              Step 2 — Add-Ons{' '}
+              <span className="text-neutral-500 font-normal normal-case tracking-normal">(optional)</span>
+            </p>
+            <div className="flex flex-col gap-5">
+              <PricingCard tier={pricingTiers[2]} />
+              <PricingCard tier={pricingTiers[3]} />
+            </div>
+          </div>
+        </div>
+
+        {/* Deluxe Bundle — full width */}
+        <div className="mt-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+              Or save with the bundle
+            </span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+          <PricingCard tier={pricingTiers[4]} />
         </div>
 
         {/* Team Discount Banner */}
-        <div className="mt-10 rounded-2xl p-5 border border-violet-500/30 bg-violet-500/10 text-center">
+        <div className="mt-10 rounded-2xl p-5 border border-amber-500/30 bg-amber-500/10 text-center">
           <p className="text-white text-base">
             <span className="font-bold">Ordering for the whole team?</span>{' '}
             We offer big discounts for bulk team orders —{' '}
-            <a href="mailto:support@procardlegends.com" className="text-violet-400 hover:text-violet-300 transition-colors underline">
+            <a href="mailto:support@procardlegends.com" className="text-amber-400 hover:text-amber-300 transition-colors underline">
               contact us for custom pricing
             </a>.
           </p>
@@ -240,7 +271,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-amber-400 rounded-full flex items-center justify-center text-slate-900 font-bold text-xl mx-auto mb-4">
                 1
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Upload Your Photo</h3>
@@ -249,7 +280,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-amber-400 rounded-full flex items-center justify-center text-slate-900 font-bold text-xl mx-auto mb-4">
                 2
               </div>
               <h3 className="text-xl font-bold text-white mb-2">We Design Your Card</h3>
@@ -258,7 +289,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-amber-400 rounded-full flex items-center justify-center text-slate-900 font-bold text-xl mx-auto mb-4">
                 3
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Approve & Order</h3>
@@ -267,7 +298,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+              <div className="w-12 h-12 bg-amber-400 rounded-full flex items-center justify-center text-slate-900 font-bold text-xl mx-auto mb-4">
                 4
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Receive Your Cards</h3>
@@ -282,12 +313,12 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         <div className="mt-16 text-center">
           <button
             onClick={() => setPage('custom')}
-            className="gradient-btn px-8 py-4 text-white font-bold rounded-xl text-lg"
+            className="gradient-btn gradient-btn-primary px-8 py-4 text-white font-bold rounded-xl text-lg"
           >
-            Get Started with Custom Design
+            Order Your Custom Card
           </button>
           <p className="text-neutral-400 mt-4">
-            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-violet-400 hover:text-violet-300 transition-colors underline">support@procardlegends.com</a>
+            Questions? Contact us at <a href="mailto:support@procardlegends.com" className="text-amber-400 hover:text-amber-300 transition-colors underline">support@procardlegends.com</a>
           </p>
         </div>
       </div>

@@ -145,7 +145,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
             <button 
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className={`px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-lg flex items-center gap-2 transition-all shadow-lg shadow-cyan-500/20 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
+              className={`px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg flex items-center gap-2 transition-all shadow-lg shadow-amber-500/20 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
             >
               {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
               {isUploading ? uploadProgress || 'Uploading...' : 'Upload Designs'}
@@ -160,7 +160,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
           {isAdmin && (
             <button 
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-4 text-cyan-400 hover:text-cyan-300 font-medium flex items-center justify-center gap-2 mx-auto"
+                className="mt-4 text-amber-400 hover:text-amber-300 font-medium flex items-center justify-center gap-2 mx-auto"
             >
                 <Plus className="w-4 h-4" /> Add Card
             </button>
@@ -189,7 +189,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
       {/* Expanded Card Modal */}
       {selectedCard && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-opacity duration-300"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md transition-opacity duration-300"
           onClick={closeModal}
         >
           <button 
@@ -214,7 +214,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                             {selectedCard.backImageUrl && !isModalFlipped && (
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); setIsModalFlipped(true); }}
-                                    className="absolute top-4 right-4 z-50 p-3 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full hover:bg-cyan-600 transition-colors shadow-lg"
+                                    className="absolute top-4 right-4 z-50 p-3 bg-slate-900/80 text-amber-400 hover:text-white rounded-full hover:bg-amber-600 transition-colors shadow-lg"
                                     title="Flip Card"
                                 >
                                     <RefreshCw className="w-6 h-6" />
@@ -238,7 +238,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                                     <div className="absolute bottom-0 w-full p-8 bg-slate-900/40 backdrop-blur-md border-t border-white/10">
                                         <div className="flex justify-between items-end mb-2">
                                             <div>
-                                                <p className="text-cyan-400 font-bold tracking-[0.3em] text-lg font-['Teko'] uppercase mb-1 drop-shadow-md">{selectedCard.team}</p>
+                                                <p className="text-amber-400 font-bold tracking-[0.3em] text-lg font-['Teko'] uppercase mb-1 drop-shadow-md">{selectedCard.team}</p>
                                                 <h2 className="text-7xl font-['Teko'] font-bold text-white leading-none italic uppercase drop-shadow-2xl">{selectedCard.player}</h2>
                                             </div>
                                         </div>
@@ -256,7 +256,7 @@ const Gallery: React.FC<GalleryProps> = ({ cards, onAddCards, onUpdateCard, onRe
                         {isModalFlipped && (
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setIsModalFlipped(false); }}
-                                className="absolute top-4 right-4 z-50 p-3 bg-slate-900/80 text-cyan-400 hover:text-white rounded-full hover:bg-cyan-600 transition-colors shadow-lg"
+                                className="absolute top-4 right-4 z-50 p-3 bg-slate-900/80 text-amber-400 hover:text-white rounded-full hover:bg-amber-600 transition-colors shadow-lg"
                                 title="Flip to Front"
                             >
                                 <RefreshCw className="w-6 h-6" />
@@ -304,6 +304,7 @@ const GalleryCard: React.FC<{
   const [isFlipped, setIsFlipped] = useState(false);
   const backInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const isUpload = card.imageType === 'upload';
   const hasBack = !!card.backImageUrl;
@@ -332,7 +333,8 @@ const GalleryCard: React.FC<{
   };
 
   return (
-    <div 
+    <>
+    <div
       className="group relative w-full max-w-[320px] aspect-[2.5/3.5] mx-auto cursor-pointer perspective-1000"
       onClick={isFlipped ? onExpandFlipped : onExpand}
     >
@@ -346,7 +348,7 @@ const GalleryCard: React.FC<{
                 {hasBack && (
                    <button
                      onClick={handleFlip}
-                     className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-amber-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Back"
                    >
                      <RefreshCw className="w-4 h-4" />
@@ -383,7 +385,7 @@ const GalleryCard: React.FC<{
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      onRemove();
+                      setConfirmDelete(true);
                     }}
                     className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-gray-400 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Remove Card"
@@ -404,7 +406,7 @@ const GalleryCard: React.FC<{
                       e.stopPropagation();
                       onMoveUp();
                     }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-amber-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Move Up"
                   >
                     <ArrowUp className="w-4 h-4" />
@@ -417,7 +419,7 @@ const GalleryCard: React.FC<{
                       e.stopPropagation();
                       onMoveDown();
                     }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-amber-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Move Down"
                   >
                     <ArrowDown className="w-4 h-4" />
@@ -471,7 +473,7 @@ const GalleryCard: React.FC<{
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-3xl font-['Teko'] font-bold text-white leading-none tracking-wide italic uppercase truncate max-w-[150px]">{card.player}</h3>
-                          <p className="text-sm text-gray-400 font-semibold tracking-wider uppercase">{card.team}</p>
+                          <p className="text-sm text-gray-400 font-semibold tracking-wider uppercase truncate max-w-[150px]">{card.team}</p>
                         </div>
                         <div className="flex flex-col items-end">
                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border border-slate-600">
@@ -496,7 +498,7 @@ const GalleryCard: React.FC<{
                  
                  <button
                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFlip(e); }}
-                     className="absolute top-2 right-2 z-30 min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     className="absolute top-2 right-2 z-30 min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-amber-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Front"
                    >
                      <RefreshCw className="w-4 h-4" />
@@ -511,7 +513,7 @@ const GalleryCard: React.FC<{
                  
                  <button
                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFlip(e); }}
-                     className="absolute top-2 right-2 z-30 min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-cyan-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     className="absolute top-2 right-2 z-30 min-w-[44px] min-h-[44px] flex items-center justify-center bg-slate-900/80 text-amber-400 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                      title="Flip to Front"
                    >
                      <RefreshCw className="w-4 h-4" />
@@ -544,6 +546,37 @@ const GalleryCard: React.FC<{
       </div>
       <div className={`absolute -inset-0.5 bg-gradient-to-r ${card.gradient} rounded-2xl blur opacity-0 group-hover:opacity-40 transition duration-500 -z-10`}></div>
     </div>
+
+    {confirmDelete && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
+        <div className="bg-slate-800 border border-slate-600 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-red-500/20 rounded-lg">
+              <Trash2 className="w-6 h-6 text-red-400" />
+            </div>
+            <h3 className="text-lg font-bold text-white">Remove Card</h3>
+          </div>
+          <p className="text-gray-300 mb-6">
+            Remove <span className="text-white font-semibold">{card.player}</span> from the gallery? This cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); setConfirmDelete(false); }}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); setConfirmDelete(false); onRemove(); }}
+              className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

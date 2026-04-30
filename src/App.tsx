@@ -23,7 +23,7 @@ const DEFAULT_CARDS: ShowcaseCard[] = [
     team: "TIGERS | QB", 
     imageType: "action", 
     rarity: CardRarity.HOLOGRAPHIC, 
-    gradient: "from-cyan-400 to-purple-600" 
+    gradient: "from-amber-400 to-amber-600"
   },
   { id: 1, player: "LEO STRIDE", team: "WILDCATS", imageType: "action", rarity: CardRarity.HOLOGRAPHIC, gradient: "from-purple-600 to-blue-600" },
   { id: 2, player: "MIA HAMMER", team: "COMETS", imageType: "portrait", rarity: CardRarity.CHROME, gradient: "from-orange-500 to-red-600" },
@@ -167,26 +167,26 @@ const App: React.FC = () => {
                   onClick={() => setAdminTab('gallery')}
                   className={`px-6 py-3 font-semibold transition-colors relative ${
                     adminTab === 'gallery'
-                      ? 'text-cyan-400'
+                      ? 'text-amber-400'
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
                   Gallery Management
                   {adminTab === 'gallery' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400"></div>
                   )}
                 </button>
                 <button
                   onClick={() => setAdminTab('orders')}
                   className={`px-6 py-3 font-semibold transition-colors relative ${
                     adminTab === 'orders'
-                      ? 'text-cyan-400'
+                      ? 'text-amber-400'
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
                   Custom Orders
                   {adminTab === 'orders' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400"></div>
                   )}
                 </button>
               </div>
@@ -245,7 +245,7 @@ case 'checkout':
 
   if (!isLoaded) return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center">
-      <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
       <p className="text-gray-400 font-mono">Syncing with HQ...</p>
     </div>
   );

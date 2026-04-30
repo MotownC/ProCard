@@ -35,7 +35,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
               className="w-10 h-10 rounded-lg"
             />
             <span className="text-2xl font-bold tracking-wider text-white font-['Teko']">
-              PROCARD <span className="text-cyan-400">LEGENDS</span>
+              PROCARD <span className="text-amber-400">LEGENDS</span>
             </span>
           </div>
 
@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
                   onClick={() => setPage(item.id)}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2
                     ${currentPage === item.id
-                      ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50'
+                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50'
                       : 'text-gray-300 hover:bg-slate-800 hover:text-white'
                     }
                     ${item.id === 'admin' ? 'ml-4 opacity-50 hover:opacity-100' : ''}
@@ -63,7 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
 
           {/* Mobile Hamburger Button */}
           <button
-            className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           >
@@ -82,7 +82,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, setPage }) => {
                 onClick={() => handleNav(item.id)}
                 className={`w-full px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3 transition-colors
                   ${currentPage === item.id
-                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50'
+                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50'
                     : 'text-gray-300 hover:bg-slate-800 hover:text-white'
                   }
                   ${item.id === 'admin' ? 'opacity-50' : ''}

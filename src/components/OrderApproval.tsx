@@ -590,7 +590,7 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
       {/* Fullscreen Image Modal */}
       {fullscreenImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 select-none"
+          className="fixed inset-0 z-50 bg-slate-900/90 flex items-center justify-center p-4 select-none"
           onClick={() => setFullscreenImage(null)}
           onContextMenu={(e) => e.preventDefault()}
         >

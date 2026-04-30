@@ -2039,9 +2039,9 @@ const captureFace = async (faceSelector: string, faceName: string) => {
               Preparing your card for export...
             </p>
             <div className="flex gap-2 mt-4">
-              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></div>
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '600ms' }}></div>
             </div>
           </div>
         </div>
