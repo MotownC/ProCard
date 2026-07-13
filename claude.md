@@ -31,8 +31,12 @@ ProCard is a card creation tool that allows users to:
 
 ```
 api/
+├── _lib/
+│   └── firebaseAdmin.ts      # Shared Firebase Admin SDK helpers (not routed)
 ├── create-payment-intent.ts  # Vercel serverless: Stripe PaymentIntent creation
-└── send-proof-email.ts       # Vercel serverless: Resend proof notification email
+├── confirm-payment.ts        # Vercel serverless: verify Stripe payment, mark order paid
+├── request-revision.ts       # Vercel serverless: customer revision feedback
+└── send-proof-email.ts       # Vercel serverless: Resend proof email (admin only)
 src/
 ├── components/
 │   ├── OrderForm.tsx        # Main card creation interface
@@ -121,10 +125,16 @@ customOrders/
 }
 ```
 
-**Security Rules:**
-- Public read access for gallery viewing
-- Write validation ensures proper data structure
-- Located in `database.rules.json`
+**Security Rules** (`database.rules.json`):
+- `/admins/{uid}: true` is the admin whitelist — managed only via Firebase console, never client-writable
+- `cards`: public read; writes require an authenticated whitelisted admin
+- `customOrders`: full read/write for whitelisted admins; anonymous users may only (a) **create** a `pending` order without proof/payment/token fields, and (b) read a single order via an exact `orderByChild('approvalToken').equalTo(token)` query (tokens are UUIDs, so enumeration is infeasible)
+- All other reads/writes are denied; customer mutations go through serverless endpoints using the Admin SDK
+
+**Admin Authentication:**
+- Firebase Auth Email/Password provider must be enabled; create the admin user in the console and add its UID under `/admins/{uid}: true`
+- The `/admin` route renders `AdminLogin.tsx` until signed in (`src/utils/auth.ts`)
+- Serverless endpoints that require admin (e.g. `send-proof-email`) verify the Firebase ID token sent as `Authorization: Bearer <token>` and check the `/admins` whitelist
 
 **Operations:**
 - `subscribeToCards()` - Real-time listener for gallery updates
@@ -136,9 +146,9 @@ customOrders/
 - `subscribeToCustomOrders()` - Real-time listener for admin order panel
 - `updateOrderProof()` - Admin uploads front (+ optional back) proof image + generates approval token
 - `getOrderByToken()` - Look up order by approval token (for customer approval page)
-- `updateOrderPayment()` - Update order with Stripe payment details (status: paid)
 - `updateOrderComplete()` - Mark order as shipped/complete (status: complete)
 - `deleteCustomOrder()` - Remove custom orders
+- Customer-side mutations (revision requests, payment confirmation) are NOT client Firebase writes — they go through `/api/request-revision` and `/api/confirm-payment` (Admin SDK)
 
 ## Environment Variables
 
@@ -156,9 +166,10 @@ VITE_CLOUDINARY_UPLOAD_PRESET=
 VITE_STRIPE_PUBLISHABLE_KEY=    # pk_test_... or pk_live_...
 STRIPE_SECRET_KEY=               # sk_test_... or sk_live_... (server-side only, no VITE_ prefix)
 RESEND_API_KEY=                  # Resend API key (server-side only, no VITE_ prefix)
+FIREBASE_SERVICE_ACCOUNT=        # Firebase service account JSON, single line (server-side only)
 ```
 
-**Note:** `STRIPE_SECRET_KEY` and `RESEND_API_KEY` intentionally lack the `VITE_` prefix so Vite does NOT bundle them into client-side code. They are only accessible in Vercel serverless functions via `process.env`.
+**Note:** `STRIPE_SECRET_KEY`, `RESEND_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT` intentionally lack the `VITE_` prefix so Vite does NOT bundle them into client-side code. They are only accessible in Vercel serverless functions via `process.env`. Generate the service account key in Firebase console → Project settings → Service accounts.
 
 ## Development Workflow
 
@@ -264,7 +275,9 @@ Access admin mode via navbar for:
 4. Proof notification email auto-sent to customer via Resend (with front & back preview + approval link)
 5. Customer opens link → sees front/back proof side-by-side → selects products + quantities
 6. Customer pays via Stripe Elements (embedded payment form)
-7. On success: Firebase order updated to "paid" with paymentIntentId
+7. On success: client calls /api/confirm-payment, which verifies the PaymentIntent
+   with Stripe (status succeeded + metadata approvalToken matches the order)
+   before marking the order "paid" via the Admin SDK
 8. Admin marks order as shipped → status updated to "complete"
 ```
 
@@ -279,8 +292,11 @@ Defined in `src/config/pricing.ts`. Five tiers:
 Prices are validated server-side in `api/create-payment-intent.ts` — client sends option IDs and quantities, server calculates the total.
 
 ### Serverless API
-- `POST /api/create-payment-intent` — Receives `{ items: [{id, quantity}], customerEmail }`, validates against server-side pricing, creates Stripe PaymentIntent, returns `{ clientSecret, amount }`
-- `POST /api/send-proof-email` — Receives `{ customerEmail, customerName, approvalUrl, proofImageUrl, proofBackImageUrl?, isRevision }`, sends styled HTML email via Resend (front & back side-by-side if both provided), returns `{ success, emailId }`
+- `POST /api/create-payment-intent` — Receives `{ items: [{id, quantity}], customerEmail, token }`, validates against server-side pricing (quantities capped at 100), stamps the approval token into PaymentIntent metadata, returns `{ clientSecret, amount }`
+- `POST /api/confirm-payment` — Receives `{ token, paymentIntentId, quantities }`, verifies the PaymentIntent succeeded and its `metadata.approvalToken` matches, then marks the order paid (Admin SDK)
+- `POST /api/request-revision` — Receives `{ token, feedback }` (≤2000 chars), appends a customer message and sets status `revision_requested` (Admin SDK)
+- `POST /api/send-proof-email` — **Admin only** (requires `Authorization: Bearer <Firebase ID token>` from a whitelisted admin). Receives `{ customerEmail, customerName, approvalUrl, proofImageUrl, proofBackImageUrl?, isRevision }`, sends styled HTML email via Resend with all interpolated values HTML-escaped, returns `{ success, emailId }`
+- Shared Admin SDK helpers live in `api/_lib/firebaseAdmin.ts` (underscore dir = not routed)
 - Vercel auto-routes `/api/*` as serverless functions before the SPA rewrite
 - **Important:** `vercel.json` rewrite uses `/((?!api/).*)` to avoid intercepting API routes
 
