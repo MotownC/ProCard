@@ -4,7 +4,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '../lib/stripe';
 import PaymentForm from './PaymentForm';
 import { PRICING_OPTIONS, formatPrice, calculateTotal } from '../config/pricing';
-import { getOrderByToken, updateOrderPayment, requestRevision, CustomOrder, OrderMessage } from '../utils/firebase';
+import { getOrderByToken, CustomOrder, OrderMessage } from '../utils/firebase';
 
 interface OrderApprovalProps {
   token: string;
@@ -88,6 +88,7 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
         body: JSON.stringify({
           items: getSelectedItems(),
           customerEmail: order.email,
+          token,
         }),
       });
 
@@ -111,12 +112,15 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
     if (!order) return;
 
     try {
-      await updateOrderPayment(order.timestamp, {
-        paymentIntentId,
-        selectedOptions: Object.keys(quantities),
-        quantities,
-        totalPaidCents: totalAmount,
+      const resp = await fetch('/api/confirm-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, paymentIntentId, quantities }),
       });
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to record payment');
+      }
 
       // Send email notification
       try {
@@ -150,7 +154,15 @@ const OrderApproval: React.FC<OrderApprovalProps> = ({ token }) => {
     if (!order || !feedbackText.trim()) return;
     setSubmittingFeedback(true);
     try {
-      await requestRevision(order.timestamp, feedbackText.trim());
+      const resp = await fetch('/api/request-revision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, feedback: feedbackText.trim() }),
+      });
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to submit feedback');
+      }
       setRevisionSubmitted(true);
       setFeedbackText('');
       const updated = await getOrderByToken(token);

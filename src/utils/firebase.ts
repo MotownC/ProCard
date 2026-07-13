@@ -135,17 +135,6 @@ export const subscribeToCustomOrders = (callback: (orders: CustomOrder[]) => voi
   });
 };
 
-export const updateCustomOrderStatus = async (timestamp: number, status: string) => {
-  try {
-    const orderRef = ref(db, 'customOrders/' + timestamp);
-    await set(orderRef, { status } as any);
-    console.log("✅ Updated order status:", timestamp, status);
-  } catch (error: any) {
-    console.error("🔥 Status Update Error:", error);
-    throw new Error(`Failed to update status: ${error.message}`);
-  }
-};
-
 export const deleteCustomOrder = async (timestamp: number) => {
   try {
     const orderRef = ref(db, 'customOrders/' + timestamp);
@@ -242,34 +231,6 @@ export const updateOrderProofRevision = async (timestamp: number, newProofImageU
   }
 };
 
-// Customer requests a revision with feedback
-export const requestRevision = async (timestamp: number, feedback: string) => {
-  try {
-    const orderRef = ref(db, 'customOrders/' + timestamp);
-    const snapshot = await get(orderRef);
-    if (!snapshot.exists()) throw new Error('Order not found');
-    const existing = snapshot.val();
-
-    const messages: OrderMessage[] = existing.messages || [];
-    messages.push({
-      id: crypto.randomUUID(),
-      sender: 'customer',
-      text: feedback,
-      timestamp: Date.now(),
-    });
-
-    await set(orderRef, {
-      ...existing,
-      status: 'revision_requested',
-      messages,
-    });
-    console.log("✅ Revision requested:", timestamp);
-  } catch (error: any) {
-    console.error("🔥 Revision Request Error:", error);
-    throw new Error(`Failed to request revision: ${error.message}`);
-  }
-};
-
 // Look up an order by its approval token
 export const getOrderByToken = async (token: string): Promise<CustomOrder | null> => {
   try {
@@ -298,28 +259,5 @@ export const updateOrderComplete = async (timestamp: number) => {
   } catch (error: any) {
     console.error("🔥 Complete Update Error:", error);
     throw new Error(`Failed to mark complete: ${error.message}`);
-  }
-};
-
-// Update order after successful payment
-export const updateOrderPayment = async (
-  timestamp: number,
-  paymentData: {
-    paymentIntentId: string;
-    selectedOptions: string[];
-    quantities: Record<string, number>;
-    totalPaidCents: number;
-  }
-) => {
-  try {
-    const orderRef = ref(db, 'customOrders/' + timestamp);
-    const snapshot = await get(orderRef);
-    if (!snapshot.exists()) throw new Error('Order not found');
-    const existing = snapshot.val();
-    await set(orderRef, { ...existing, ...paymentData, status: 'paid' });
-    console.log("✅ Updated order payment:", timestamp);
-  } catch (error: any) {
-    console.error("🔥 Payment Update Error:", error);
-    throw new Error(`Failed to update payment: ${error.message}`);
   }
 };

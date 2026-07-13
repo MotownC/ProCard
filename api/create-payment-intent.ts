@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { items, customerEmail } = req.body;
+    const { items, customerEmail, token } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'No items selected' });
@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (price === undefined) {
         return res.status(400).json({ error: `Invalid option: ${item.id}` });
       }
-      const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
+      const quantity = Math.min(100, Math.max(1, Math.floor(Number(item.quantity) || 1)));
       totalCents += price * quantity;
     }
 
@@ -50,6 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       receipt_email: customerEmail,
       metadata: {
         items: JSON.stringify(items),
+        ...(typeof token === 'string' && token ? { approvalToken: token } : {}),
       },
     });
 
