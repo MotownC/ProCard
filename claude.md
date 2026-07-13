@@ -297,6 +297,8 @@ Prices are validated server-side in `api/create-payment-intent.ts` — client se
 - `POST /api/request-revision` — Receives `{ token, feedback }` (≤2000 chars), appends a customer message and sets status `revision_requested` (Admin SDK)
 - `POST /api/send-proof-email` — **Admin only** (requires `Authorization: Bearer <Firebase ID token>` from a whitelisted admin). Receives `{ customerEmail, customerName, approvalUrl, proofImageUrl, proofBackImageUrl?, isRevision }`, sends styled HTML email via Resend with all interpolated values HTML-escaped, returns `{ success, emailId }`
 - Shared Admin SDK helpers live in `api/_lib/firebaseAdmin.ts` (underscore dir = not routed)
+- **Pinned:** `firebase-admin` must stay on v13 — v14 pulls `jwks-rsa@4` → `jose@6` (ESM-only), which crashes Vercel functions at cold start with `ERR_REQUIRE_ESM`. Also do NOT add `@vercel/node` as a package dependency (Vercel supplies it at build; the api files' type-only imports work without it installed).
+- **Vercel env gotcha:** env values are baked into each deployment at build time — a deleted project env var only breaks the NEXT deploy. If all functions suddenly return `FUNCTION_INVOCATION_FAILED`, check Settings → Environment Variables first (this happened with a deleted `STRIPE_SECRET_KEY`).
 - Vercel auto-routes `/api/*` as serverless functions before the SPA rewrite
 - **Important:** `vercel.json` rewrite uses `/((?!api/).*)` to avoid intercepting API routes
 
