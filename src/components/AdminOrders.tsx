@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Mail, Phone, FileText, Trash2, ExternalLink, CheckCircle, Upload, Copy, DollarSign, Image, PackageCheck, MessageSquare, AlertTriangle } from 'lucide-react';
 import { subscribeToCustomOrders, deleteCustomOrder, updateOrderProof, updateOrderProofRevision, updateOrderComplete, CustomOrder, OrderMessage } from '../utils/firebase';
 import { uploadToCloudinary } from '../utils/cloudinary';
+import { getAdminIdToken } from '../utils/auth';
 import { formatPrice } from '../config/pricing';
 
 const AdminOrders: React.FC = () => {
@@ -69,9 +70,13 @@ const AdminOrders: React.FC = () => {
       if (order?.email && token) {
         const approvalUrl = `${window.location.origin}/approve?token=${token}`;
         try {
+          const idToken = await getAdminIdToken();
           const resp = await fetch('/api/send-proof-email', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${idToken}`,
+            },
             body: JSON.stringify({
               customerEmail: order.email,
               customerName: order.name,
