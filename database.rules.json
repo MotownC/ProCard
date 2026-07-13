@@ -2,18 +2,22 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid"
+      }
+    },
     "cards": {
       ".read": true,
       "$cardId": {
-        ".read": true,
-        ".write": "!newData.exists() || (newData.hasChildren(['id', 'player', 'team', 'imageType', 'rarity', 'gradient']) && newData.child('id').isNumber() && newData.child('player').isString() && newData.child('team').isString() && newData.child('imageType').isString() && newData.child('rarity').isString() && newData.child('gradient').isString() && (!newData.hasChild('order') || newData.child('order').isNumber()))"
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists() && (!newData.exists() || (newData.hasChildren(['id', 'player', 'team', 'imageType', 'rarity', 'gradient']) && newData.child('id').isNumber() && newData.child('player').isString() && newData.child('team').isString() && newData.child('imageType').isString() && newData.child('rarity').isString() && newData.child('gradient').isString() && (!newData.hasChild('order') || newData.child('order').isNumber())))"
       }
     },
     "customOrders": {
-      ".read": true,
+      ".read": "(auth != null && root.child('admins').child(auth.uid).exists()) || (query.orderByChild == 'approvalToken' && query.equalTo != null)",
       ".indexOn": ["approvalToken"],
       "$orderId": {
-        ".write": "!newData.exists() || (newData.hasChildren(['name', 'email', 'photoUrl', 'timestamp']) && newData.child('name').isString() && newData.child('email').isString() && newData.child('photoUrl').isString() && newData.child('timestamp').isNumber())"
+        ".write": "(auth != null && root.child('admins').child(auth.uid).exists()) || (!data.exists() && newData.hasChildren(['name', 'email', 'photoUrl', 'timestamp']) && newData.child('name').isString() && newData.child('email').isString() && newData.child('photoUrl').isString() && newData.child('timestamp').isNumber() && newData.child('status').val() == 'pending' && !newData.hasChild('approvalToken') && !newData.hasChild('proofImageUrl') && !newData.hasChild('paymentIntentId') && !newData.hasChild('totalPaidCents'))"
       }
     }
   }
