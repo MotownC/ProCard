@@ -5,11 +5,14 @@ import Gallery from './components/Gallery';
 import OrderForm from './components/OrderForm';
 import CustomOrderForm from './components/CustomOrderForm';
 import AdminOrders from './components/AdminOrders';
+import AdminLogin from './components/AdminLogin';
 import Checkout from './components/Checkout';
 import Pricing from './components/Pricing';
 import OrderApproval from './components/OrderApproval';
 import { CardRarity, ShowcaseCard } from './types';
 import { subscribeToCards, saveCardToFirebase, deleteCardFromFirebase } from './utils/firebase';
+import { subscribeToAuth, signOutAdmin } from './utils/auth';
+import type { User } from 'firebase/auth';
 
 const getRandomCard = (cards: ShowcaseCard[]): ShowcaseCard | undefined => {
   if (cards.length === 0) return undefined;
@@ -38,6 +41,17 @@ const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [adminTab, setAdminTab] = useState<'gallery' | 'orders'>('gallery');
   const [approvalToken, setApprovalToken] = useState<string>('');
+  const [adminUser, setAdminUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  // Track admin auth state
+  useEffect(() => {
+    const unsubscribe = subscribeToAuth((user) => {
+      setAdminUser(user);
+      setAuthReady(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Navigation with browser history support
   const setCurrentPage = (page: string) => {
@@ -151,12 +165,28 @@ const App: React.FC = () => {
           />
         );
       case 'admin':
+        if (!authReady) {
+          return (
+            <div className="min-h-screen bg-slate-800/50 flex items-center justify-center">
+              <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          );
+        }
+        if (!adminUser) {
+          return <AdminLogin />;
+        }
         return (
           <div className="bg-slate-800/50 min-h-screen pb-20">
             <div className="bg-red-900/20 border-b border-red-500/30 py-4">
               <div className="max-w-7xl mx-auto px-4 text-red-200 font-mono text-sm flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                 ADMIN MODE ACTIVE: Connected to Cloud Database.
+                <button
+                  onClick={() => signOutAdmin()}
+                  className="ml-auto text-red-300 hover:text-white text-xs uppercase tracking-wide"
+                >
+                  Sign Out
+                </button>
               </div>
             </div>
 

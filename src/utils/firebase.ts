@@ -21,7 +21,7 @@ if (!firebaseConfig.apiKey) {
   console.error("Firebase Config Missing! Check Vercel Environment Variables.");
 }
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // Debug connection state
