@@ -143,7 +143,63 @@
         .card-shine { animation: none; }
         .gradient-btn { transition: none; }
         .gradient-btn::before { transition: none; }
+        .stadium-sweep { animation: none; }
         * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      }
+
+      /* Stadium background for the visitor gallery carousel: sweeping floodlights
+         over an illustrated crowd silhouette, so cards feel like they're "on the field". */
+      .stadium-section {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(180deg, #0b1220 0%, #05070d 70%);
+      }
+      .stadium-haze {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 100%, rgba(245, 158, 11, 0.12), transparent 60%);
+        pointer-events: none;
+      }
+      .stadium-sweep {
+        position: absolute;
+        top: -30%;
+        left: 50%;
+        width: 18%;
+        min-width: 140px;
+        height: 200%;
+        opacity: 0.14;
+        background: linear-gradient(180deg, #93c5fd, transparent 65%);
+        transform-origin: top center;
+        animation: stadium-sweep 9s ease-in-out infinite;
+        pointer-events: none;
+      }
+      .stadium-sweep-2 {
+        animation-delay: -4.5s;
+        opacity: 0.1;
+        background: linear-gradient(180deg, #fbbf24, transparent 65%);
+      }
+      @keyframes stadium-sweep {
+        0%, 100% { transform: translateX(-220%) rotate(-20deg); }
+        50% { transform: translateX(140%) rotate(14deg); }
+      }
+      /* Coverflow center card grows to feel more prominent. This lives on a child of
+         .swiper-slide rather than the slide itself, because Swiper drives the slide's own
+         transform via inline style and would override a scale set on that same element.
+         (The reduced-motion block above already zeroes this transition's duration.) */
+      .coverflow-card {
+        transition: transform 0.4s ease;
+      }
+      .swiper-slide-active .coverflow-card {
+        transform: scale(1.15);
+      }
+      .stadium-crowd {
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 14%;
+        min-height: 28px;
+        background: #05070d;
+        clip-path: polygon(0% 40%,4% 55%,8% 35%,12% 60%,16% 30%,20% 58%,24% 42%,28% 62%,32% 38%,36% 55%,40% 30%,44% 60%,48% 42%,52% 58%,56% 34%,60% 62%,64% 40%,68% 56%,72% 32%,76% 60%,80% 44%,84% 58%,88% 36%,92% 60%,96% 40%,100% 55%,100% 100%,0% 100%);
+        pointer-events: none;
       }
 
       /* Carbon fibre texture (self-hosted, replaces transparenttextures.com) */

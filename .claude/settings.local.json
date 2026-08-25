@@ -6,7 +6,16 @@
       "Bash(git push)",
       "Bash(git commit:*)",
       "Bash(npm install:*)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "PowerShell(npm audit --json 2>$null)",
+      "PowerShell(npm audit 2>$null)",
+      "PowerShell(npx tsc --noEmit --esModuleInterop --skipLibCheck --module nodenext --moduleResolution nodenext api/_lib/firebaseAdmin.ts 2>&1 | Select-Object -First 10; \"exit=$LASTEXITCODE\")",
+      "PowerShell(npm audit --json 2>$null | ConvertFrom-Json | Select-Object -ExpandProperty metadata | Select-Object -ExpandProperty vulnerabilities | ConvertTo-Json; npx tsc --noEmit --esModuleInterop --skipLibCheck --module nodenext --moduleResolution nodenext api/_lib/firebaseAdmin.ts 2>&1 | Select-Object -First 5; \"tsc exit=$LASTEXITCODE\")",
+      "PowerShell(npm audit fix 2>&1)",
+      "PowerShell(npm run build 2>&1 | Select-Object -Last 6; \"exit=$LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit --esModuleInterop --skipLibCheck --module esnext --moduleResolution bundler api/send-proof-email.ts api/create-payment-intent.ts 2>&1 | Select-Object -First 5; \"tsc=$LASTEXITCODE\")",
+      "Read(//c/Users/motow/.claude/skills/superpowers/skills/brainstorming/**)",
+      "Bash(bash scripts/start-server.sh --project-dir \"/c/Users/motow/ProCard\")"
     ]
   }
 }
