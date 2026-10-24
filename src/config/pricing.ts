@@ -10,8 +10,8 @@ export const PRICING_OPTIONS: PricingOption[] = [
   { id: 'single-sided', name: 'Single Sided Card', priceInCents: 1000, type: 'base', description: 'Professional single sided card' },
   { id: 'double-sided', name: 'Double Sided Card', priceInCents: 1500, type: 'base', description: 'Front and back design' },
   { id: 'magnetic-case', name: 'Magnetic Case', priceInCents: 500, type: 'addon', description: 'Protective magnetic display case' },
-  { id: 'digital-download', name: 'Digital Download', priceInCents: 1000, type: 'addon', description: 'High-res 300 DPI digital file' },
-  { id: 'deluxe-package', name: 'Deluxe Package', priceInCents: 2500, type: 'bundle', description: 'Double sided + case + digital download' },
+  { id: 'digital-download', name: 'Digital Download', priceInCents: 500, type: 'addon', description: 'High-res 300 DPI digital file' },
+  { id: 'deluxe-package', name: 'Deluxe Package', priceInCents: 1999, type: 'bundle', description: 'Double sided + case + digital download' },
 ];
 
 export const getPricingOption = (id: string): PricingOption | undefined => {

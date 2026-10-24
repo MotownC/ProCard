@@ -8,8 +8,8 @@ const PRICING: Record<string, number> = {
   'single-sided': 1000,
   'double-sided': 1500,
   'magnetic-case': 500,
-  'digital-download': 1000,
-  'deluxe-package': 2500,
+  'digital-download': 500,
+  'deluxe-package': 1999,
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

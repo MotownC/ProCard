@@ -163,7 +163,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
     },
     {
       name: 'Digital Download',
-      price: '+$10',
+      price: '+$5',
       description: 'High-resolution digital file',
       features: [
         'High-res digital file (300 DPI)',
@@ -176,17 +176,17 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
     },
     {
       name: 'Deluxe Package',
-      price: '$25',
+      price: '$19.99',
       description: 'The ultimate card experience',
       features: [
         'Custom double-sided card ($15 value)',
         'Printed on 15mil double-sided glossy card stock',
         'Silver mylar collector packaging',
         'Magnetic protective case ($5 value)',
-        'High-res digital download ($10 value)',
+        'High-res digital download ($5 value)',
         'Three design iterations included',
         'Priority 24-hour turnaround',
-        'Save $5 with this bundle!'
+        'Save over $5 with this bundle!'
       ],
       popular: true
     }
@@ -257,7 +257,7 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
         <div className="mt-10 rounded-2xl p-5 border border-amber-500/30 bg-amber-500/10 text-center">
           <p className="text-white text-base">
             <span className="font-bold">Ordering for the whole team?</span>{' '}
-            We offer big discounts for bulk team orders —{' '}
+            We offer up to 50% off for bulk team orders —{' '}
             <a href="mailto:support@procardlegends.com" className="text-amber-400 hover:text-amber-300 transition-colors underline">
               contact us for custom pricing
             </a>.

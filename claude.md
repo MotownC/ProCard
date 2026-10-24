@@ -286,8 +286,8 @@ Defined in `src/config/pricing.ts`. Five tiers:
 - Single Sided Card: $10.00 (base)
 - Double Sided Card: $15.00 (base)
 - Magnetic Case: $5.00 (addon)
-- Digital Download: $10.00 (addon)
-- Deluxe Package: $25.00 (bundle)
+- Digital Download: $5.00 (addon)
+- Deluxe Package: $19.99 (bundle)
 
 Prices are validated server-side in `api/create-payment-intent.ts` — client sends option IDs and quantities, server calculates the total.
 
