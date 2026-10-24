@@ -41,6 +41,7 @@ const GalleryCarousel: React.FC<GalleryCarouselProps> = ({ cards, onSelectCenter
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const pausedRef = useRef(false);
   const swiperRef = useRef<SwiperType | null>(null);
+  const centeredRealIndexRef = useRef<number | null>(null);
 
   // Swiper's loop mode needs enough real slides to duplicate cleanly with slidesPerView="auto"
   const loop = cards.length >= 5;
@@ -75,6 +76,7 @@ const GalleryCarousel: React.FC<GalleryCarouselProps> = ({ cards, onSelectCenter
   // duplicate listeners, each restarting the sequence from scratch on every fire.
   const handleCentered = useCallback((swiper: SwiperType) => {
     swiperRef.current = swiper;
+    centeredRealIndexRef.current = swiper.realIndex;
     clearFlipTimers();
     setFlippedCardId(null);
     const card = cards[swiper.realIndex];
@@ -93,6 +95,15 @@ const GalleryCarousel: React.FC<GalleryCarouselProps> = ({ cards, onSelectCenter
       }, FLIP_DURATION_MS + FLIP_HOLD_MS));
     }, FLIP_SETTLE_MS));
   }, [cards, clearFlipTimers, scheduleAdvance]);
+
+  // Listens on plain transitionEnd rather than slideChangeTransitionEnd: when a slide image
+  // finishes loading mid-transition, Swiper's image-load handler calls update(), which syncs
+  // previousIndex to activeIndex — so slideChangeTransitionEnd never fires for that slide and
+  // the advance loop stalls. Instead we detect "a new card landed" ourselves.
+  const handleTransitionEnd = useCallback((swiper: SwiperType) => {
+    if (swiper.realIndex === centeredRealIndexRef.current) return;
+    handleCentered(swiper);
+  }, [handleCentered]);
 
   // Swiper's own click-to-slide detection (clickedIndex / slideToClickedSlide) relies on
   // elementFromPoint()/closest() picking the clicked .swiper-slide. Some browser engines
@@ -170,7 +181,7 @@ const GalleryCarousel: React.FC<GalleryCarouselProps> = ({ cards, onSelectCenter
           coverflowEffect={COVERFLOW_EFFECT_CONFIG}
           onClick={handleSwiperClick}
           onSwiper={handleCentered}
-          onSlideChangeTransitionEnd={handleCentered}
+          onTransitionEnd={handleTransitionEnd}
           // Extra vertical padding here (not just on .stadium-section below) so the active
           // card's CSS scale-up has room to grow into: Swiper's own root element clips to
           // the *unscaled* slide height regardless of how big .stadium-section itself is,
