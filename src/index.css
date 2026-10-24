@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Full-bleed sections use 100vw, which includes the vertical scrollbar on desktop and
+   would otherwise cause a few pixels of sideways scrolling. Clipped on #root rather than
+   body, because body overflow propagates to the viewport and stays scrollable. */
+#root {
+  overflow-x: clip;
+}
