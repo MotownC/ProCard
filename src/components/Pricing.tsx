@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 interface PricingProps {
@@ -118,6 +118,43 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => {
         </ul>
       </div>
     </div>
+  );
+};
+
+// Muted looping clip that only loads/plays while on screen; shows the poster still if the
+// visitor prefers reduced motion.
+const PackagingVideo: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [reduceMotion] = useState(
+    () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+  );
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reduceMotion) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [reduceMotion]);
+
+  return (
+    <video
+      ref={videoRef}
+      src={reduceMotion ? undefined : '/promo/packaging.mp4'}
+      poster="/promo/packaging-poster.jpg"
+      muted
+      loop
+      playsInline
+      preload="none"
+      aria-label="A custom card sliding into its magnetic case, then sealed in a silver mylar collector pouch"
+      className="block w-full aspect-[9/16] max-h-[70vh] object-cover rounded-2xl border border-white/10 shadow-2xl shadow-amber-500/10 bg-black"
+    />
   );
 };
 
@@ -250,7 +287,17 @@ const Pricing: React.FC<PricingProps> = ({ setPage }) => {
             </span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
-          <PricingCard tier={pricingTiers[4]} />
+          <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+            <div className="w-full max-w-[320px] mx-auto lg:mx-0 lg:w-[300px] lg:max-w-none flex-shrink-0">
+              <PackagingVideo />
+              <p className="mt-3 text-center text-xs text-neutral-400">
+                Every Deluxe card ships in a magnetic case and sealed mylar collector pouch
+              </p>
+            </div>
+            <div className="flex-1 min-w-0">
+              <PricingCard tier={pricingTiers[4]} />
+            </div>
+          </div>
         </div>
 
         {/* Team Discount Banner */}
